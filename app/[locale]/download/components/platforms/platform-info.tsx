@@ -1,6 +1,5 @@
 'use client'
 
-import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export interface PlatformInfoData {

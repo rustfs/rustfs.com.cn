@@ -1,6 +1,5 @@
 'use client'
 
-import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { useState } from "react";

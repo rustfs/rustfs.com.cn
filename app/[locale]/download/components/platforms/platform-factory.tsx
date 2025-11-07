@@ -1,6 +1,5 @@
 'use client'
 
-import { useTranslations } from "@/lib/i18n";
 import DockerDownloadSection from "./docker-download-section";
 import LinuxDownloadSection from "./linux-download-section";
 import MacOSDownloadSection from "./macos-download-section";

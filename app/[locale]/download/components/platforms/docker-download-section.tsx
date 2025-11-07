@@ -1,6 +1,5 @@
 'use client'
 
-import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { DownloadIcon, ExternalLinkIcon } from "lucide-react";
 import Link from "next/link";

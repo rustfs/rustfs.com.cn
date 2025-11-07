@@ -1,6 +1,5 @@
 'use client'
 
-import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { DownloadIcon } from "lucide-react";
 import CodeBlock from "../code-block";
