@@ -1,7 +1,6 @@
 'use client'
 
 import LanguageToggle from "@/components/ui/language-selector";
-import { useTranslations } from '@/lib/i18n';
 import { docs_url } from "@/lib/utils";
 import { Popover, Transition } from '@headlessui/react';
 import Link from "next/link";
@@ -12,48 +11,38 @@ import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 
 export default function AppHeader() {
-  const { t, locale } = useTranslations('nav');
-
   const navs = [
     {
-      label: t('Features'),
-      url: docs_url('features/distributed/', locale),
+      label: '产品功能',
+      url: docs_url('features/distributed/', 'zh'),
     },
     {
-      label: t('Architecture'),
-      url: docs_url('/concepts/architecture.html', locale),
+      label: '架构',
+      url: docs_url('/concepts/architecture.html', 'zh'),
     },
     {
-      label: t('Solutions'),
-      url: docs_url('features/data-lake/', locale),
-    },
-    // {
-    //   label: t('Integrations'),
-    //   url: `https://docs.rustfs.com/${locale}/intergrations`
-    // },
-    {
-      label: t('AI'),
-      url: docs_url('features/ai', locale)
+      label: '解决方案',
+      url: docs_url('features/data-lake/', 'zh'),
     },
     {
-      label: t('Download'),
-      url: `/${locale}/download`
+      label: 'AI 支持',
+      url: docs_url('features/ai', 'zh')
     },
     {
-      label: t('Documentation'),
-      url: docs_url('', locale)
+      label: '下载',
+      url: `/download`
     },
-    // {
-    //   label: 'Blog',
-    //   url: '/blog'
-    // },
     {
-      label: t('Community'),
+      label: '文档',
+      url: docs_url('', 'zh')
+    },
+    {
+      label: '社区',
       url: 'https://github.com/rustfs/rustfs/discussions'
     },
     {
-      label: t('About'),
-      url: docs_url('about', locale)
+      label: '关于我们',
+      url: docs_url('about', 'zh')
     }
   ]
 
@@ -62,7 +51,7 @@ export default function AppHeader() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <nav className="relative z-50 flex justify-between">
           <div className="flex items-center md:gap-x-12">
-            <Link href={`/${locale}`}>
+            <Link href="/">
               <Logo className="h-5 w-auto" />
             </Link>
             <div className="hidden md:flex md:gap-x-6">
