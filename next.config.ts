@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { SITE_CONFIG } from "./app.config";
 
 const nextConfig: NextConfig = {
   output: 'export',
@@ -24,6 +25,30 @@ const nextConfig: NextConfig = {
         as: '*.js',
       },
     },
+  },
+  async redirects() {
+    return [
+      {
+        source: "/en",
+        destination: SITE_CONFIG.secondaryDomain,
+        permanent: true,
+      },
+      {
+        source: "/en/",
+        destination: SITE_CONFIG.secondaryDomain,
+        permanent: true,
+      },
+      {
+        source: "/zh",
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: "/zh/",
+        destination: '/',
+        permanent: true,
+      },
+    ];
   },
 };
 

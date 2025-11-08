@@ -72,7 +72,8 @@ export default async function RootLayout({
         />
         <link rel="manifest" href="/site.webmanifest" />
         {/* hreflang 配置 */}
-        <link rel="alternate" hrefLang="zh" href={SITE_CONFIG.primaryDomain} />
+        <link rel="alternate" hrefLang="zh-CN" href={SITE_CONFIG.primaryDomain} />
+        <link rel="alternate" hrefLang="en-US" href={SITE_CONFIG.secondaryDomain} />
         <link rel="alternate" hrefLang="x-default" href={SITE_CONFIG.primaryDomain} />
       </head>
       <body
