@@ -6,7 +6,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { ChevronDownIcon, DownloadIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -20,25 +19,23 @@ interface DownloadOption {
 }
 
 export default function DownloadAuto({ className }: { className?: string }) {
-  const { t, locale } = useTranslations('download');
   const [selectedOption, setSelectedOption] = useState<DownloadOptionKey>('fallback');
   const [autoDetectedSystem, setAutoDetectedSystem] = useState<DownloadOptionKey>('fallback');
 
-  // 将 appConfig 移到组件内部，使用当前 locale
   const appConfig = {
     downloads: {
-      windows: `/${locale}/download/windows`,
-      macos: `/${locale}/download/macos`,
-      linux: `/${locale}/download/linux`,
-      docker: `/${locale}/download/docker`,
-      fallback: `/${locale}/download`
+      windows: `/download/windows`,
+      macos: `/download/macos`,
+      linux: `/download/linux`,
+      docker: `/download/docker`,
+      fallback: `/download`
     },
     downloadOptions: [
       { key: 'windows' as const, label: 'Windows', description: 'Windows 10/11' },
       { key: 'macos' as const, label: 'macOS', description: 'macOS 10.15+' },
       { key: 'linux' as const, label: 'Linux', description: 'Ubuntu 18.04+, CentOS 7+' },
       { key: 'docker' as const, label: 'Docker', description: 'Docker 20.10+' },
-      { key: 'fallback' as const, label: 'Other Platforms', description: 'View all versions' }
+      { key: 'fallback' as const, label: '其他平台', description: '查看所有版本' }
     ] as DownloadOption[]
   };
 
@@ -79,27 +76,27 @@ export default function DownloadAuto({ className }: { className?: string }) {
       case 'macos': return 'macOS';
       case 'linux': return 'Linux';
       case 'docker': return 'Docker';
-      case 'fallback': return t('otherPlatforms');
+      case 'fallback': return '其他平台';
       default: return 'Unknown';
     }
   };
 
   const getDescription = (key: DownloadOptionKey) => {
     switch (key) {
-      case 'windows': return t('windowsDescription');
-      case 'macos': return t('macosDescription');
-      case 'linux': return t('linuxDescription');
-      case 'docker': return t('dockerDescription');
-      case 'fallback': return t('viewAllVersions');
+      case 'windows': return 'Windows 10/11 原生二进制支持';
+      case 'macos': return 'macOS 10.15+ 原生二进制支持';
+      case 'linux': return 'Ubuntu 18.04+、CentOS 7+ 和其他 Linux 发行版';
+      case 'docker': return 'Docker 20.10+ 容器化部署';
+      case 'fallback': return '查看所有可用版本';
       default: return '';
     }
   };
 
   const buttonText = selectedOption === autoDetectedSystem
-    ? t('downloadVersion')
+    ? '下载推荐版本'
     : selectedOption === 'fallback'
-      ? t("downloadNow")
-      : t('downloadVersion');
+      ? "立即下载"
+      : '下载推荐版本';
 
   return (
     <div className={cn("relative inline-flex", className)}>
@@ -117,7 +114,7 @@ export default function DownloadAuto({ className }: { className?: string }) {
         <DropdownMenuTrigger asChild>
           <button
             className="inline-flex items-center justify-center rounded-r-full h-12 w-12 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 border-l border-primary-foreground/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-colors"
-            aria-label={t("selectVersion")}
+            aria-label="选择版本"
           >
             <ChevronDownIcon className="h-3 w-3" />
           </button>
@@ -138,7 +135,7 @@ export default function DownloadAuto({ className }: { className?: string }) {
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {getDescription(option.key)}
-                  {option.key === autoDetectedSystem && t("autoDetected")}
+                  {option.key === autoDetectedSystem && ' (自动检测)'}
                 </div>
               </div>
             </DropdownMenuItem>

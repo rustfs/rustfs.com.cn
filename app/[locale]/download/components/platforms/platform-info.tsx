@@ -1,6 +1,5 @@
 'use client'
 
-import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export interface PlatformInfoData {
@@ -23,8 +22,7 @@ interface PlatformInfoProps {
 }
 
 export default function PlatformInfo({ data, isSelected, onClick, className }: PlatformInfoProps) {
-  const { t, locale } = useTranslations('download');
-  const { name, icon, description, available, comingSoon } = data;
+    const { name, icon, description, available, comingSoon } = data;
 
   return (
     <button
@@ -57,8 +55,8 @@ export default function PlatformInfo({ data, isSelected, onClick, className }: P
       </span>
       <span className="text-sm text-muted-foreground mt-1 text-center">
         {available
-          ? description[locale as 'zh' | 'en']
-          : comingSoon ? t('coming_soon') : t('not_supported')
+          ? description['zh' as 'zh' | 'en']
+          : comingSoon ? '即将推出' : '不支持此平台'
         }
       </span>
     </button>

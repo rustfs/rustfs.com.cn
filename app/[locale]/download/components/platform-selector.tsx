@@ -1,6 +1,5 @@
 'use client'
 
-import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import PlatformInfo, { type PlatformInfoData } from "./platforms/platform-info";
 
@@ -17,12 +16,11 @@ export default function PlatformSelector({
   onPlatformChange,
   className
 }: PlatformSelectorProps) {
-  const { t } = useTranslations('download');
-
+  
   return (
     <div className={cn("flex flex-col space-y-4", className)}>
       <h2 className="text-xl font-semibold text-foreground">
-        {t('platform_selector')}
+        {'选择您的操作系统或部署方法'}
       </h2>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

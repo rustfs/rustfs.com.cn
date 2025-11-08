@@ -1,5 +1,4 @@
 import { locales } from '@/lib/constants';
-import { getTranslations } from '@/lib/i18n-server';
 import DownloadPageClient from './components/download-page-client';
 
 export function generateStaticParams() {

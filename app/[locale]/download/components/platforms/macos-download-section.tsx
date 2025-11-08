@@ -1,6 +1,5 @@
 'use client'
 
-import { useTranslations } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { DownloadIcon } from "lucide-react";
 import Link from "next/link";
@@ -15,8 +14,7 @@ interface MacOSDownloadSectionProps {
 }
 
 export default function MacOSDownloadSection({ platform, className }: MacOSDownloadSectionProps) {
-  const { t } = useTranslations('download');
-
+  
   return (
     <div className={cn("space-y-8", className)}>
       {/* Platform Header */}
@@ -24,31 +22,31 @@ export default function MacOSDownloadSection({ platform, className }: MacOSDownl
 
       {/* Homebrew Installation */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground">{t('Homebrew Installation')}</h3>
+        <h3 className="text-lg font-semibold text-foreground">{'Homebrew 安装'}</h3>
 
         <CodeBlock
           code={["brew tap rustfs/homebrew-tap", "brew install rustfs", "rustfs --version"]}
-          title={t('Homebrew Commands')}
+          title={'Homebrew 命令'}
         />
 
         <Note type="info">
           <Link href="https://brew.sh/" target="_blank" className="hover:underline">
-            {t('Homebrew is required for installation')}
+            {'安装需要 Homebrew'}
           </Link>
         </Note>
       </div>
 
       {/* Binary Downloads */}
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-foreground">{t('Binary Downloads')}</h3>
+        <h3 className="text-lg font-semibold text-foreground">{'二进制下载'}</h3>
 
         {/* Apple Silicon Variant */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-medium text-foreground">{t('Apple Silicon')}</h4>
+              <h4 className="font-medium text-foreground">{'Apple Silicon'}</h4>
               <p className="text-sm text-muted-foreground">
-                {t('Architecture')}: aarch64
+                {'架构'}: aarch64
               </p>
             </div>
             <a
@@ -57,7 +55,7 @@ export default function MacOSDownloadSection({ platform, className }: MacOSDownl
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
               <DownloadIcon className="w-4 h-4" />
-              <span>{t('Download')}</span>
+              <span>{'下载'}</span>
             </a>
           </div>
 
@@ -68,15 +66,15 @@ export default function MacOSDownloadSection({ platform, className }: MacOSDownl
               "chmod +x rustfs",
               "./rustfs --version",
             ]}
-            title={t('Installation Commands')}
+            title={'安装命令'}
           />
 
           <div className="space-y-2">
             <Note type="tip">
-              {t('Default credentials: rustfsadmin / rustfsadmin')}
+              {'默认凭据：rustfsadmin / rustfsadmin'}
             </Note>
             <Note type="tip">
-              {t('Apple Silicon optimized for better performance')}
+              {'Apple Silicon 优化，性能更佳'}
             </Note>
           </div>
         </div>
@@ -85,9 +83,9 @@ export default function MacOSDownloadSection({ platform, className }: MacOSDownl
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-medium text-foreground">{t('Intel')}</h4>
+              <h4 className="font-medium text-foreground">{'Intel'}</h4>
               <p className="text-sm text-muted-foreground">
-                {t('Architecture')}: x86_64
+                {'架构'}: x86_64
               </p>
             </div>
             <a
@@ -96,7 +94,7 @@ export default function MacOSDownloadSection({ platform, className }: MacOSDownl
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
               <DownloadIcon className="w-4 h-4" />
-              <span>{t('Download')}</span>
+              <span>{'下载'}</span>
             </a>
           </div>
 
@@ -107,11 +105,11 @@ export default function MacOSDownloadSection({ platform, className }: MacOSDownl
               "chmod +x rustfs",
               "./rustfs --version",
             ]}
-            title={t('Installation Commands')}
+            title={'安装命令'}
           />
 
           <Note type="tip">
-            {t('Default credentials: rustfsadmin / rustfsadmin')}
+            {'默认凭据：rustfsadmin / rustfsadmin'}
           </Note>
         </div>
       </div>

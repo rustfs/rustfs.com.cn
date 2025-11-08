@@ -1,3 +1,6 @@
+import AppFooter from '@/components/business/app-footer';
+import AppHeader from '@/components/business/app-header';
+import FixedContactButton from '@/components/business/buttons/fixed-contact-button';
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -15,11 +18,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'RustFS - High-Performance Distributed Storage System',
-  description: "High-performance distributed storage system built with Rust",
-  keywords: "RustFS, distributed storage, cloud storage, S3 compatible, high performance, open source, MinIO alternative",
+  title: 'RustFS - 高性能分布式存储系统',
+  description: "RustFS 用热门安全的 Rust 语言开发，兼容 S3 协议",
+  keywords: "RustFS, 分布式存储, 云存储, S3兼容, 高性能, 开源, MinIO替代方案",
   authors: [{ name: "RustFS Team" }],
-  metadataBase: new URL('https://rustfs.com'),
+  metadataBase: new URL('https://rustfs.com.cn'),
   robots: {
     index: true,
     follow: true,
@@ -67,15 +70,18 @@ export default async function RootLayout({
         />
         <link rel="manifest" href="/site.webmanifest" />
         {/* hreflang links for international SEO */}
-        <link rel="alternate" hrefLang="zh" href="https://rustfs.com/zh" />
-        <link rel="alternate" hrefLang="en" href="https://rustfs.com/en" />
-        <link rel="alternate" hrefLang="x-default" href="https://rustfs.com/zh" />
+        <link rel="alternate" hrefLang="zh" href="https://rustfs.com.cn" />
+        <link rel="alternate" hrefLang="en" href="https://rustfs.com" />
+        <link rel="alternate" hrefLang="x-default" href="https://rustfs.com.cn" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex h-full flex-col`}
       >
         <ThemeProvider enableSystem attribute="class">
+          <AppHeader />
           {children}
+          <AppFooter />
+          <FixedContactButton />
           <Script
             id="baidu-analytics"
             src="https://hm.baidu.com/hm.js?968e7103a8e28fb30f7d69e42b7c82bc"

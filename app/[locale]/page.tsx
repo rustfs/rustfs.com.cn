@@ -7,7 +7,6 @@ import HomeStats from "@/components/business/home-stats";
 import HomeReviews from "@/components/business/reviews";
 import Subscribe from "@/components/business/subscribe";
 import { locales } from '@/lib/constants';
-import { getTranslations } from '@/lib/i18n-server';
 import type { Metadata } from "next";
 
 export function generateStaticParams() {

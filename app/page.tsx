@@ -1,48 +1,42 @@
-'use client'
+import GetStartedToday from "@/components/business/get-started-today";
+import HomeDifferents from "@/components/business/home-differents";
+import HomeFeatures from "@/components/business/home-features";
+import HomeHero from "@/components/business/home-hero";
+import HomeMultiClouds from "@/components/business/home-multi-clouds";
+import HomeStats from "@/components/business/home-stats";
+import HomeReviews from "@/components/business/reviews";
+import Subscribe from "@/components/business/subscribe";
+import type { Metadata } from "next";
 
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+export const metadata: Metadata = {
+  title: "RustFS | MinIO国产化替代方案",
+  description: "RustFS 用热门安全的 Rust 语言开发，兼容 S3 协议。适用于 AI/ML 及海量数据存储、大数据、互联网、工业和保密存储等全部场景。近乎免费使用。遵循 Apache 2 协议，支持国产保密设备和系统。",
+  keywords: "RustFS, 分布式存储, 云存储, S3兼容, 高性能, 开源, MinIO替代方案",
+  authors: [{ name: "RustFS Team" }],
+  openGraph: {
+    title: "RustFS | MinIO国产化替代方案",
+    description: "RustFS 用热门安全的 Rust 语言开发，兼容 S3 协议。适用于 AI/ML 及海量数据存储、大数据、互联网、工业和保密存储等全部场景。近乎免费使用。遵循 Apache 2 协议，支持国产保密设备和系统。",
+    type: "website",
+    locale: 'zh_CN',
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "RustFS | MinIO国产化替代方案",
+    description: "RustFS 用热门安全的 Rust 语言开发，兼容 S3 协议。适用于 AI/ML 及海量数据存储、大数据、互联网、工业和保密存储等全部场景。近乎免费使用。遵循 Apache 2 协议，支持国产保密设备和系统。",
+  },
+};
 
-export default function RootPage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    // 检测用户的语言偏好
-    const getPreferredLocale = () => {
-      // 首先检查 URL 参数
-      const urlParams = new URLSearchParams(window.location.search);
-      const localeParam = urlParams.get('locale');
-      if (localeParam && ['zh', 'en'].includes(localeParam)) {
-        return localeParam;
-      }
-
-      // 然后检查 localStorage
-      const storedLocale = localStorage.getItem('preferred-locale');
-      if (storedLocale && ['zh', 'en'].includes(storedLocale)) {
-        return storedLocale;
-      }
-
-      // 最后检查浏览器语言偏好
-      const browserLang = navigator.language || navigator.languages?.[0] || '';
-      if (browserLang.startsWith('en')) {
-        return 'en';
-      }
-
-      // 默认返回中文
-      return 'zh';
-    };
-
-    const locale = getPreferredLocale();
-    router.replace(`/${locale}`);
-  }, [router]);
-
-  // 显示加载状态
+export default function HomePage() {
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    </div>
+    <main className="flex-1">
+      <HomeHero />
+      <HomeFeatures />
+      <HomeStats />
+      <HomeDifferents />
+      <HomeMultiClouds />
+      <HomeReviews />
+      <GetStartedToday />
+      <Subscribe />
+    </main>
   );
 }

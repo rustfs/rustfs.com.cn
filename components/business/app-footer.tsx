@@ -1,59 +1,57 @@
 'use client'
 
-import { useTranslations } from '@/lib/i18n';
 import { docs_url } from "@/lib/utils";
 import LinkGitHub from './buttons/link-github';
 import LinkTwitter from './buttons/link-twitter';
 import { Logo } from './logo';
 
 export default function AppFooter() {
-  const { t, locale } = useTranslations('footer');
-
+  
   const footerLinks = [
     {
-      title: t('Architecture Support'),
+      title: '架构支持',
       links: [
-        { title: t('Bare Metal & Virtualization'), href: docs_url('features/baremetal', locale) },
-        { title: t('Alibaba Cloud'), href: docs_url('features/aliyun', locale) },
-        { title: t('Tencent Cloud'), href: docs_url('features/qcloud', locale) },
-        { title: t('Huawei Cloud'), href: docs_url('features/huaweicloud', locale) },
-        { title: t('International Cloud Providers'), href: docs_url('features/aws-elastic', locale) },
+        { title: '裸金属与虚拟化', href: docs_url('features/baremetal', 'zh') },
+        { title: '阿里云', href: docs_url('features/aliyun', 'zh') },
+        { title: '腾讯云', href: docs_url('features/qcloud', 'zh') },
+        { title: '华为云', href: docs_url('features/huaweicloud', 'zh') },
+        { title: '国际云服务商', href: docs_url('features/aws-elastic', 'zh') },
       ]
     },
     {
-      title: t('Product Features'),
+      title: '产品功能',
       links: [
-        { title: t('Distributed Storage'), href: docs_url('features/distributed', locale) },
-        { title: t('Log Management'), href: docs_url('features/logging', locale) },
-        { title: t('Version Control'), href: docs_url('features/versioning', locale) },
-        { title: t('S3 Compatible'), href: docs_url('features/s3-compatibility', locale) },
-        { title: t('Object Level Read-Only'), href: docs_url('features/worm', locale) },
-        { title: t('Cross-Region Replication'), href: docs_url('features/replication', locale) },
-        { title: t('Encryption'), href: docs_url('features/encryption', locale) },
-        { title: t('Lifecycle Management'), href: docs_url('features/lifecycle', locale) },
+        { title: '分布式存储', href: docs_url('features/distributed', 'zh') },
+        { title: '日志管理', href: docs_url('features/logging', 'zh') },
+        { title: '版本控制', href: docs_url('features/versioning', 'zh') },
+        { title: 'S3 兼容', href: docs_url('features/s3-compatibility', 'zh') },
+        { title: '对象级只读', href: docs_url('features/worm', 'zh') },
+        { title: '跨区域复制', href: docs_url('features/replication', 'zh') },
+        { title: '加密', href: docs_url('features/encryption', 'zh') },
+        { title: '生命周期管理', href: docs_url('features/lifecycle', 'zh') },
       ]
     },
     {
-      title: t('Solutions'),
+      title: '解决方案',
       links: [
-        { title: t('Modern Data Lake'), href: docs_url('features/data-lake', locale) },
-        { title: t('AI & Machine Learning'), href: docs_url('features/ai', locale) },
-        { title: t('Cloud Native'), href: docs_url('features/cloud-native', locale) },
-        { title: t('Big Data Compute-Storage Separation'), href: docs_url('features/hdfs', locale) },
-        { title: t('SQL Support'), href: docs_url('features/sql-server', locale) },
-        { title: t('Quantitative Trading'), href: docs_url('features/quantitative-trading', locale) },
-        { title: t('Manufacturing Cost Reduction'), href: docs_url('features/industry', locale) },
-        { title: t('Cold Archive Storage'), href: docs_url('features/cold-archiving', locale) },
-        { title: t('Video Storage Solutions'), href: docs_url('features/video', locale) },
-        { title: t('Domestic Innovation & SM Solutions'), href: docs_url('features/domestic', locale) },
+        { title: '现代数据湖', href: docs_url('features/data-lake', 'zh') },
+        { title: 'AI 和机器学习', href: docs_url('features/ai', 'zh') },
+        { title: '云原生', href: docs_url('features/cloud-native', 'zh') },
+        { title: '大数据计算存储分离', href: docs_url('features/hdfs', 'zh') },
+        { title: 'SQL 支持', href: docs_url('features/sql-server', 'zh') },
+        { title: '量化交易', href: docs_url('features/quantitative-trading', 'zh') },
+        { title: '制造业降本', href: docs_url('features/industry', 'zh') },
+        { title: '冷归档存储', href: docs_url('features/cold-archiving', 'zh') },
+        { title: '视频存储方案', href: docs_url('features/video', 'zh') },
+        { title: '国产信创和 SM 解决方案', href: docs_url('features/domestic', 'zh') },
       ]
     },
     {
-      title: t('About Us'),
+      title: '关于我们',
       links: [
-        { title: t('About Us'), href: docs_url('about', locale) },
-        { title: t('Investment & Cooperation'), href: docs_url('about', locale) },
-        { title: t('Trademark Usage'), href: docs_url('about', locale) },
+        { title: '关于我们', href: docs_url('about', 'zh') },
+        { title: '投资和合作', href: docs_url('about', 'zh') },
+        { title: '商标使用', href: docs_url('about', 'zh') },
       ]
     }
   ];
@@ -93,19 +91,19 @@ export default function AppFooter() {
                     href="mailto:hello@rustfs.com"
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {t('Email: hello@rustfs.com')}
+                    {'邮箱：hello@rustfs.com'}
                   </a>
                   <span className="hidden md:inline-block">|</span>
                   <a
                     href="tel:400-033-5363"
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {t('Phone: 400-033-5363')}
+                    {'电话：400-033-5363'}
                   </a>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span>{t('Beijing Address: Chaoyang District, Beijing')}</span>
-                  {locale === 'zh' && (
+                  <span>{'北京地址：北京市海淀区西小口路 66 号中关村东升科技园北领地 C 区'}</span>
+                  {true && (
                     <>
                       <span className="hidden md:inline-block">|</span>
                       <a
@@ -114,7 +112,7 @@ export default function AppFooter() {
                         rel="noopener noreferrer"
                         className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        {t('Beijing ICP License: XXXXXXXXXXXX')}
+                        {'京 ICP 备 2024061305-1 号'}
                       </a>
                     </>
                   )}

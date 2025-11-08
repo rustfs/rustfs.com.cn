@@ -1,19 +1,16 @@
 'use client'
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { locales } from '@/lib/constants';
-import { useTranslations } from '@/lib/i18n';
 import { ChevronDown, Globe } from 'lucide-react';
 
+const languages = [
+  { code: 'zh', label: '中文', url: 'https://rustfs.com.cn' },
+  { code: 'en', label: 'English', url: 'https://rustfs.com' }
+];
+
 export default function LanguageToggle() {
-  const { locale, setLocale } = useTranslations();
-
-  const handleLanguageChange = (newLocale: string) => {
-    setLocale(newLocale as 'zh' | 'en');
-  };
-
-  const getLanguageLabel = (l: string) => {
-    return l === 'zh' ? '中文' : 'English';
+  const handleLanguageChange = (url: string) => {
+    window.location.href = url;
   };
 
   return (
@@ -21,18 +18,18 @@ export default function LanguageToggle() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="h-8 gap-2">
           <Globe className="h-4 w-4" />
-          <span className="hidden sm:inline">{getLanguageLabel(locale)}</span>
+          <span className="hidden sm:inline">中文</span>
           <ChevronDown className="h-3 w-3" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {locales.map((l) => (
+        {languages.map((lang) => (
           <DropdownMenuItem
-            key={l}
-            onClick={() => handleLanguageChange(l)}
-            className={locale === l ? 'bg-accent' : ''}
+            key={lang.code}
+            onClick={() => handleLanguageChange(lang.url)}
+            className={lang.code === 'zh' ? 'bg-accent' : ''}
           >
-            {getLanguageLabel(l)}
+            {lang.label}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

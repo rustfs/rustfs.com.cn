@@ -1,11 +1,9 @@
 'use client'
 
-import { useTranslations } from '@/lib/i18n';
 import { CheckIcon, XIcon } from "lucide-react";
 
 export default function HomeDifferents() {
-  const { t } = useTranslations('differents');
-
+  
   return (
     <section className="relative pt-20 pb-14 sm:pt-32 sm:pb-20 lg:pb-32 bg-muted"
     // style={{
@@ -19,38 +17,38 @@ export default function HomeDifferents() {
       <div className="mx-auto max-w-[85rem] px-4 sm:px-6 lg:px-8">
         <div className="mx-auto mb-10 max-w-2xl text-center lg:mb-14">
           <h2 className="text-2xl font-bold md:text-4xl md:leading-tight">
-            {t('Comparison with other storage products')}
+            {'与其他存储产品的对比'}
           </h2>
           <p className="mt-4">
-            {t('Choose RustFS for more advantages')}
+            {'选择 RustFS，您将获得更多的优势'}
           </p>
         </div>
 
         <div className="relative flex w-full flex-col gap-6 lg:flex-row xl:mx-auto xl:w-10/12">
           <div className="relative rounded-xl bg-white md:w-1/2 lg:text-right dark:bg-neutral-800">
-            <h3 className="p-4 text-xl font-semibold lg:p-8 lg:text-3xl">{t('Other object storage')}</h3>
+            <h3 className="p-4 text-xl font-semibold lg:p-8 lg:text-3xl">{'其他对象存储'}</h3>
             <div className="text-muted-foreground">
               <div className="flex items-center gap-2 bg-neutral-100 p-4 md:flex-row-reverse lg:px-8 dark:bg-neutral-900">
                 <XIcon className="text-neutral-500" />
-                <span>{t('Memory management issues with Go/C')}</span>
+                <span>{'使用 Go 或者 C 语言开发，内存垃圾回收异常 / 内存泄漏等'}</span>
               </div>
               <div className="flex items-center gap-2 p-4 md:flex-row-reverse lg:px-8 ">
                 <XIcon className="text-neutral-500" />
-                <span>{t('Foreign logging violates security laws')}</span>
+                <span>{'向其他第三国上报日志，违反国家安全法'}</span>
               </div>
               <div className="flex items-center gap-2 bg-neutral-100 p-4 md:flex-row-reverse lg:px-8 dark:bg-neutral-900">
                 <XIcon className="text-neutral-500" />
-                <span>{t('AGPL V3 licensing issues')}</span>
+                <span>{'AGPL V3 等协议、污染开源和协议陷阱，侵犯知识产权'}</span>
               </div>
               <div className="flex items-center gap-2 p-4 md:flex-row-reverse lg:px-8 ">
-                <span>{t('Incomplete S3 support for Chinese clouds')}</span>
+                <span>{'S3 支持和功能完善，不支持中国云厂商'}</span>
               </div>
               <div className="flex items-center gap-2 bg-neutral-100 p-4 md:flex-row-reverse lg:px-8 dark:bg-neutral-900">
                 <XIcon className="text-neutral-500" />
-                <span>{t('Limited domestic device support')}</span>
+                <span>{'不完全支持国产信创设备'}</span>
               </div>
               <div className="flex items-center gap-2 p-4 md:flex-row-reverse lg:px-8 ">
-                <span>{t('Annual price hikes up to millions')}</span>
+                <span>{'每年涨价，价格高达数百万人民币'}</span>
               </div>
             </div>
 
@@ -74,36 +72,36 @@ export default function HomeDifferents() {
           </div>
 
           <div className="relative rounded-xl bg-white text-left md:w-1/2 dark:bg-neutral-800">
-            <h3 className="p-4 text-xl font-semibold lg:p-8 lg:text-3xl">{t('RustFS')}</h3>
+            <h3 className="p-4 text-xl font-semibold lg:p-8 lg:text-3xl">{'RustFS'}</h3>
             <div className="text-muted-foreground">
               <div className="flex items-center gap-2 bg-neutral-100 p-4 lg:px-8 dark:bg-neutral-900">
                 <CheckIcon className="text-green-500" />
-                <span>{t('Memory-safe Rust development')}</span>
+                <span>{'基于 Rust 语言开发，内存更安全'}</span>
               </div>
               <div className="flex items-center gap-2 p-4 lg:px-8 ">
                 <CheckIcon className="text-green-500" />
-                <span>{t('No foreign logging')}</span>
+                <span>{'不向其他第三国上报日志'}</span>
               </div>
               <div className="flex items-center gap-2 bg-neutral-100 p-4 lg:px-8 dark:bg-neutral-900">
                 <CheckIcon className="text-green-500" />
-                <span>{t('Business-friendly Apache license')}</span>
+                <span>{'Apache协议，商用支持更友好'}</span>
               </div>
               <div className="flex items-center gap-2 p-4 lg:px-8 ">
                 <CheckIcon className="text-green-500" />
-                <span>{t('Full S3 support for Chinese clouds')}</span>
+                <span>{'S3 支持和功能完善，支持国内云厂商'}</span>
               </div>
               <div className="flex items-center gap-2 bg-neutral-100 p-4 lg:px-8 dark:bg-neutral-900">
                 <CheckIcon className="text-green-500" />
-                <span>{t('Supports domestic secure systems')}</span>
+                <span>{'支持国产信创设备和保密系统'}</span>
               </div>
               <div className="flex items-center gap-2 p-4 lg:px-8 ">
                 <CheckIcon className="text-green-500" />
-                <span>{t('Stable pricing and support')}</span>
+                <span>{'商用和技术支持和价格稳定'}</span>
               </div>
             </div>
 
             <span className="absolute end-0 top-0 rounded-es-xl rounded-se-xl bg-green-500 px-3 py-1.5 text-xs font-medium text-white">
-              {t('Best choice')}
+              {'最佳选择'}
             </span>
 
             <div className="absolute end-0 top-0 hidden translate-x-16 translate-y-16 md:block">
@@ -138,7 +136,7 @@ export default function HomeDifferents() {
           </div>
         </div>
         <div className="mt-7 text-center">
-          <p className="text-xs text-neutral-400">{t('* Comparison for reference only')}</p>
+          <p className="text-xs text-neutral-400">{'* 以上对比仅供参考，具体以实际情况为准'}</p>
         </div>
         {/* End Features */}
       </div>

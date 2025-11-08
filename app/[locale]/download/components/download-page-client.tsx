@@ -1,7 +1,6 @@
 'use client'
 
 import { formatReleaseDate, formatVersion, getLatestRelease, type GitHubRelease } from '@/lib/github';
-import { useTranslations } from '@/lib/i18n';
 import AppleIcon from "@/public/svgs/brands/apple.svg";
 import DockerIcon from "@/public/svgs/brands/docker.svg";
 import LinuxIcon from "@/public/svgs/brands/linux.svg";
@@ -13,47 +12,47 @@ import PlatformFactory from './platforms/platform-factory';
 import { type PlatformInfoData } from './platforms/platform-info';
 
 export default function DownloadPageClient() {
-  const { t, locale } = useTranslations('download'); // 使用 download 命名空间
+   // 使用 download 命名空间
 
   // 平台配置 - 直接使用 useMemo，不依赖 t 函数
   const platforms = useMemo((): PlatformInfoData[] => [
     {
       id: "linux",
-      name: t('Linux'),
+      name: 'Linux',
       icon: <LinuxIcon className="w-full h-full aspect-square" />,
       description: {
-        zh: t('Ubuntu 18.04+, CentOS 7+, and other Linux distributions'),
-        en: t('Ubuntu 18.04+, CentOS 7+, and other Linux distributions'),
+        zh: 'Ubuntu 18.04+、CentOS 7+ 和其他 Linux 发行版',
+        en: 'Ubuntu 18.04+、CentOS 7+ 和其他 Linux 发行版',
       },
       available: true,
     },
     {
       id: "docker",
-      name: t('Docker'),
+      name: 'Docker',
       icon: <DockerIcon className="w-full h-full aspect-square" />,
       description: {
-        zh: t('Docker 20.10+ with containerized deployment'),
-        en: t('Docker 20.10+ with containerized deployment'),
+        zh: 'Docker 20.10+ 容器化部署',
+        en: 'Docker 20.10+ 容器化部署',
       },
       available: true,
     },
     {
       id: "macos",
-      name: t('macOS'),
+      name: 'macOS',
       icon: <AppleIcon className="w-full h-full aspect-square" />,
       description: {
-        zh: t('macOS 10.15+ with native binary support'),
-        en: t('macOS 10.15+ with native binary support'),
+        zh: 'macOS 10.15+ 原生二进制支持',
+        en: 'macOS 10.15+ 原生二进制支持',
       },
       available: true,
     },
     {
       id: "windows",
-      name: t('Windows'),
+      name: 'Windows',
       icon: <WindowsIcon className="w-full h-full aspect-square" />,
       description: {
-        zh: t('Windows 10/11 with native binary support'),
-        en: t('Windows 10/11 with native binary support'),
+        zh: 'Windows 10/11 原生二进制支持',
+        en: 'Windows 10/11 原生二进制支持',
       },
       available: false,
       comingSoon: true,
@@ -139,12 +138,12 @@ export default function DownloadPageClient() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex items-center justify-center mb-6">
             <h1 className="text-4xl font-bold text-foreground sm:text-5xl md:text-6xl">
-              {t('Download RustFS')}
+              {'下载 RustFS'}
             </h1>
           </div>
 
           <p className="mx-auto max-w-3xl text-lg text-muted-foreground">
-            {t('Choose the RustFS version that suits your system')}
+            {'选择适合您系统的 RustFS 版本，支持 Windows、Linux、macOS 和 Docker 部署。开始体验高性能的分布式存储系统。'}
           </p>
 
           <div className="mt-8 flex justify-center">
@@ -153,13 +152,13 @@ export default function DownloadPageClient() {
               target="_blank"
               rel="noopener noreferrer"
               className="group inline-flex items-center space-x-3 px-6 py-3 bg-muted/50 rounded-xl border border-border hover:border-primary/50 transition-all duration-200"
-              title={t('View GitHub Release Page')}
+              title={'查看GitHub发布页面'}
             >
               {/* 版本信息 */}
               <div className="flex items-center space-x-2">
                 <span className="text-sm font-medium text-foreground">
                   {isLoadingRelease ? (
-                    t('Loading latest version...')
+                    '正在获取最新版本...'
                   ) : release ? (
                     formatVersion(release.tag_name)
                   ) : (
@@ -169,14 +168,14 @@ export default function DownloadPageClient() {
                 {!isLoadingRelease && (
                   <span className="inline-flex items-center space-x-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs rounded-full">
                     <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-                    <span>{t('Latest')}</span>
+                    <span>{'最新'}</span>
                   </span>
                 )}
               </div>
 
               {release && (
                 <span className="text-xs text-muted-foreground">
-                  {`${t('Released on')} ${formatReleaseDate(release.published_at, locale === 'zh' ? 'zh-CN' : 'en-US')}`}
+                  {`${'发布于'} ${formatReleaseDate(release.published_at, 'zh-CN')}`}
                 </span>
               )}
 
@@ -213,7 +212,7 @@ export default function DownloadPageClient() {
       <section className="py-16 bg-background">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-foreground mb-8">
-            {t('Need Help?')}
+            {'需要帮助？'}
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -225,10 +224,10 @@ export default function DownloadPageClient() {
                 <BookOpenIcon className="w-6 h-6 text-primary" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                {t('Documentation')}
+                {'文档'}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {t('Detailed installation guides and usage instructions')}
+                {'详细的安装指南和使用说明'}
               </p>
             </a>
 
@@ -240,10 +239,10 @@ export default function DownloadPageClient() {
                 <MessageCircleIcon className="w-6 h-6 text-primary" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                {t('Community Support')}
+                {'社区支持'}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {t('Join community discussions and get technical support')}
+                {'加入社区讨论，获取技术支持'}
               </p>
             </a>
           </div>

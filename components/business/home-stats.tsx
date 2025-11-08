@@ -1,10 +1,8 @@
 'use client'
 
-import { useTranslations } from '@/lib/i18n';
 
 export default function HomeStats() {
-  const { t } = useTranslations('stats');
-
+  
   return (
     <section
       className="relative overflow-hidden bg-primary text-primary-foreground py-32"
@@ -19,10 +17,10 @@ export default function HomeStats() {
       <div className="mx-auto max-w-[85rem] px-4 sm:px-6 lg:px-8">
         <div className="mx-auto mb-10 max-w-2xl text-center lg:mb-20">
           <h2 className="text-3xl font-bold tracking-wide md:text-4xl md:leading-tight ">
-            {t('Powerful Performance, Outstanding Security')}
+            {'强大的性能，卓越的安全性'}
           </h2>
           <p className="mt-4 text-muted">
-            {t('RustFS provides high performance, high security, high concurrency, providing powerful support for your business')}
+            {'RustFS 提供高性能，高安全性，高并发, 为您的业务提供强大的支持'}
           </p>
         </div>
         {/* Grid */}
@@ -43,11 +41,11 @@ export default function HomeStats() {
                   >
                     <path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zm.287 5.984-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7 8.793l2.646-2.647a.5.5 0 0 1 .708.708z" />
                   </svg>
-                  {t('+7% Read/Write Speed')}
+                  {'+7% 读写速度'}
                 </span>
               </p>
               <p className="mt-6">
-                {t('High security and high concurrency performance improvements from Rust')}
+                {'来自 Rust 的高安全性，高并发的性能提升'}
               </p>
             </div>
             {/* End Stats */}
@@ -60,7 +58,7 @@ export default function HomeStats() {
               <div>
                 <p className="text-5xl font-semibold">99.99%</p>
                 <p className="mt-1">
-                  {t('Data Read/Write Success Rate')}
+                  {'数据读写成功率'}
                 </p>
               </div>
               {/* End Stats */}
@@ -68,7 +66,7 @@ export default function HomeStats() {
               <div>
                 <p className="text-5xl font-semibold">100%</p>
                 <p className="mt-1">
-                  {t('S3 Compatibility')}
+                  {'S3 兼容性'}
                 </p>
               </div>
               {/* End Stats */}
@@ -77,7 +75,7 @@ export default function HomeStats() {
               <div>
                 <p className="text-5xl font-semibold">95%</p>
                 <p className="mt-1">
-                  {t('User Satisfaction')}
+                  {'用户满意度'}
                 </p>
               </div>
               {/* End Stats */}
@@ -86,16 +84,16 @@ export default function HomeStats() {
               <div>
                 <p className="text-5xl font-semibold">0</p>
                 <p className="mt-1">
-                  {t('Intellectual Property Risk')}
+                  {'知识产权风险'}
                 </p>
               </div>
               {/* End Stats */}
 
               {/* Stats */}
               <div>
-                <p className="text-5xl font-semibold">～1 {t('day')}</p>
+                <p className="text-5xl font-semibold">～1 {'天'}</p>
                 <p className="mt-1">
-                  {t('GitHub Issues Average Resolution Time')}
+                  {'GitHub Issues 平均解决时间'}
                 </p>
               </div>
               {/* End Stats */}
@@ -104,7 +102,7 @@ export default function HomeStats() {
               <div>
                 <p className="text-5xl font-semibold">1000+</p>
                 <p className="mt-1">
-                  {t('GitHub Commits')}
+                  {'GitHub 提交'}
                 </p>
               </div>
               {/* End Stats */}
