@@ -76,7 +76,7 @@ export default function HomeHero({ dockerPulls, metrics }: HomeHeroProps) {
       <div className="relative flex items-center gap-12">
         <div className="space-y-6 text-center lg:text-left relative z-20 lg:w-3/5">
           <h1 className="font-display text-3xl font-extrabold tracking-tight text-primary sm:text-4xl md:text-5xl xl:text-6xl leading-tight">
-            世界上增长最快的<br />分布式对象存储
+            世界上增长最快的<br />开源分布式对象存储
           </h1>
           <p className="mx-auto lg:mx-0 max-w-2xl text-lg tracking-tight text-secondary-foreground">
             RustFS 用热门安全的 Rust 语言开发，兼容 S3 协议。适用于 AI/ML 及海量数据存储、大数据、互联网、工业和保密存储等全部场景。近乎免费使用。遵循 Apache 2 协议，支持国产保密设备和系统。
