@@ -23,7 +23,7 @@ export default function LinuxDownloadSection({ platform, className }: LinuxDownl
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-foreground">{'一键安装脚本'}</h3>
         <CodeBlock
-          code={["curl -O https://rustfs.com.cn/install_rustfs.sh && bash install_rustfs.sh"]}
+          code={["curl -O https://rustfs.com/install_rustfs.sh && bash install_rustfs.sh"]}
           title={'一键安装脚本'}
         />
       </div>
