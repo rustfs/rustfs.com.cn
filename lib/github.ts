@@ -83,6 +83,62 @@ export async function getLatestRelease(): Promise<GitHubRelease | null> {
 }
 
 /**
+ * Get GitHub repository metrics (stars, forks, commits) at build time
+ * @returns Promise<GitHubMetrics>
+ */
+export async function getGitHubMetrics(): Promise<GitHubMetrics> {
+  const fallback: GitHubMetrics = {
+    stars: 11000,
+    forks: 500,
+    commits: 2000,
+  };
+
+  try {
+    const [repoRes, commitsRes] = await Promise.all([
+      fetch('https://api.github.com/repos/rustfs/rustfs', {
+        headers: {
+          Accept: 'application/vnd.github+json',
+          'User-Agent': 'RustFS-Website',
+        },
+        next: { revalidate: 3600 },
+      }),
+      fetch('https://api.github.com/repos/rustfs/rustfs/commits?per_page=1', {
+        headers: {
+          Accept: 'application/vnd.github+json',
+          'User-Agent': 'RustFS-Website',
+        },
+        next: { revalidate: 3600 },
+      }),
+    ]);
+
+    if (!repoRes.ok || !commitsRes.ok) {
+      return fallback;
+    }
+
+    const repo = await repoRes.json() as { stargazers_count?: number; forks_count?: number };
+    const link = commitsRes.headers.get('link');
+    let commits = 0;
+
+    const match = link?.match(/page=(\d+)>; rel="last"/);
+    if (match?.[1]) {
+      commits = Number(match[1]);
+    } else {
+      const data = await commitsRes.json();
+      commits = Array.isArray(data) ? data.length : 0;
+    }
+
+    return {
+      stars: repo.stargazers_count ?? fallback.stars,
+      forks: repo.forks_count ?? fallback.forks,
+      commits: Number.isFinite(commits) && commits > 0 ? commits : fallback.commits,
+    };
+  } catch (error) {
+    console.warn('Failed to fetch GitHub metrics:', error);
+    return fallback;
+  }
+}
+
+/**
  * Format version number
  * @param version Version string
  * @returns Formatted version number
@@ -158,58 +214,4 @@ export function getDownloadUrlForPlatform(
   }
 
   return null;
-}
-
-/**
- * Get GitHub repository metrics (stars, forks, commits)
- * @returns Promise<GitHubMetrics>
- */
-export async function getGitHubMetrics(): Promise<GitHubMetrics> {
-  try {
-    const [repoResponse, commitsResponse] = await Promise.all([
-      fetch('https://api.github.com/repos/rustfs/rustfs', {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'RustFS-Website'
-        },
-        next: { revalidate: 3600 }
-      }),
-      fetch('https://api.github.com/repos/rustfs/rustfs/commits?per_page=1', {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'RustFS-Website'
-        },
-        next: { revalidate: 3600 }
-      })
-    ])
-
-    if (repoResponse.ok) {
-      const repo = await repoResponse.json()
-
-      // Get total commit count from commits API
-      let commits = 0
-      if (commitsResponse.ok) {
-        await commitsResponse.json()
-        // Note: GitHub API doesn't provide total commit count directly
-        // We'll use a reasonable estimate or fetch from stats API if available
-        // For now, we'll use a fallback value
-        commits = 1000 // Fallback value
-      }
-
-      return {
-        stars: repo.stargazers_count || 0,
-        forks: repo.forks_count || 0,
-        commits: commits
-      }
-    }
-  } catch (error) {
-    console.warn('Failed to fetch GitHub metrics:', error)
-  }
-
-  // Fallback values
-  return {
-    stars: 0,
-    forks: 0,
-    commits: 0
-  }
 }
