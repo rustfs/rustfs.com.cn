@@ -38,7 +38,7 @@ export default function AppHeader() {
     },
     {
       label: '文档',
-      url: docs_url(''),
+      url: 'https://docs.rustfs.com.cn/installation/',
       classes: '',
     },
     {
