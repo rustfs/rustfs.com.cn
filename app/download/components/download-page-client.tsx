@@ -123,7 +123,7 @@ export default function DownloadPageClient({ release, launcherRelease }: Downloa
               target="_blank"
               rel="noopener noreferrer"
               className="group inline-flex items-center space-x-3 px-6 py-3 bg-muted/50 rounded-xl border border-border hover:border-primary/50 transition-all duration-200"
-              title={'查看GitHub发布页面'}
+              title={'查看 GitHub 发布页面'}
             >
               {/* 版本信息 */}
               <div className="flex items-center space-x-2">

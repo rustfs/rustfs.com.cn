@@ -9,7 +9,7 @@ import DownloadLink from "./buttons/download-link";
 import StatsStrip from "./stats-strip";
 //import GetStartedButton from "./buttons/get-started";
 
-// 导入所有软件SVG图标
+// 导入所有软件 SVG 图标
 
 interface HomeHeroProps {
   dockerPulls: number;
@@ -79,7 +79,7 @@ export default function HomeHero({ dockerPulls, metrics }: HomeHeroProps) {
             世界上增长最快的<br />分布式对象存储
           </h1>
           <p className="mx-auto lg:mx-0 max-w-2xl text-lg tracking-tight text-secondary-foreground">
-            根据GitHub的数据，RustFS 是增长最快的分布式对象存储。
+            根据 GitHub 的数据，RustFS 是增长最快的分布式对象存储。
             RustFS 用热门安全的 Rust 语言开发，兼容 S3 协议。适用于 AI/ML 及海量数据存储、大数据、互联网、工业和保密存储等全部场景，支持国产保密设备和系统。
           </p>
           <div className="text-lg font-semibold text-primary/90 flex items-center justify-center lg:justify-start gap-2">

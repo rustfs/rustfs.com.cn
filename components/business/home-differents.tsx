@@ -3,7 +3,7 @@
 import { CheckIcon, XIcon } from "lucide-react";
 
 export default function HomeDifferents() {
-  
+
   return (
     <section className="relative pt-20 pb-14 sm:pt-32 sm:pb-20 lg:pb-32 bg-muted"
     // style={{
@@ -84,7 +84,7 @@ export default function HomeDifferents() {
               </div>
               <div className="flex items-center gap-2 bg-neutral-100 p-4 lg:px-8 dark:bg-neutral-900">
                 <CheckIcon className="text-green-500" />
-                <span>{'Apache协议，商用支持更友好'}</span>
+                <span>{'Apache 协议，商用支持更友好'}</span>
               </div>
               <div className="flex items-center gap-2 p-4 lg:px-8 ">
                 <CheckIcon className="text-green-500" />

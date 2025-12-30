@@ -7,13 +7,13 @@ const features = [
       "en": "Cross-Cloud"
     },
     "description": {
-      "zh": "RustFS 利用分布式架构和对象存储功能，为AI和高级分析工作负载提供卓越性能，支持从TB到EB级别的数据扩展。",
+      "zh": "RustFS 利用分布式架构和对象存储功能，为 AI 和高级分析工作负载提供卓越性能，支持从 TB 到 EB 级别的数据扩展。",
       "en": "RustFS leverages distributed architecture and object storage capabilities to provide excellent performance for AI and advanced analytics workloads, supporting data scaling from TB to EB levels."
     },
     "icon": EarthIcon,
     "url": "#",
     "featureDescription": {
-      "zh": "跨云支持能够很好的防止单云故障，造成重大的损失，可以跨云使用RustFS作为通信工具。我们支持桶级别的粒度执行，它用于以下情况：",
+      "zh": "跨云支持能够很好的防止单云故障，造成重大的损失，可以跨云使用 RustFS 作为通信工具。我们支持桶级别的粒度执行，它用于以下情况：",
       "en": "Cross-cloud support can effectively prevent single cloud failures and major losses. You can use RustFS as a communication tool across clouds. We support bucket-level granular execution, which is used in the following scenarios:"
     },
     "features": [
@@ -41,7 +41,7 @@ const features = [
       },
       "img": "/images/faces/wangxiaoming.jpeg",
       "review": {
-        "zh": "RustFS的跨云支持能够很好的防止单云故障，造成重大的损失",
+        "zh": "RustFS 的跨云支持能够很好的防止单云故障，造成重大的损失",
         "en": "RustFS's cross-cloud support can effectively prevent single cloud failures and major losses"
       }
     }
@@ -71,7 +71,7 @@ const features = [
         "en": "Security - better security through rotation methods"
       },
       {
-        "zh": "易于集成 - RustyVault提供了简单的API和命令行工具",
+        "zh": "易于集成 - RustyVault 提供了简单的 API 和命令行工具",
         "en": "Easy integration - RustyVault provides simple APIs and command-line tools"
       }
     ],
@@ -86,7 +86,7 @@ const features = [
       },
       "img": "/images/faces/sunli.jpeg",
       "review": {
-        "zh": "RustFS与Vault产品集成非常方便，保障了我们的数据合规和安全加密的需要",
+        "zh": "RustFS 与 Vault 产品集成非常方便，保障了我们的数据合规和安全加密的需要",
         "en": "RustFS integrates very conveniently with Vault products, ensuring our data compliance and security encryption needs"
       }
     }
@@ -97,7 +97,7 @@ const features = [
       "en": "Version Control"
     },
     "description": {
-      "zh": "对象存储版本控制功能，为每个对象版本分配唯一标识符，用户可通过API或管理界面访问和管理历史版本。",
+      "zh": "对象存储版本控制功能，为每个对象版本分配唯一标识符，用户可通过 API 或管理界面访问和管理历史版本。",
       "en": "Object storage version control feature assigns unique identifiers to each object version, allowing users to access and manage historical versions through APIs or management interfaces."
     },
     "icon": Layers3Icon,
@@ -142,13 +142,13 @@ const features = [
       "en": "Unlimited Scaling"
     },
     "description": {
-      "zh": "RustFS系统自动平衡节点负载，确保数据均匀分布，支持根据存储需求动态添加或移除资源，实现无限扩容。",
+      "zh": "RustFS 系统自动平衡节点负载，确保数据均匀分布，支持根据存储需求动态添加或移除资源，实现无限扩容。",
       "en": "RustFS system automatically balances node loads, ensures even data distribution, supports dynamic addition or removal of resources based on storage needs, achieving unlimited scaling."
     },
     "icon": ExpandIcon,
     "url": "#",
     "featureDescription": {
-      "zh": "RustFS支持无限扩容，支持海量数据存储，可以轻松应对大规模数据存储需求。RustFS的存储容量可以随着数据量的增长而无限扩展，不会受到存储容量的限制。",
+      "zh": "RustFS 支持无限扩容，支持海量数据存储，可以轻松应对大规模数据存储需求。RustFS 的存储容量可以随着数据量的增长而无限扩展，不会受到存储容量的限制。",
       "en": "RustFS supports unlimited scaling and massive data storage, easily handling large-scale data storage requirements. RustFS storage capacity can expand infinitely as data volume grows, without being limited by storage capacity constraints."
     },
     "features": [
@@ -187,13 +187,13 @@ const features = [
       "en": "Object Read-Only"
     },
     "description": {
-      "zh": "支持对象锁定模式，实现WORM（写一次读多次）功能，防止数据在指定时间范围内被修改或删除，确保数据完整性。",
+      "zh": "支持对象锁定模式，实现 WORM（写一次读多次）功能，防止数据在指定时间范围内被修改或删除，确保数据完整性。",
       "en": "Supports object locking mode, implementing WORM (Write Once, Read Many) functionality, preventing data from being modified or deleted within specified time ranges, ensuring data integrity."
     },
     "icon": LockKeyholeIcon,
     "url": "#",
     "featureDescription": {
-      "zh": "对象存储的WORM（Write Once, Read Many）是一种数据存储特性，它确保一旦数据被写入并固化，就无法被修改或删除。 WORM 的好处包括如下特点：",
+      "zh": "对象存储的 WORM（Write Once, Read Many）是一种数据存储特性，它确保一旦数据被写入并固化，就无法被修改或删除。WORM 的好处包括如下特点：",
       "en": "WORM (Write Once, Read Many) in object storage is a data storage characteristic that ensures once data is written and solidified, it cannot be modified or deleted. The benefits of WORM include the following features:"
     },
     "features": [
@@ -266,7 +266,7 @@ const features = [
       },
       "img": "/images/faces/sunli.jpeg",
       "review": {
-        "zh": "在非结构化数据上，比传统的SAN存储节省了更多的成本",
+        "zh": "在非结构化数据上，比传统的 SAN 存储节省了更多的成本",
         "en": "For unstructured data, it saves more costs than traditional SAN storage"
       }
     }
