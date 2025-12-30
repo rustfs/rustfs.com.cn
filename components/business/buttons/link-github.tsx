@@ -73,7 +73,7 @@ export default function LinkGitHub({ className, showText = false }: { className?
       href={`https://github.com/${REPO}`}
       target="_blank"
       rel="noreferrer"
-      title="Stars on GitHub"
+      title="GitHub 星标"
       className={cn(
         "inline-flex h-8 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground shadow-none",
         className
@@ -82,7 +82,7 @@ export default function LinkGitHub({ className, showText = false }: { className?
       <GitHubIcon className="h-4 w-4" />
       {showText ? (
         <span className="text-xs text-muted-foreground" aria-live="polite">
-          Stars on GitHub
+          GitHub 星标
         </span>
       ) : (
         <span className="text-xs text-muted-foreground tabular-nums min-w-[2.5rem]" aria-live="polite">
