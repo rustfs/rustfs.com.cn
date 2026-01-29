@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect } from 'react';
+import { docs_url } from '@/lib/utils';
 
 export default function DocsPage() {
   useEffect(() => {
     // 重定向到 RustFS 中文文档
-    window.location.href = 'https://docs.rustfs.com/zh/';
+    window.location.href = docs_url('/zh/');
   }, []);
 
   // 显示加载状态

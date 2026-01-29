@@ -1,6 +1,7 @@
 'use client'
 
 import { formatReleaseDate, formatVersion, type GitHubRelease } from '@/lib/github';
+import { docs_url } from '@/lib/utils';
 import AppleIcon from "@/public/svgs/brands/apple.svg";
 import DockerIcon from "@/public/svgs/brands/docker.svg";
 import LinuxIcon from "@/public/svgs/brands/linux.svg";
@@ -182,7 +183,7 @@ export default function DownloadPageClient({ release, launcherRelease }: Downloa
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <a
-              href="https://docs.rustfs.com"
+              href={docs_url('/')}
               className="p-6 bg-card rounded-lg border border-border hover:border-primary/50 transition-colors group"
             >
               <div className="w-12 h-12 mx-auto mb-4 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">

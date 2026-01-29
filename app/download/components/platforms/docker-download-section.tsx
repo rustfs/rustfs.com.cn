@@ -1,7 +1,7 @@
 'use client'
 
 import { type GitHubRelease } from '@/lib/github';
-import { cn } from "@/lib/utils";
+import { cn, docs_url } from "@/lib/utils";
 import { DownloadIcon, ExternalLinkIcon } from "lucide-react";
 import Link from "next/link";
 import CodeBlock from "../code-block";
@@ -153,7 +153,7 @@ export default function DockerDownloadSection({ platform, release, className }: 
           </Link>
         </Note>
         <Note type="success">
-          <Link href="https://docs.rustfs.com/installation/docker" target="_blank" className="hover:underline">
+          <Link href={docs_url('/installation/docker')} target="_blank" className="hover:underline">
             {'查看详细的 Docker 安装指南'}
           </Link>
         </Note>
