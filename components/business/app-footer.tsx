@@ -25,6 +25,7 @@ export default function AppFooter() {
         { title: '日志管理', href: docs_url('features/logging') },
         { title: '版本控制', href: docs_url('features/versioning') },
         { title: 'S3 兼容', href: docs_url('features/s3-compatibility') },
+        { title: '纠删码计算器', href: '/erasure-code-calculator' },
         { title: '对象级只读', href: docs_url('features/worm') },
         { title: '跨区域复制', href: docs_url('features/replication') },
         { title: '加密', href: docs_url('features/encryption') },
