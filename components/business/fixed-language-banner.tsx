@@ -10,6 +10,11 @@ export default function FixedLanguageBanner() {
   const [showBanner, setShowBanner] = useState(false)
 
   useEffect(() => {
+    // 中文站不需要此横幅
+    if (SITE_CONFIG.primaryDomain.includes('rustfs.com.cn')) {
+      return
+    }
+
     // Check if banner was dismissed
     const dismissed = localStorage.getItem(STORAGE_KEY)
     if (dismissed) {

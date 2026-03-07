@@ -1,5 +1,4 @@
 import GetStartedToday from "@/components/business/get-started-today";
-import HomeBlog from "@/components/business/home-blog";
 import HomeDifferents from "@/components/business/home-differents";
 import HomeFeatures from "@/components/business/home-features";
 import HomeHero from "@/components/business/home-hero";
@@ -46,7 +45,7 @@ export default async function HomePage() {
         <HomeMultiClouds />
         {/* <HomeReviews /> */}
         <GetStartedToday />
-        <HomeBlog />
+        {/* <HomeBlog /> */}
         <Subscribe />
       </div>
     </main>

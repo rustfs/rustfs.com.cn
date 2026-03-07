@@ -1,7 +1,7 @@
 'use client'
 
 /* eslint-disable @next/next/no-img-element */
-import ContactUsButton from "./buttons/contact-us";
+import FreeChatButton from "./buttons/free-chat";
 
 const AVATAR_URLS = [
   "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80",
@@ -17,8 +17,8 @@ export default function GetStartedToday() {return (
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
         <div className="mx-auto text-center flex flex-col gap-8">
           <h2 className="font-display text-2xl tracking-wide sm:text-4xl font-semibold leading-tight">
-            {'Experience RustFS'} <br />
-            {'High security, high concurrency and ultimate performance'}
+            快速体验 RustFS 的 <br />
+            高安全性，高并发和极致性能
           </h2>
 
           {/* Avatar Group */}
@@ -44,13 +44,13 @@ export default function GetStartedToday() {return (
             </div>
             <div className="pt-5 sm:ps-5 sm:pt-0 lg:border-l">
               <div className="text-sm">
-                {'Over 100+ enterprise users have started using RustFS'}
+                超过 100+ 企业用户已经开始使用 RustFS
               </div>
             </div>
           </div>
           {/* End Avatar Group */}
           <div>
-            <ContactUsButton />
+            <FreeChatButton />
           </div>
         </div>
       </div>

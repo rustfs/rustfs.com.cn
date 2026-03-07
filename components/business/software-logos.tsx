@@ -59,13 +59,10 @@ const iconMap: Record<SoftwareKey, React.ComponentType<{ className?: string; sty
 export default function SoftwareLogos() {
   return (
     <section className="bg-muted/40 relative overflow-hidden px-4 sm:px-6 lg:px-8 pt-20 pb-16 lg:pt-32">
-      <div className="max-w-7xl mx-auto">
-        <p className="font-display text-base text-foreground font-bold text-center">
-          {
-            "Trusted by the open-source community / Enterprise-grade open source solution"
-          }
+      <div className="max-w-7xl mx-auto text-primary">
+        <p className="font-display text-base text-slate-500 font-bold text-center">
+          值得信赖的开源软件，超过 1500+ 款软件协议兼容适配
         </p>
-        <p className="font-display text-base text-muted-foreground font-bold text-center">compatible with over Compatible with 1,500+ applications and integrations</p>
         <ul
           role="list"
           className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-4 sm:flex-col sm:gap-x-0 sm:gap-y-10 md:flex-row xl:gap-x-16 xl:gap-y-6"

@@ -12,50 +12,50 @@ import { ThemeToggle } from "./theme-toggle";
 export default function AppHeader() {
   const navs = [
     {
-      label: 'Features',
+      label: '产品功能',
       url: docs_url('features/distributed/'),
       classes: '',
     },
     {
-      label: 'Architecture',
+      label: '架构',
       url: docs_url('/concepts/architecture.html'),
       classes: 'hidden xl:inline-block',
     },
     {
-      label: 'Solutions',
+      label: '解决方案',
       url: docs_url('features/data-lake/'),
       classes: 'hidden xl:inline-block',
     },
-    // {
-    //   label: 'Integrations',
-    //   url: `https://docs.rustfs.com/intergrations`,
-    //   classes: '',
-    // },
     {
-      label: 'AI',
+      label: 'AI 支持',
       url: docs_url('features/ai'),
-      classes: '',
+      classes: 'hidden xl:inline-block',
     },
     {
-      label: 'Download',
+      label: '下载',
       url: `/download`,
       classes: '',
     },
     {
-      label: 'Demo',
-      url: 'https://play.rustfs.com',
+      label: '文档',
+      url: docs_url('installation/'),
       classes: '',
     },
     {
-      label: 'Docs',
-      url: 'https://docs.rustfs.com/installation/',
-      classes: '',
-    },
-    {
-      label: 'Blog',
+      label: '博客',
       url: 'https://rustfs.dev/',
       classes: '',
-    }
+    },
+    {
+      label: '社区',
+      url: 'https://github.com/rustfs/rustfs/discussions',
+      classes: 'hidden xl:inline-block',
+    },
+    {
+      label: '关于我们',
+      url: docs_url('about'),
+      classes: 'hidden xl:inline-block',
+    },
   ]
 
   return (
