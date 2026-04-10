@@ -54,7 +54,7 @@ const calculateStripeSizes = (servers: number, drivesPerServer: number) => {
       stripeSizes: [] as number[],
       numServersPerShard,
       numShards,
-      error: "Minimum 4 servers are recommended for high availability.",
+      error: "建议至少 4 台服务器以获得更高可用性。",
     };
   }
 
@@ -129,7 +129,7 @@ export default function ErasureCodeCalculator() {
         stripeSizes: [] as number[],
         numServersPerShard: 0,
         numShards: 0,
-        error: "Number of drives per server must be between 1 and 256.",
+        error: "每台服务器硬盘数量需要在 1 到 256 之间。",
       };
     }
 
@@ -138,7 +138,7 @@ export default function ErasureCodeCalculator() {
         stripeSizes: [] as number[],
         numServersPerShard: 0,
         numShards: 0,
-        error: "Drive capacity must be at least 1 TiB.",
+        error: "硬盘容量至少为 1 TiB。",
       };
     }
 
@@ -163,11 +163,11 @@ export default function ErasureCodeCalculator() {
     }
 
     if (totalDrives < 4) {
-      return "Specify a configuration with 4 or more total drives.";
+      return "请配置至少 4 块硬盘。";
     }
 
     if (stripeSize > 0 && parityOptions.length === 0) {
-      return "Invalid configuration set. Please try another combination.";
+      return "当前配置不支持纠删码，请尝试其他组合。";
     }
 
     return null as string | null;
@@ -230,6 +230,10 @@ export default function ErasureCodeCalculator() {
       setParity(preferred);
     }
   }, [parityOptions, parity, totalDrives]);
+
+  useEffect(() => {
+    setShareCopied(false);
+  }, [servers, drivesPerServer, driveCapacity, stripeSize, parity]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -332,18 +336,18 @@ export default function ErasureCodeCalculator() {
 
   const buildSummary = () => {
     return {
-      "Number of servers": servers,
-      "Drives per server": drivesPerServer,
-      "Drive capacity (TiB)": driveCapacity,
-      "Stripe size (K + M)": stripeSize,
-      "Parity (M)": parity,
-      "Raw capacity": niceBytes(results.rawBytes),
-      "Usable capacity": niceBytes(results.usableBytes),
-      "Storage efficiency": `${Math.floor(results.efficiency * 100)}%`,
-      "Drive failure tolerance": `${results.driveFailuresTotal} drives across cluster`,
-      "Drive tolerance per stripe": `${results.driveFailures} out of ${stripeSize}`,
-      "Server failure tolerance": `${results.serverFailuresTotal} servers across cluster`,
-      "Server tolerance per shard": `${results.serverFailuresPerShard} out of ${stripeInfo.numServersPerShard}`,
+      "服务器数量": servers,
+      "每台服务器硬盘数量": drivesPerServer,
+      "硬盘容量 (TiB)": driveCapacity,
+      "条带大小 (K + M)": stripeSize,
+      "奇偶校验 (M)": parity,
+      "原始容量": niceBytes(results.rawBytes),
+      "可用容量": niceBytes(results.usableBytes),
+      "存储效率": `${Math.floor(results.efficiency * 100)}%`,
+      "驱动器容错能力": `集群可容忍约 ${results.driveFailuresTotal} 块驱动器故障`,
+      "单条带容错": `${results.driveFailures} / ${stripeSize}`,
+      "服务器容错能力": `集群可容忍约 ${results.serverFailuresTotal} 台服务器故障`,
+      "单分片容错": `${results.serverFailuresPerShard} / ${stripeInfo.numServersPerShard}`,
     };
   };
 
@@ -355,7 +359,7 @@ export default function ErasureCodeCalculator() {
     const rows = Object.entries(summary).map(
       ([key, value]) => `${key},${value}`
     );
-    const csvContent = ["Metric,Value", ...rows].join("\n");
+    const csvContent = ["指标,数值", ...rows].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -388,7 +392,7 @@ export default function ErasureCodeCalculator() {
     const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <rect width="100%" height="100%" fill="#ffffff" />
-  <text x="${padding}" y="${padding}" fill="#0f172a" font-size="20" font-family="Inter, Arial, sans-serif" font-weight="600">RustFS Erasure Code Results</text>
+  <text x="${padding}" y="${padding}" fill="#0f172a" font-size="20" font-family="Inter, Arial, sans-serif" font-weight="600">RustFS 纠删码计算结果</text>
   ${lines}
 </svg>`;
 
@@ -406,19 +410,19 @@ export default function ErasureCodeCalculator() {
     <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16">
       <div className="max-w-2xl">
         <h1 className="text-3xl sm:text-4xl font-semibold text-foreground">
-          Erasure Code Calculator
+          纠删码计算器
         </h1>
         <p className="mt-4 text-muted-foreground">
-          Estimate raw and usable capacity along with failure tolerance for RustFS erasure coding.
+          估算 RustFS 纠删码配置下的原始容量、可用容量与容错能力。
         </p>
       </div>
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="rounded-xl border border-border bg-background p-6 sm:p-8 shadow-sm">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground">Configuration</h2>
+            <h2 className="text-lg font-semibold text-foreground">参数配置</h2>
             <Button variant="outline" size="sm" type="button" onClick={handleCopyShareLink}>
-              {shareCopied ? "Copied" : "Copy share link"}
+              {shareCopied ? "已复制" : "复制分享链接"}
             </Button>
           </div>
 
@@ -430,7 +434,7 @@ export default function ErasureCodeCalculator() {
 
           <div className="mt-6 space-y-6">
             <label className="block">
-              <span className="text-sm font-medium text-foreground">Number of servers</span>
+              <span className="text-sm font-medium text-foreground">服务器数量</span>
               <Input
                 type="number"
                 min={1}
@@ -450,7 +454,7 @@ export default function ErasureCodeCalculator() {
             </label>
 
             <label className="block">
-              <span className="text-sm font-medium text-foreground">Drives per server</span>
+              <span className="text-sm font-medium text-foreground">每台服务器硬盘数量</span>
               <Input
                 type="number"
                 min={1}
@@ -475,7 +479,7 @@ export default function ErasureCodeCalculator() {
             </label>
 
             <label className="block">
-              <span className="text-sm font-medium text-foreground">Drive capacity (TiB)</span>
+              <span className="text-sm font-medium text-foreground">硬盘容量 (TiB)</span>
               <Input
                 type="number"
                 min={1}
@@ -497,18 +501,18 @@ export default function ErasureCodeCalculator() {
             </label>
 
             <label className="block">
-              <span className="text-sm font-medium text-foreground">Stripe size (K + M)</span>
+              <span className="text-sm font-medium text-foreground">纠删码条带大小 (K + M)</span>
               <Select
                 value={stripeSize ? String(stripeSize) : ""}
                 onValueChange={(val) => setStripeSize(Number(val))}
                 disabled={stripeInfo.stripeSizes.length === 0}
               >
                 <SelectTrigger className="mt-2">
-                  <SelectValue placeholder={stripeInfo.stripeSizes.length === 0 ? "Unavailable" : undefined} />
+                  <SelectValue placeholder={stripeInfo.stripeSizes.length === 0 ? "不可用" : undefined} />
                 </SelectTrigger>
                 <SelectContent>
                   {stripeInfo.stripeSizes.length === 0 ? (
-                    <SelectItem value="" disabled>Unavailable</SelectItem>
+                    <SelectItem value="" disabled>不可用</SelectItem>
                   ) : (
                     stripeInfo.stripeSizes.map((value) => (
                       <SelectItem key={value} value={String(value)}>
@@ -519,24 +523,24 @@ export default function ErasureCodeCalculator() {
                 </SelectContent>
               </Select>
               <p className="mt-2 text-xs text-muted-foreground">
-                Stripe size is the number of drives in each erasure set (data + parity). Larger
-                stripes improve efficiency when capacity allows.
+                条带大小表示每个纠删码集合包含的驱动器数量（数据块 + 奇偶校验）。条带越大，
+                在容量允许的情况下效率更高。
               </p>
             </label>
 
             <label className="block">
-              <span className="text-sm font-medium text-foreground">Parity (M)</span>
+              <span className="text-sm font-medium text-foreground">纠删码奇偶校验 (M)</span>
               <Select
                 value={parity ? String(parity) : ""}
                 onValueChange={(val) => setParity(Number(val))}
                 disabled={parityOptions.length === 0}
               >
                 <SelectTrigger className="mt-2">
-                  <SelectValue placeholder={parityOptions.length === 0 ? "Unavailable" : undefined} />
+                  <SelectValue placeholder={parityOptions.length === 0 ? "不可用" : undefined} />
                 </SelectTrigger>
                 <SelectContent>
                   {parityOptions.length === 0 ? (
-                    <SelectItem value="" disabled>Unavailable</SelectItem>
+                    <SelectItem value="" disabled>不可用</SelectItem>
                   ) : (
                     parityOptions.map((value) => (
                       <SelectItem key={value} value={String(value)}>
@@ -547,8 +551,7 @@ export default function ErasureCodeCalculator() {
                 </SelectContent>
               </Select>
               <p className="mt-2 text-xs text-muted-foreground">
-                Parity controls resiliency. Higher M increases fault tolerance but reduces usable
-                capacity.
+                奇偶校验决定容错能力。M 越高可用性越强，但可用容量会降低。
               </p>
             </label>
           </div>
@@ -557,17 +560,17 @@ export default function ErasureCodeCalculator() {
             <div className="mt-8 rounded-lg border border-border bg-muted/40 px-4 py-4 text-sm">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <div className="font-medium text-foreground">Recommended configuration</div>
+                  <div className="font-medium text-foreground">推荐配置</div>
                   <div className="mt-1 text-muted-foreground">
                     {recommendedConfig.serversCorrected != null ? (
                       <>
-                        At least 4 servers, {recommendedConfig.drivesCorrected} drives per server.
-                        Stripe size {recommendedConfig.stripe}, parity {recommendedConfig.parity}.
+                        建议至少 4 台服务器，每台 {recommendedConfig.drivesCorrected} 块硬盘。
+                        条带大小 {recommendedConfig.stripe}，奇偶校验 {recommendedConfig.parity}。
                       </>
                     ) : (
                       <>
-                        Stripe size {recommendedConfig.stripe}, parity {recommendedConfig.parity}.
-                        Balanced for efficiency and availability.
+                        建议条带大小 {recommendedConfig.stripe}，奇偶校验 {recommendedConfig.parity}，
+                        兼顾效率与可用性。
                       </>
                     )}
                   </div>
@@ -598,7 +601,7 @@ export default function ErasureCodeCalculator() {
                     setTimeout(() => setAppliedFeedback(false), 1500);
                   }}
                 >
-                  {appliedFeedback ? "Applied" : "Apply"}
+                  {appliedFeedback ? "已应用" : "应用"}
                 </Button>
               </div>
             </div>
@@ -606,23 +609,23 @@ export default function ErasureCodeCalculator() {
         </section>
 
         <section className="rounded-xl border border-border bg-muted/40 p-6 sm:p-8">
-          <h2 className="text-lg font-semibold text-foreground">Results</h2>
+          <h2 className="text-lg font-semibold text-foreground">计算结果</h2>
 
           <div className="mt-6 space-y-4 text-sm text-muted-foreground">
             <div className="flex items-center justify-between">
-              <span>Usable capacity</span>
+              <span>可用容量</span>
               <span className="text-base font-semibold text-foreground">
                 {validationError ? "--" : niceBytes(results.usableBytes)}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span>Raw capacity</span>
+              <span>原始容量</span>
               <span className="text-base font-semibold text-foreground">
                 {validationError ? "--" : niceBytes(results.rawBytes)}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span>Storage efficiency</span>
+              <span>存储效率</span>
               <span className="text-base font-semibold text-foreground">
                 {validationError ? "--" : `${Math.floor(results.efficiency * 100)}%`}
               </span>
@@ -630,44 +633,43 @@ export default function ErasureCodeCalculator() {
           </div>
 
           <div className="mt-6 rounded-lg border border-border bg-background px-4 py-4 text-sm">
-            <div className="font-medium text-foreground">Drive failure tolerance</div>
+            <div className="font-medium text-foreground">驱动器容错能力</div>
             <div className="mt-2 text-muted-foreground">
               {validationError
                 ? "--"
-                : `${results.driveFailuresTotal} drives across cluster`}
+                : `集群可容忍约 ${results.driveFailuresTotal} 块驱动器故障`}
             </div>
             <div className="text-muted-foreground">
               {validationError
                 ? ""
-                : `(${results.driveFailures} out of ${stripeSize} drives per stripe)`}
+                : `(每条带 ${results.driveFailures} / ${stripeSize} 块)`}
             </div>
           </div>
 
           <div className="mt-4 rounded-lg border border-border bg-background px-4 py-4 text-sm">
-            <div className="font-medium text-foreground">Server failure tolerance</div>
+            <div className="font-medium text-foreground">服务器容错能力</div>
             <div className="mt-2 text-muted-foreground">
               {validationError
                 ? "--"
-                : `${results.serverFailuresTotal} servers across cluster`}
+                : `集群可容忍约 ${results.serverFailuresTotal} 台服务器故障`}
             </div>
             <div className="text-muted-foreground">
               {validationError
                 ? ""
-                : `(${results.serverFailuresPerShard} out of ${stripeInfo.numServersPerShard} servers per shard)`}
+                : `(每分片 ${results.serverFailuresPerShard} / ${stripeInfo.numServersPerShard} 台)`}
             </div>
           </div>
 
           <div className="mt-6 text-xs text-muted-foreground">
-            Calculation uses parity and stripe sizing to estimate capacity and tolerances. Results are
-            rounded down to match quorum-safe limits.
+            结果依据条带与奇偶校验计算，向下取整以符合读写仲裁安全边界。
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
             <Button type="button" variant="outline" onClick={handleExportCsv} disabled={!!validationError}>
-              Download CSV
+              下载 CSV
             </Button>
             <Button type="button" variant="outline" onClick={handleExportSvg} disabled={!!validationError || exportBusy}>
-              {exportBusy ? "Exporting..." : "Download SVG"}
+              {exportBusy ? "导出中..." : "下载 SVG"}
             </Button>
           </div>
         </section>
