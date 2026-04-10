@@ -1,149 +1,157 @@
-# AGENTS.md - AI Agent 开发指南
+# AGENTS.md - AI Agent Development Guidelines
 
-本文档为 AI Agent 提供项目开发指南和规则，确保代码质量和 CI/CD 流程的顺利执行。
+This document provides development guidelines and rules for AI Agents to ensure code quality and smooth CI/CD pipeline execution.
 
-## 📋 项目概述
+## 📋 Project Overview
 
-- **项目名称**: RustFS.com.cn - 官方网站
-- **框架**: Next.js 15.3.4 (App Router, 静态导出)
-- **语言**: TypeScript (ES2017+, 严格模式)
-- **包管理器**: pnpm (推荐) 或 npm
-- **样式**: Tailwind CSS 4 + shadcn/ui
-- **CI/CD**: GitHub Actions → 阿里云 OSS
+- **Project Name**: RustFS.com - Official Website
+- **Framework**: Next.js 15.3.4 (App Router, Static Export)
+- **Language**: TypeScript (ES2017+, Strict Mode)
+- **Package Manager**: pnpm (recommended) or npm
+- **Styling**: Tailwind CSS 4 + shadcn/ui
+- **CI/CD**: GitHub Actions → Aliyun OSS
 
-## 🚨 核心规则
+## 🚨 Core Rules
 
-### ⚠️ 提交前必须检查清单
+### ⚠️ Pre-Commit Checklist
 
-**在每次提交代码之前，必须确保以下所有检查通过：**
+**Before every code commit, ensure ALL of the following checks pass:**
 
-1. **✅ TypeScript 类型检查**
+1. **✅ TypeScript Type Checking**
 
    ```bash
-   # 确保没有 TypeScript 错误
+   # Ensure no TypeScript errors
    npx tsc --noEmit
    ```
 
-2. **✅ ESLint 代码检查**
+2. **✅ ESLint Code Checking**
 
    ```bash
    pnpm run lint
-   # 或
+   # or
    npm run lint
    ```
 
-3. **✅ 本地构建测试**
+3. **✅ Local Build Test**
 
    ```bash
-   # 清理之前的构建
+   # Clean previous builds
    rm -rf .next out
 
-   # 执行构建
+   # Execute build
    pnpm run build
-   # 或
+   # or
    npm run build
 
-   # 确保构建成功，没有错误
+   # Ensure build succeeds without errors
    ```
 
-4. **✅ 依赖锁定文件同步**
+4. **✅ Dependency Lock File Synchronization**
 
-   - 如果使用 `npm install` 更新依赖，必须同步更新 `pnpm-lock.yaml`：
+   - If using `npm install` to update dependencies, must synchronize `pnpm-lock.yaml`:
 
      ```bash
      pnpm install
      ```
 
-   - 如果使用 `pnpm install` 更新依赖，确保 `pnpm-lock.yaml` 已更新
-   - **重要**: CI 使用 pnpm。如果本地使用 npm 更新依赖但未更新 `pnpm-lock.yaml`，CI 会失败
+   - If using `pnpm install` to update dependencies, ensure `pnpm-lock.yaml` is updated
+   - **Important**: CI uses pnpm. If dependencies are updated locally with npm but `pnpm-lock.yaml` is not updated, CI will fail
 
-5. **✅ 构建产物验证**
+5. **✅ Build Artifact Verification**
 
-   - 确保 `out/` 目录已生成
-   - 确保 `out/sitemap.xml` 已生成（postbuild 脚本自动生成）
-   - 检查构建产物是否完整
+   - Ensure `out/` directory is generated
+   - Ensure `out/sitemap.xml` is generated (automatically by postbuild script)
+   - Check build artifacts are complete
 
-## 🔄 CI/CD 流程说明
+## 🔄 CI/CD Pipeline Overview
 
-### GitHub Actions 工作流步骤
+### GitHub Actions Workflow Steps
 
-根据 `.github/workflows/deploy.yml`，CI 流程包括：
+According to `.github/workflows/deploy.yml`, the CI process includes:
 
-1. **Checkout**: 检出代码
+1. **Checkout**: Check out code
 
-2. **Install dependencies**: 安装依赖
+2. **Install dependencies**:
 
    ```bash
    npm install -g pnpm && pnpm install
    ```
 
-3. **Install dependencies and build**: 安装依赖并构建
+3. **Install dependencies and build**:
 
    ```bash
    pnpm install --no-frozen-lockfile
    pnpm run build
    ```
 
-4. **Deploy**: 部署到阿里云 OSS
+4. **Deploy**: Deploy to Aliyun OSS
 
-### 本地模拟 CI 流程
+### Local CI Simulation
 
-在提交前，建议在本地模拟完整的 CI 流程：
+Before committing, it's recommended to simulate the complete CI process locally:
 
 ```bash
-# 1. 清理环境
+# 1. Clean environment
 rm -rf node_modules .next out
 
-# 2. 安装依赖（使用 pnpm，与 CI 一致）
+# 2. Install dependencies (using pnpm, consistent with CI)
 npm install -g pnpm
 pnpm install
 
-# 3. 构建项目
+# 3. Build project
 pnpm run build
 
-# 4. 验证构建产物
+# 4. Verify build artifacts
 ls -la out/
 ls -la out/sitemap.xml
 
-# 5. 运行 lint
+# 5. Run lint
 pnpm run lint
 ```
 
-## 📝 开发规范
+## 📝 Development Standards
 
-### 代码风格
+### Code Style
 
-- ✅ 使用 TypeScript 严格模式
-- ✅ 遵循 ESLint 配置规则
-- ✅ 使用函数式组件和 Hooks
-- ✅ 使用 Tailwind CSS 进行样式编写
-- ✅ 客户端组件必须标记 `'use client'`
+- ✅ Use TypeScript strict mode
+- ✅ Follow ESLint configuration rules
+- ✅ Use functional components and Hooks
+- ✅ Use Tailwind CSS for styling
+- ✅ Client components must be marked with `'use client'`
 
-### 组件开发
+### Component Development
 
-- ✅ 使用 `cn()` 函数合并类名
-- ✅ 支持暗色模式和响应式设计
-- ✅ 遵循 shadcn/ui 组件标准
-- ✅ 保持组件单一职责
+- ✅ Use `cn()` function to merge class names
+- ✅ Support dark mode and responsive design
+- ✅ Follow shadcn/ui component standards
+- ✅ Maintain single responsibility principle
 
-### 样式和结构保护
+### Language and Locale Rules
 
-**🚨 绝对规则：除非明确指定，否则不得修改样式或结构！**
+- ✅ `rustfs.com.cn` is the Chinese-primary site. Chinese pages must default to Simplified Chinese for headings, body copy, buttons, helper text, metadata, and SEO fields.
+- ✅ Keep `html lang`, page metadata locale, and `hreflang` mappings aligned with the actual site domain: `rustfs.com.cn` for Chinese and `rustfs.com` for English.
+- ✅ Prefer `docs.rustfs.com.cn` when linking to Chinese documentation from the Chinese site.
+- ❌ Do not leave placeholder English copy on Chinese pages such as hero titles, help text, CTA labels, date labels, or install guidance.
+- ❌ Do not swap Chinese and English alternate domains or language tags.
 
-- ❌ **禁止**修改现有 CSS 类、布局结构或组件设计
-- ❌ **禁止**简化复杂组件或移除视觉元素
-- ❌ **禁止**用基础 UI 组件替换自定义组件
-- ❌ **禁止**修改动画、过渡效果或交互行为
-- ❌ **禁止**更改响应式设计或暗色模式实现
+### Style and Structure Protection
 
-### Git 提交规范
+**🚨 Absolute Rule: Do NOT modify styles or structure unless explicitly specified!**
 
-- ✅ 使用 [Conventional Commits](https://www.conventionalcommits.org/) 规范
-- ✅ 提交信息必须使用英文
-- ✅ 格式：`<type>[optional scope]: <description>`
-- ✅ 类型：`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
+- ❌ **Forbidden** to modify existing CSS classes, layout structure, or component design
+- ❌ **Forbidden** to simplify complex components or remove visual elements
+- ❌ **Forbidden** to replace custom components with basic UI components
+- ❌ **Forbidden** to modify animations, transitions, or interactive behaviors
+- ❌ **Forbidden** to change responsive design or dark mode implementations
 
-示例：
+### Git Commit Standards
+
+- ✅ Use [Conventional Commits](https://www.conventionalcommits.org/) specification
+- ✅ Commit messages must be in English
+- ✅ Format: `<type>[optional scope]: <description>`
+- ✅ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
+
+Examples:
 
 ```bash
 feat: add contact form with hCaptcha
@@ -151,87 +159,89 @@ fix: update pnpm-lock.yaml after npm dependency changes
 docs: update README with new features
 ```
 
-## 🛠️ 常见问题排查
+## 🛠️ Common Issues Troubleshooting
 
-### 问题 1: CI 构建失败 - 依赖安装错误
+### Issue 1: CI Build Failure - Dependency Installation Error
 
-**症状**: `Install dependencies` 步骤失败
+**Symptoms**: `Install dependencies` step fails
 
-**原因**:
+**Causes**:
 
-- 本地使用 npm 更新依赖，但未更新 `pnpm-lock.yaml`
-- `pnpm-lock.yaml` 与 `package.json` 不同步
+- Dependencies updated locally with npm but `pnpm-lock.yaml` not updated
+- `pnpm-lock.yaml` out of sync with `package.json`
 
-**解决方案**:
+**Solution**:
 
 ```bash
-# 使用 pnpm 重新安装依赖，更新锁定文件
+# Reinstall dependencies with pnpm to update lock file
 pnpm install
 
-# 提交更新的 pnpm-lock.yaml
+# Commit updated pnpm-lock.yaml
 git add pnpm-lock.yaml
 git commit -m "fix: update pnpm-lock.yaml"
 ```
 
-### 问题 2: CI 构建失败 - TypeScript 错误
+### Issue 2: CI Build Failure - TypeScript Errors
 
-**症状**: 构建过程中 TypeScript 类型错误
+**Symptoms**: TypeScript type errors during build
 
-**解决方案**:
+**Solution**:
 
 ```bash
-# 本地检查 TypeScript 错误
+# Check TypeScript errors locally
 npx tsc --noEmit
 
-# 修复所有类型错误后再提交
+# Fix all type errors before committing
 ```
 
-### 问题 3: CI 构建失败 - ESLint 错误
+### Issue 3: CI Build Failure - ESLint Errors
 
-**症状**: Lint 检查失败
+**Symptoms**: Lint check fails
 
-**解决方案**:
+**Solution**:
 
 ```bash
-# 本地运行 lint 检查
+# Run lint check locally
 pnpm run lint
 
-# 修复所有 lint 错误后再提交
+# Fix all lint errors before committing
 ```
 
-### 问题 4: 构建成功但部署失败
+### Issue 4: Build Succeeds but Deployment Fails
 
-**症状**: 构建通过，但部署步骤失败
+**Symptoms**: Build passes but deployment step fails
 
-**检查项**:
+**Checklist**:
 
-- 确保 `out/` 目录存在
-- 确保 `out/sitemap.xml` 已生成
-- 检查构建产物是否完整
+- Ensure `out/` directory exists
+- Ensure `out/sitemap.xml` is generated
+- Check build artifacts are complete
 
-## 📚 相关资源
+## 📚 Related Resources
 
-- [项目 README](./README.md)
-- [Next.js 文档](https://nextjs.org/docs)
-- [TypeScript 文档](https://www.typescriptlang.org/docs)
-- [Tailwind CSS 文档](https://tailwindcss.com/docs)
-- [ESLint 文档](https://eslint.org/docs/latest)
+- [Project README](./README.md)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [ESLint Documentation](https://eslint.org/docs/latest)
 
-## ✅ 提交前检查清单
+## ✅ Pre-Commit Checklist
 
-在每次提交代码前，请确认：
+Before every code commit, confirm:
 
-- [ ] TypeScript 类型检查通过 (`npx tsc --noEmit`)
-- [ ] ESLint 检查通过 (`pnpm run lint`)
-- [ ] 本地构建成功 (`pnpm run build`)
-- [ ] `pnpm-lock.yaml` 已更新（如果修改了依赖）
-- [ ] 构建产物 `out/` 目录存在且完整
-- [ ] `out/sitemap.xml` 已生成
-- [ ] 提交信息符合 Conventional Commits 规范
-- [ ] 提交信息使用英文
+- [ ] TypeScript type check passes (`npx tsc --noEmit`)
+- [ ] ESLint check passes (`pnpm run lint`)
+- [ ] Local build succeeds (`pnpm run build`)
+- [ ] `pnpm-lock.yaml` is updated (if dependencies were modified)
+- [ ] Build artifacts `out/` directory exists and is complete
+- [ ] `out/sitemap.xml` is generated
+- [ ] Commit message follows Conventional Commits specification
+- [ ] Commit message is in English
+- [ ] Chinese pages do not contain accidental English UI or SEO metadata
+- [ ] `lang`, `openGraph.locale`, and `hreflang` match the actual page language and domain
 
-**记住：如果本地构建失败，CI 也一定会失败。不要提交无法通过本地构建的代码！**
+**Remember: If local build fails, CI will also fail. Do NOT commit code that cannot pass local build!**
 
 ---
 
-**最后更新**: 2026-01-06
+**Last Updated**: 2026-01-06

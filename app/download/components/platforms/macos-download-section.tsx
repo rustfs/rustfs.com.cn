@@ -1,6 +1,5 @@
 'use client'
 
-import { getDownloadUrlForPlatform, type GitHubRelease } from '@/lib/github';
 import { cn } from "@/lib/utils";
 import { DownloadIcon } from "lucide-react";
 import Link from "next/link";
@@ -8,6 +7,7 @@ import CodeBlock from "../code-block";
 import Note from "../common/note";
 import PlatformHeader from "../common/platform-header";
 import { type PlatformInfoData } from "./platform-info";
+import { getDownloadUrlForPlatform, type GitHubRelease } from '@/lib/github';
 
 interface MacOSDownloadSectionProps {
   platform: PlatformInfoData;
@@ -47,31 +47,31 @@ export default function MacOSDownloadSection({ platform, release, className }: M
 
       {/* Homebrew Installation */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground">{'Homebrew 安装'}</h3>
+        <h3 className="text-lg font-semibold text-foreground">Homebrew 安装</h3>
 
         <CodeBlock
           code={["brew tap rustfs/homebrew-tap", "brew install rustfs", "rustfs --version"]}
-          title={'Homebrew 命令'}
+          title="Homebrew 命令"
         />
 
         <Note type="info">
           <Link href="https://brew.sh/" target="_blank" className="hover:underline">
-            {'安装需要 Homebrew'}
+            安装前请先准备 Homebrew
           </Link>
         </Note>
       </div>
 
       {/* Binary Downloads */}
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-foreground">{'二进制下载'}</h3>
+        <h3 className="text-lg font-semibold text-foreground">二进制下载</h3>
 
         {/* Apple Silicon Variant */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-medium text-foreground">{'Apple Silicon'}</h4>
+              <h4 className="font-medium text-foreground">Apple Silicon</h4>
               <p className="text-sm text-muted-foreground">
-                {'架构'}: aarch64
+                架构：aarch64
               </p>
             </div>
             <a
@@ -80,7 +80,7 @@ export default function MacOSDownloadSection({ platform, release, className }: M
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
               <DownloadIcon className="w-4 h-4" />
-              <span>{'下载'}</span>
+              <span>下载</span>
             </a>
           </div>
 
@@ -91,15 +91,15 @@ export default function MacOSDownloadSection({ platform, release, className }: M
               "chmod +x rustfs",
               "./rustfs --version",
             ]}
-            title={'安装命令'}
+            title="安装命令"
           />
 
           <div className="space-y-2">
             <Note type="tip">
-              {'默认凭据：rustfsadmin / rustfsadmin'}
+              默认账号密码：rustfsadmin / rustfsadmin
             </Note>
             <Note type="tip">
-              {'Apple Silicon 优化，性能更佳'}
+              Apple Silicon 架构已做专项性能优化
             </Note>
           </div>
         </div>
@@ -108,9 +108,9 @@ export default function MacOSDownloadSection({ platform, release, className }: M
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-medium text-foreground">{'Intel'}</h4>
+              <h4 className="font-medium text-foreground">Intel</h4>
               <p className="text-sm text-muted-foreground">
-                {'架构'}: x86_64
+                架构：x86_64
               </p>
             </div>
             <a
@@ -119,7 +119,7 @@ export default function MacOSDownloadSection({ platform, release, className }: M
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
               <DownloadIcon className="w-4 h-4" />
-              <span>{'下载'}</span>
+              <span>下载</span>
             </a>
           </div>
 
@@ -130,11 +130,11 @@ export default function MacOSDownloadSection({ platform, release, className }: M
               "chmod +x rustfs",
               "./rustfs --version",
             ]}
-            title={'安装命令'}
+            title="安装命令"
           />
 
           <Note type="tip">
-            {'默认凭据：rustfsadmin / rustfsadmin'}
+            默认账号密码：rustfsadmin / rustfsadmin
           </Note>
         </div>
       </div>

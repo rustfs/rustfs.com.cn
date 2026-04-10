@@ -1,12 +1,12 @@
 'use client'
 
+import { SITE_CONFIG } from '@/app.config';
 import { docs_url } from "@/lib/utils";
 import LinkGitHub from './buttons/link-github';
 import LinkTwitter from './buttons/link-twitter';
 import { Logo } from './logo';
 
 export default function AppFooter() {
-
   const footerLinks = [
     {
       title: '架构支持',
@@ -121,6 +121,12 @@ export default function AppFooter() {
               </div>
             </div>
             <div className="flex items-center gap-4">
+              <a
+                href={SITE_CONFIG.secondaryDomain}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                English
+              </a>
               <LinkGitHub className="group inline-flex" />
               <LinkTwitter className="group inline-flex" />
             </div>

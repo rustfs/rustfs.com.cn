@@ -27,3 +27,4 @@ export async function getDockerPulls(): Promise<number> {
   // Fallback value: 157k+
   return 157000
 }
+

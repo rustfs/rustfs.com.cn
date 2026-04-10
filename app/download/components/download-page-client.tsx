@@ -1,7 +1,6 @@
 'use client'
 
 import { formatReleaseDate, formatVersion, type GitHubRelease } from '@/lib/github';
-import { docs_url } from '@/lib/utils';
 import AppleIcon from "@/public/svgs/brands/apple.svg";
 import DockerIcon from "@/public/svgs/brands/docker.svg";
 import LinuxIcon from "@/public/svgs/brands/linux.svg";
@@ -17,34 +16,36 @@ interface DownloadPageClientProps {
   launcherRelease: GitHubRelease | null;
 }
 
-export default function DownloadPageClient({ release, launcherRelease }: DownloadPageClientProps) {
+export default function DownloadPageClient({ release, launcherRelease }: DownloadPageClientProps) {// 使用 download 命名空间
+
+  // 平台配置 - 直接使用 useMemo，不依赖 t 函数
   const platforms = useMemo((): PlatformInfoData[] => [
     {
       id: "linux",
       name: 'Linux',
       icon: <LinuxIcon className="w-full h-full aspect-square" />,
-      description: 'Ubuntu 18.04+、CentOS 7+ 和其他 Linux 发行版',
+      description: '支持 Ubuntu 18.04+、CentOS 7+ 等主流 Linux 发行版',
       available: true,
     },
     {
       id: "docker",
       name: 'Docker',
       icon: <DockerIcon className="w-full h-full aspect-square" />,
-      description: 'Docker 20.10+ 容器化部署',
+      description: '支持 Docker 20.10+ 的容器化部署',
       available: true,
     },
     {
       id: "macos",
       name: 'macOS',
       icon: <AppleIcon className="w-full h-full aspect-square" />,
-      description: 'macOS 10.15+ 原生二进制支持',
+      description: '支持 macOS 10.15+ 原生二进制安装',
       available: true,
     },
     {
       id: "windows",
       name: 'Windows',
       icon: <WindowsIcon className="w-full h-full aspect-square" />,
-      description: 'Windows 10/11 原生二进制支持',
+      description: '支持 Windows 10/11 原生安装',
       available: true,
     },
   ], []);
@@ -110,12 +111,12 @@ export default function DownloadPageClient({ release, launcherRelease }: Downloa
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex items-center justify-center mb-6">
             <h1 className="text-4xl font-bold text-foreground sm:text-5xl md:text-6xl">
-              {'下载 RustFS'}
+              下载 RustFS
             </h1>
           </div>
 
           <p className="mx-auto max-w-3xl text-lg text-muted-foreground">
-            {'选择适合您系统的 RustFS 版本，支持 Windows、Linux、macOS 和 Docker 部署。开始体验高性能的分布式存储系统。'}
+            选择适合您系统的 RustFS 版本，支持 Windows、Linux、macOS 和 Docker 部署，快速开始体验高性能分布式存储。
           </p>
 
           <div className="mt-8 flex justify-center">
@@ -124,7 +125,7 @@ export default function DownloadPageClient({ release, launcherRelease }: Downloa
               target="_blank"
               rel="noopener noreferrer"
               className="group inline-flex items-center space-x-3 px-6 py-3 bg-muted/50 rounded-xl border border-border hover:border-primary/50 transition-all duration-200"
-              title={'查看 GitHub 发布页面'}
+              title="查看 GitHub 发布页"
             >
               {/* 版本信息 */}
               <div className="flex items-center space-x-2">
@@ -132,16 +133,16 @@ export default function DownloadPageClient({ release, launcherRelease }: Downloa
                   {release ? formatVersion(release.tag_name) : 'v1.0.0'}
                 </span>
                 {release && (
-                  <span className="inline-flex items-center space-x-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs rounded-full">
-                    <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-                    <span>{'最新'}</span>
+                  <span className="inline-flex items-center space-x-1 px-2 py-1 bg-success/10 text-success text-xs rounded-full">
+                    <div className="w-1 h-1 bg-success rounded-full"></div>
+                    <span>最新版本</span>
                   </span>
                 )}
               </div>
 
               {release && (
                 <span className="text-xs text-muted-foreground">
-                  {`${'发布于'} ${formatReleaseDate(release.published_at, 'zh-CN')}`}
+                  发布日期：{formatReleaseDate(release.published_at)}
                 </span>
               )}
 
@@ -178,22 +179,22 @@ export default function DownloadPageClient({ release, launcherRelease }: Downloa
       <section className="py-16 bg-background">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-foreground mb-8">
-            {'需要帮助？'}
+            需要帮助？
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <a
-              href={docs_url('/')}
+              href="https://docs.rustfs.com.cn"
               className="p-6 bg-card rounded-lg border border-border hover:border-primary/50 transition-colors group"
             >
               <div className="w-12 h-12 mx-auto mb-4 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                 <BookOpenIcon className="w-6 h-6 text-primary" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                {'文档'}
+                中文文档
               </h3>
               <p className="text-sm text-muted-foreground">
-                {'详细的安装指南和使用说明'}
+                查看详细安装指南和使用说明
               </p>
             </a>
 
@@ -205,10 +206,10 @@ export default function DownloadPageClient({ release, launcherRelease }: Downloa
                 <MessageCircleIcon className="w-6 h-6 text-primary" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">
-                {'社区支持'}
+                社区支持
               </h3>
               <p className="text-sm text-muted-foreground">
-                {'加入社区讨论，获取技术支持'}
+                参与社区讨论并获取技术支持
               </p>
             </a>
           </div>

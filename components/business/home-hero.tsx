@@ -9,7 +9,7 @@ import DownloadLink from "./buttons/download-link";
 import StatsStrip from "./stats-strip";
 //import GetStartedButton from "./buttons/get-started";
 
-// 导入所有软件 SVG 图标
+// 导入所有软件SVG图标
 
 interface HomeHeroProps {
   dockerPulls: number;

@@ -1,4 +1,3 @@
-/* 同步自 rustfs.com 主仓库：https://github.com/rustfs/rustfs.com/blob/main/components/business/buttons/link-github.tsx */
 'use client'
 
 import { useEffect, useState } from "react";

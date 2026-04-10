@@ -1,12 +1,12 @@
 'use client'
 
-import { getDownloadUrlForPlatform, type GitHubRelease } from '@/lib/github';
 import { cn } from "@/lib/utils";
 import { DownloadIcon } from "lucide-react";
 import CodeBlock from "../code-block";
 import Note from "../common/note";
 import PlatformHeader from "../common/platform-header";
 import { type PlatformInfoData } from "./platform-info";
+import { getDownloadUrlForPlatform, type GitHubRelease } from '@/lib/github';
 
 interface LinuxDownloadSectionProps {
   platform: PlatformInfoData;
@@ -46,16 +46,16 @@ export default function LinuxDownloadSection({ platform, release, className }: L
 
       {/* One-click Installation Script */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground">{'一键安装脚本'}</h3>
+        <h3 className="text-lg font-semibold text-foreground">一键安装脚本</h3>
         <CodeBlock
           code={["curl -O https://rustfs.com/install_rustfs.sh && bash install_rustfs.sh"]}
-          title={'一键安装脚本'}
+          title="一键安装脚本"
         />
       </div>
 
       {/* Binary Downloads */}
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-foreground">{'二进制下载'}</h3>
+        <h3 className="text-lg font-semibold text-foreground">二进制下载</h3>
 
         {/* x86_64 Variant */}
         <div className="space-y-4">
@@ -63,7 +63,7 @@ export default function LinuxDownloadSection({ platform, release, className }: L
             <div>
               <h4 className="font-medium text-foreground">x86_64</h4>
               <p className="text-sm text-muted-foreground">
-                {'架构'}: x86_64
+                架构：x86_64
               </p>
             </div>
             <a
@@ -72,7 +72,7 @@ export default function LinuxDownloadSection({ platform, release, className }: L
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
               <DownloadIcon className="w-4 h-4" />
-              <span>{'下载'}</span>
+              <span>下载</span>
             </a>
           </div>
 
@@ -82,11 +82,11 @@ export default function LinuxDownloadSection({ platform, release, className }: L
               `unzip ${getFilenameFromUrl(finalX86_64Url, 'x86_64')}`,
               "./rustfs --version",
             ]}
-            title={'安装命令'}
+            title="安装命令"
           />
 
           <Note type="tip">
-            {'默认凭据：rustfsadmin / rustfsadmin'}
+            默认账号密码：rustfsadmin / rustfsadmin
           </Note>
         </div>
 
@@ -96,7 +96,7 @@ export default function LinuxDownloadSection({ platform, release, className }: L
             <div>
               <h4 className="font-medium text-foreground">aarch64</h4>
               <p className="text-sm text-muted-foreground">
-                {'架构'}: aarch64
+                架构：aarch64
               </p>
             </div>
             <a
@@ -105,7 +105,7 @@ export default function LinuxDownloadSection({ platform, release, className }: L
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
               <DownloadIcon className="w-4 h-4" />
-              <span>{'下载'}</span>
+              <span>下载</span>
             </a>
           </div>
 
@@ -115,15 +115,15 @@ export default function LinuxDownloadSection({ platform, release, className }: L
               `unzip ${getFilenameFromUrl(finalAarch64Url, 'aarch64')}`,
               "./rustfs --version",
             ]}
-            title={'安装命令'}
+            title="安装命令"
           />
 
           <div className="space-y-2">
             <Note type="info">
-              {'ARM64 优化，性能更佳'}
+              ARM64 架构已针对性能做专项优化
             </Note>
             <Note type="tip">
-              {'默认凭据：rustfsadmin / rustfsadmin'}
+              默认账号密码：rustfsadmin / rustfsadmin
             </Note>
           </div>
         </div>

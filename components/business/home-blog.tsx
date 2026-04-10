@@ -24,10 +24,10 @@ export default async function HomeBlog({ className }: HomeBlogProps) {
       <div className="mx-auto flex max-w-[85rem] flex-col justify-center px-4 sm:px-6 lg:px-8">
         <div className="mx-auto mb-10 max-w-2xl text-center lg:mb-14">
           <h2 className="text-2xl font-bold md:text-4xl md:leading-tight text-primary">
-            RustFS 博客最新文章
+            Latest from RustFS Blog
           </h2>
           <p className="mt-4 text-muted-foreground">
-            阅读 RustFS 团队的最新更新、发布说明和技术深度文章。
+            Read the latest updates, release notes, and technical deep dives from the RustFS team.
           </p>
         </div>
 
@@ -68,7 +68,7 @@ export default async function HomeBlog({ className }: HomeBlogProps) {
 
               <div className="mt-4 px-6 pb-6">
                 <span className="inline-flex items-center text-sm font-medium text-primary hover:underline">
-                  阅读更多
+                  Read more
                   <span className="ml-1" aria-hidden="true">
                     ↗
                   </span>
@@ -85,7 +85,7 @@ export default async function HomeBlog({ className }: HomeBlogProps) {
             rel="noreferrer"
             className="inline-flex items-center text-sm font-medium text-primary hover:underline"
           >
-            查看更多 RustFS 博客文章
+            View more on RustFS Blog
             <span className="ml-1" aria-hidden="true">
               ↗
             </span>
@@ -95,4 +95,5 @@ export default async function HomeBlog({ className }: HomeBlogProps) {
     </section>
   );
 }
+
 

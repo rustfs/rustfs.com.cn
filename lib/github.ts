@@ -83,78 +83,6 @@ export async function getLatestRelease(): Promise<GitHubRelease | null> {
 }
 
 /**
- * Get the latest version at build time (alias for getLatestRelease)
- * @returns Promise<GitHubRelease | null>
- */
-export async function getLatestVersion(): Promise<GitHubRelease | null> {
-  return getLatestRelease()
-}
-
-/**
- * Get the latest launcher release information
- * @returns Promise<GitHubRelease | null>
- */
-export async function getLatestLauncherRelease(): Promise<GitHubRelease | null> {
-  // Try to get the latest official release first
-  try {
-    const response = await fetch(
-      'https://api.github.com/repos/rustfs/launcher/releases/latest',
-      {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'RustFS-Website'
-        },
-        // Cache for 1 hour
-        next: { revalidate: 3600 }
-      }
-    )
-
-    if (response.ok) {
-      const release = await response.json()
-      return release
-    }
-  } catch (error) {
-    console.warn('Failed to fetch latest launcher release:', error)
-  }
-
-  // If official release doesn't exist (404), get the latest version with assets
-  try {
-    const response = await fetch(
-      'https://api.github.com/repos/rustfs/launcher/releases?per_page=10',
-      {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'RustFS-Website'
-        },
-        // Cache for 1 hour
-        next: { revalidate: 3600 }
-      }
-    )
-
-    if (response.ok) {
-      const releases = await response.json()
-
-      // Prioritize latest non-draft version with assets
-      const releaseWithAssets = releases.find((release: GitHubRelease) =>
-        !release.draft && release.assets && release.assets.length > 0
-      )
-
-      if (releaseWithAssets) {
-        return releaseWithAssets
-      }
-
-      // If no version with assets found, return latest non-draft version
-      const latestNonDraft = releases.find((release: GitHubRelease) => !release.draft)
-      return latestNonDraft || null
-    }
-  } catch (error) {
-    console.error('Failed to fetch launcher releases:', error)
-  }
-
-  return null
-}
-
-/**
  * Get GitHub repository metrics (stars, forks, commits) at build time
  * @returns Promise<GitHubMetrics>
  */
@@ -253,10 +181,93 @@ export function formatReleaseDate(dateString: string, locale: string = 'zh-CN'):
 }
 
 /**
+ * Get latest version string at build time
+ * @returns Promise<string> Version string (e.g., "v1.0.0") or fallback
+ */
+export async function getLatestVersion(): Promise<string> {
+  const fallback = 'v1.0.0';
+
+  try {
+    const release = await getLatestRelease();
+    if (release && release.tag_name) {
+      return release.tag_name.startsWith('v') ? release.tag_name : `v${release.tag_name}`;
+    }
+  } catch (error) {
+    console.warn('Failed to fetch latest version:', error);
+  }
+
+  return fallback;
+}
+
+/**
+ * Get the latest launcher release information
+ * @returns Promise<GitHubRelease | null>
+ */
+export async function getLatestLauncherRelease(): Promise<GitHubRelease | null> {
+  // Try to get the latest official release first
+  try {
+    const response = await fetch(
+      'https://api.github.com/repos/rustfs/launcher/releases/latest',
+      {
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'RustFS-Website'
+        },
+        // Cache for 1 hour
+        next: { revalidate: 3600 }
+      }
+    )
+
+    if (response.ok) {
+      const release = await response.json()
+      return release
+    }
+  } catch (error) {
+    console.warn('Failed to fetch latest launcher release:', error)
+  }
+
+  // If official release doesn't exist (404), get the latest version with assets
+  try {
+    const response = await fetch(
+      'https://api.github.com/repos/rustfs/launcher/releases?per_page=10',
+      {
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'RustFS-Website'
+        },
+        // Cache for 1 hour
+        next: { revalidate: 3600 }
+      }
+    )
+
+    if (response.ok) {
+      const releases = await response.json()
+
+      // Prioritize latest non-draft version with assets
+      const releaseWithAssets = releases.find((release: GitHubRelease) =>
+        !release.draft && release.assets && release.assets.length > 0
+      )
+
+      if (releaseWithAssets) {
+        return releaseWithAssets
+      }
+
+      // If no version with assets found, return latest non-draft version
+      const latestNonDraft = releases.find((release: GitHubRelease) => !release.draft)
+      return latestNonDraft || null
+    }
+  } catch (error) {
+    console.error('Failed to fetch launcher releases:', error)
+  }
+
+  return null
+}
+
+/**
  * Get download link for a version
  * @param release GitHub release information
  * @param platform Platform identifier
- * @param arch Architecture identifier (optional)
+ * @param arch Optional architecture (e.g., 'x86_64', 'aarch64')
  * @returns Download link or null
  */
 export function getDownloadUrlForPlatform(
@@ -268,33 +279,51 @@ export function getDownloadUrlForPlatform(
     return null;
   }
 
-  // Match filename pattern based on platform
-  const platformPatterns: Record<string, RegExp> = {
-    windows: /windows/i,
-    linux: /linux/i,
-    macos: /macos|darwin/i,
-    docker: /docker/i
+  // Match filename pattern based on platform and architecture
+  const platformPatterns: Record<string, RegExp[]> = {
+    windows: [
+      /rustfs-windows-x86_64.*\.exe/i,
+      /windows.*x86_64.*\.exe/i,
+      /windows/i
+    ],
+    linux: arch === 'aarch64'
+      ? [
+        /rustfs-linux-aarch64.*\.zip/i,
+        /linux.*aarch64.*\.zip/i,
+        /linux.*arm64.*\.zip/i
+      ]
+      : [
+        /rustfs-linux-x86_64.*\.zip/i,
+        /linux.*x86_64.*\.zip/i,
+        /linux/i
+      ],
+    macos: arch === 'aarch64' || arch === 'arm64'
+      ? [
+        /rustfs-macos-aarch64.*\.zip/i,
+        /macos.*aarch64.*\.zip/i,
+        /macos.*arm64.*\.zip/i,
+        /darwin.*aarch64/i
+      ]
+      : [
+        /rustfs-macos-x86_64.*\.zip/i,
+        /macos.*x86_64.*\.zip/i,
+        /darwin.*x86_64/i,
+        /darwin/i
+      ],
+    docker: [/docker/i]
   };
 
-  const platformPattern = platformPatterns[platform];
-  if (!platformPattern) {
+  const patterns = platformPatterns[platform];
+  if (!patterns) {
     return null;
   }
 
-  // Match architecture pattern if provided
-  const archPatterns: Record<string, RegExp> = {
-    x86_64: /x86[_-]?64|amd64/i,
-    aarch64: /aarch64|arm64/i,
-  };
-
-  const archPattern = arch ? archPatterns[arch] : null;
-
-  for (const asset of release.assets) {
-    const matchesPlatform = platformPattern.test(asset.name);
-    const matchesArch = archPattern ? archPattern.test(asset.name) : true;
-
-    if (matchesPlatform && matchesArch) {
-      return asset.browser_download_url;
+  // Try patterns in order of specificity
+  for (const pattern of patterns) {
+    for (const asset of release.assets) {
+      if (pattern.test(asset.name)) {
+        return asset.browser_download_url;
+      }
     }
   }
 

@@ -2,6 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
 
@@ -93,20 +101,25 @@ const calculateParityOptions = (stripeSize: number) => {
   return options;
 };
 
-const inputClassName =
-  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
-
-const selectClassName =
-  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+const formatIntegerInput = (raw: string): string => {
+  if (raw === "") return "";
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return "";
+  return String(Math.floor(n));
+};
 
 export default function ErasureCodeCalculator() {
   const [servers, setServers] = useState(8);
+  const [serversInput, setServersInput] = useState<string | null>(null);
   const [drivesPerServer, setDrivesPerServer] = useState(16);
+  const [drivesPerServerInput, setDrivesPerServerInput] = useState<string | null>(null);
   const [driveCapacity, setDriveCapacity] = useState(8);
+  const [driveCapacityInput, setDriveCapacityInput] = useState<string | null>(null);
   const [stripeSize, setStripeSize] = useState(0);
   const [parity, setParity] = useState(0);
   const [shareCopied, setShareCopied] = useState(false);
   const [exportBusy, setExportBusy] = useState(false);
+  const [appliedFeedback, setAppliedFeedback] = useState(false);
 
   const totalDrives = servers * drivesPerServer;
 
@@ -161,22 +174,39 @@ export default function ErasureCodeCalculator() {
   }, [stripeInfo.error, totalDrives, stripeSize, parityOptions.length]);
 
   const recommendedConfig = useMemo(() => {
-    if (stripeInfo.stripeSizes.length === 0) {
+    const stripeSizesSource =
+      stripeInfo.stripeSizes.length > 0
+        ? stripeInfo
+        : (() => {
+            const serversCorrected = Math.max(4, servers);
+            const drivesCorrected = Math.min(256, Math.max(1, drivesPerServer));
+            return calculateStripeSizes(serversCorrected, drivesCorrected);
+          })();
+
+    if (stripeSizesSource.stripeSizes.length === 0) {
       return null;
     }
 
-    const recommendedStripe = Math.max(...stripeInfo.stripeSizes);
+    const recommendedStripe = Math.max(...stripeSizesSource.stripeSizes);
     const recommendedParityOptions = calculateParityOptions(recommendedStripe);
     const recommendedParity =
       recommendedParityOptions.includes(4)
         ? 4
         : recommendedParityOptions[0] ?? 0;
 
+    if (stripeInfo.stripeSizes.length > 0) {
+      return { stripe: recommendedStripe, parity: recommendedParity };
+    }
+
+    const serversCorrected = Math.max(4, servers);
+    const drivesCorrected = Math.min(256, Math.max(1, drivesPerServer));
     return {
       stripe: recommendedStripe,
       parity: recommendedParity,
+      serversCorrected,
+      drivesCorrected,
     };
-  }, [stripeInfo.stripeSizes]);
+  }, [stripeInfo, servers, drivesPerServer]);
 
   useEffect(() => {
     if (stripeInfo.stripeSizes.length === 0) {
@@ -200,6 +230,10 @@ export default function ErasureCodeCalculator() {
       setParity(preferred);
     }
   }, [parityOptions, parity, totalDrives]);
+
+  useEffect(() => {
+    setShareCopied(false);
+  }, [servers, drivesPerServer, driveCapacity, stripeSize, parity]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -351,14 +385,14 @@ export default function ErasureCodeCalculator() {
     const lines = entries
       .map(([key, value], index) => {
         const y = padding + lineHeight * (index + 2);
-        return `<text x=\"${padding}\" y=\"${y}\" fill=\"#0f172a\" font-size=\"14\" font-family=\"Inter, Arial, sans-serif\">${key}: ${value}</text>`;
+        return `<text x="${padding}" y="${y}" fill="#0f172a" font-size="14" font-family="Inter, Arial, sans-serif">${key}: ${value}</text>`;
       })
       .join("");
 
-    const svg = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"${width}\" height=\"${height}\" viewBox=\"0 0 ${width} ${height}\">
-  <rect width=\"100%\" height=\"100%\" fill=\"#ffffff\" />
-  <text x=\"${padding}\" y=\"${padding}\" fill=\"#0f172a\" font-size=\"20\" font-family=\"Inter, Arial, sans-serif\" font-weight=\"600\">RustFS 纠删码计算结果</text>
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+  <rect width="100%" height="100%" fill="#ffffff" />
+  <text x="${padding}" y="${padding}" fill="#0f172a" font-size="20" font-family="Inter, Arial, sans-serif" font-weight="600">RustFS 纠删码计算结果</text>
   ${lines}
 </svg>`;
 
@@ -401,56 +435,93 @@ export default function ErasureCodeCalculator() {
           <div className="mt-6 space-y-6">
             <label className="block">
               <span className="text-sm font-medium text-foreground">服务器数量</span>
-              <input
+              <Input
                 type="number"
                 min={1}
-                value={servers}
-                onChange={(event) => setServers(Math.abs(Number(event.target.value)))}
-                className={`${inputClassName} mt-2`}
+                value={serversInput !== null ? serversInput : servers}
+                onFocus={() => setServersInput(String(servers))}
+                onChange={(event) => {
+                  const formatted = formatIntegerInput(event.target.value);
+                  setServersInput(formatted);
+                  if (formatted !== "") setServers(Number(formatted));
+                }}
+                onBlur={() => {
+                  if (serversInput === "" || Number(serversInput) < 1) setServers(1);
+                  setServersInput(null);
+                }}
+                className="mt-2"
               />
             </label>
 
             <label className="block">
               <span className="text-sm font-medium text-foreground">每台服务器硬盘数量</span>
-              <input
+              <Input
                 type="number"
                 min={1}
                 max={256}
-                value={drivesPerServer}
-                onChange={(event) => setDrivesPerServer(Math.abs(Number(event.target.value)))}
-                className={`${inputClassName} mt-2`}
+                value={drivesPerServerInput !== null ? drivesPerServerInput : drivesPerServer}
+                onFocus={() => setDrivesPerServerInput(String(drivesPerServer))}
+                onChange={(event) => {
+                  const formatted = formatIntegerInput(event.target.value);
+                  setDrivesPerServerInput(formatted);
+                  if (formatted !== "") setDrivesPerServer(Number(formatted));
+                }}
+                onBlur={() => {
+                  if (drivesPerServerInput === "" || Number(drivesPerServerInput) < 1) {
+                    setDrivesPerServer(1);
+                  } else if (Number(drivesPerServerInput) > 256) {
+                    setDrivesPerServer(256);
+                  }
+                  setDrivesPerServerInput(null);
+                }}
+                className="mt-2"
               />
             </label>
 
             <label className="block">
               <span className="text-sm font-medium text-foreground">硬盘容量 (TiB)</span>
-              <input
+              <Input
                 type="number"
                 min={1}
-                value={driveCapacity}
-                onChange={(event) => setDriveCapacity(Math.abs(Number(event.target.value)))}
-                className={`${inputClassName} mt-2`}
+                value={driveCapacityInput !== null ? driveCapacityInput : driveCapacity}
+                onFocus={() => setDriveCapacityInput(String(driveCapacity))}
+                onChange={(event) => {
+                  const formatted = formatIntegerInput(event.target.value);
+                  setDriveCapacityInput(formatted);
+                  if (formatted !== "") setDriveCapacity(Number(formatted));
+                }}
+                onBlur={() => {
+                  if (driveCapacityInput === "" || Number(driveCapacityInput) < 1) {
+                    setDriveCapacity(1);
+                  }
+                  setDriveCapacityInput(null);
+                }}
+                className="mt-2"
               />
             </label>
 
             <label className="block">
               <span className="text-sm font-medium text-foreground">纠删码条带大小 (K + M)</span>
-              <select
+              <Select
                 value={stripeSize ? String(stripeSize) : ""}
-                onChange={(event) => setStripeSize(Number(event.target.value))}
-                className={`${selectClassName} mt-2`}
+                onValueChange={(val) => setStripeSize(Number(val))}
                 disabled={stripeInfo.stripeSizes.length === 0}
               >
-                {stripeInfo.stripeSizes.length === 0 ? (
-                  <option value="">不可用</option>
-                ) : (
-                  stripeInfo.stripeSizes.map((value) => (
-                    <option key={value} value={value}>
-                      {value}
-                    </option>
-                  ))
-                )}
-              </select>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder={stripeInfo.stripeSizes.length === 0 ? "不可用" : undefined} />
+                </SelectTrigger>
+                <SelectContent>
+                  {stripeInfo.stripeSizes.length === 0 ? (
+                    <SelectItem value="" disabled>不可用</SelectItem>
+                  ) : (
+                    stripeInfo.stripeSizes.map((value) => (
+                      <SelectItem key={value} value={String(value)}>
+                        {value}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
               <p className="mt-2 text-xs text-muted-foreground">
                 条带大小表示每个纠删码集合包含的驱动器数量（数据块 + 奇偶校验）。条带越大，
                 在容量允许的情况下效率更高。
@@ -459,22 +530,26 @@ export default function ErasureCodeCalculator() {
 
             <label className="block">
               <span className="text-sm font-medium text-foreground">纠删码奇偶校验 (M)</span>
-              <select
+              <Select
                 value={parity ? String(parity) : ""}
-                onChange={(event) => setParity(Number(event.target.value))}
-                className={`${selectClassName} mt-2`}
+                onValueChange={(val) => setParity(Number(val))}
                 disabled={parityOptions.length === 0}
               >
-                {parityOptions.length === 0 ? (
-                  <option value="">不可用</option>
-                ) : (
-                  parityOptions.map((value) => (
-                    <option key={value} value={value}>
-                      {value}
-                    </option>
-                  ))
-                )}
-              </select>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder={parityOptions.length === 0 ? "不可用" : undefined} />
+                </SelectTrigger>
+                <SelectContent>
+                  {parityOptions.length === 0 ? (
+                    <SelectItem value="" disabled>不可用</SelectItem>
+                  ) : (
+                    parityOptions.map((value) => (
+                      <SelectItem key={value} value={String(value)}>
+                        {value}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
               <p className="mt-2 text-xs text-muted-foreground">
                 奇偶校验决定容错能力。M 越高可用性越强，但可用容量会降低。
               </p>
@@ -487,20 +562,46 @@ export default function ErasureCodeCalculator() {
                 <div>
                   <div className="font-medium text-foreground">推荐配置</div>
                   <div className="mt-1 text-muted-foreground">
-                    建议条带大小 {recommendedConfig.stripe}，奇偶校验 {recommendedConfig.parity}，
-                    兼顾效率与可用性。
+                    {recommendedConfig.serversCorrected != null ? (
+                      <>
+                        建议至少 4 台服务器，每台 {recommendedConfig.drivesCorrected} 块硬盘。
+                        条带大小 {recommendedConfig.stripe}，奇偶校验 {recommendedConfig.parity}。
+                      </>
+                    ) : (
+                      <>
+                        建议条带大小 {recommendedConfig.stripe}，奇偶校验 {recommendedConfig.parity}，
+                        兼顾效率与可用性。
+                      </>
+                    )}
                   </div>
                 </div>
                 <Button
                   variant="secondary"
                   size="sm"
                   type="button"
-                  onClick={() => {
-                    setStripeSize(recommendedConfig.stripe);
-                    setParity(recommendedConfig.parity);
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (
+                      recommendedConfig.serversCorrected != null &&
+                      recommendedConfig.drivesCorrected != null
+                    ) {
+                      setServers(recommendedConfig.serversCorrected);
+                      setDrivesPerServer(recommendedConfig.drivesCorrected);
+                      setServersInput(null);
+                      setDrivesPerServerInput(null);
+                      queueMicrotask(() => {
+                        setStripeSize(recommendedConfig.stripe);
+                        setParity(recommendedConfig.parity);
+                      });
+                    } else {
+                      setStripeSize(recommendedConfig.stripe);
+                      setParity(recommendedConfig.parity);
+                    }
+                    setAppliedFeedback(true);
+                    setTimeout(() => setAppliedFeedback(false), 1500);
                   }}
                 >
-                  应用
+                  {appliedFeedback ? "已应用" : "应用"}
                 </Button>
               </div>
             </div>

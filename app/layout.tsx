@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import Script from "next/script";
 
 import { SITE_CONFIG, SITE_METADATA } from '@/app.config';
 import AppFooter from '@/components/business/app-footer';
 import AppHeader from '@/components/business/app-header';
 import FixedContactButton from '@/components/business/buttons/fixed-contact-button';
+import FixedLanguageBanner from '@/components/business/fixed-language-banner';
 import BackgroundGrid from '@/components/ui/background-grid';
 import "./globals.css";
+
+const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,7 +41,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html suppressHydrationWarning>
+    <html suppressHydrationWarning lang="zh-CN" className={inter.variable}>
       <head>
         <meta
           key="twitter:card"
@@ -72,7 +75,7 @@ export default async function RootLayout({
           href="/favicon-16x16.png"
         />
         <link rel="manifest" href="/site.webmanifest" />
-        {/* hreflang 配置 */}
+        {/* hreflang configuration */}
         <link rel="alternate" hrefLang="zh-CN" href={SITE_CONFIG.primaryDomain} />
         <link rel="alternate" hrefLang="en-US" href={SITE_CONFIG.secondaryDomain} />
         <link rel="alternate" hrefLang="x-default" href={SITE_CONFIG.primaryDomain} />
@@ -82,6 +85,7 @@ export default async function RootLayout({
       >
         <ThemeProvider enableSystem attribute="class">
           <BackgroundGrid />
+          <FixedLanguageBanner />
           <AppHeader />
           {children}
           <AppFooter />

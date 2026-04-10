@@ -10,8 +10,7 @@ interface CodeBlockProps {
   className?: string;
 }
 
-export default function CodeBlock({ code, title, className }: CodeBlockProps) {
-    const [copied, setCopied] = useState(false);
+export default function CodeBlock({ code, title, className }: CodeBlockProps) {const [copied, setCopied] = useState(false);
 
   const copyToClipboard = async () => {
     try {
@@ -19,7 +18,7 @@ export default function CodeBlock({ code, title, className }: CodeBlockProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error('复制代码失败:', err);
     }
   };
 
@@ -44,10 +43,10 @@ export default function CodeBlock({ code, title, className }: CodeBlockProps) {
         <button
           onClick={copyToClipboard}
           className="absolute top-2 right-2 p-2 rounded-md bg-muted/80 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-          title={'复制代码'}
+          title="复制代码"
         >
           {copied ? (
-            <CheckIcon className="w-4 h-4 text-green-500" />
+            <CheckIcon className="w-4 h-4 text-success" />
           ) : (
             <CopyIcon className="w-4 h-4" />
           )}

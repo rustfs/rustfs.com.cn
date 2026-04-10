@@ -1,12 +1,11 @@
 'use client'
 
-import type { ReactNode } from 'react';
 import { cn } from "@/lib/utils";
 
 export interface PlatformInfoData {
   id: string;
   name: string;
-  icon: ReactNode;
+  icon: React.ReactNode;
   description: string;
   available: boolean;
   comingSoon?: boolean;
@@ -19,8 +18,7 @@ interface PlatformInfoProps {
   className?: string;
 }
 
-export default function PlatformInfo({ data, isSelected, onClick, className }: PlatformInfoProps) {
-  const { name, icon, description, available, comingSoon } = data;
+export default function PlatformInfo({ data, isSelected, onClick, className }: PlatformInfoProps) {const { name, icon, description, available, comingSoon } = data;
 
   return (
     <button
@@ -52,7 +50,10 @@ export default function PlatformInfo({ data, isSelected, onClick, className }: P
         {name}
       </span>
       <span className="text-sm text-muted-foreground mt-1 text-center">
-        {available ? description : comingSoon ? '即将推出' : '不支持此平台'}
+        {available
+          ? description
+          : comingSoon ? '即将支持' : '暂不支持该平台'
+        }
       </span>
     </button>
   );

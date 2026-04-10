@@ -25,7 +25,7 @@ export function ThemeToggle() {
       <button
         type="button"
         className="relative p-0 text-muted-foreground hover:text-primary transition-colors"
-        aria-label="切换主题"
+        aria-label="Toggle theme"
         disabled
       >
         <div className="relative size-5">
@@ -43,7 +43,7 @@ export function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       className="relative p-0 text-muted-foreground hover:text-primary transition-colors"
-      aria-label="切换主题"
+      aria-label="Toggle theme"
     >
       <div className="relative size-5">
         <AnimatePresence mode="wait">

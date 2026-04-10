@@ -1,11 +1,11 @@
 'use client'
 
-import { type GitHubRelease } from '@/lib/github';
 import DockerDownloadSection from "./docker-download-section";
 import LinuxDownloadSection from "./linux-download-section";
 import MacOSDownloadSection from "./macos-download-section";
 import { type PlatformInfoData } from "./platform-info";
 import WindowsDownloadSection from "./windows-download-section";
+import { type GitHubRelease } from '@/lib/github';
 
 interface PlatformFactoryProps {
   platform: PlatformInfoData;
@@ -14,9 +14,7 @@ interface PlatformFactoryProps {
   className?: string;
 }
 
-export default function PlatformFactory({ platform, release, launcherRelease, className }: PlatformFactoryProps) {
-
-  switch (platform.id) {
+export default function PlatformFactory({ platform, release, launcherRelease, className }: PlatformFactoryProps) {switch (platform.id) {
     case 'linux':
       return <LinuxDownloadSection platform={platform} release={release} className={className} />;
     case 'docker':
@@ -33,7 +31,7 @@ export default function PlatformFactory({ platform, release, launcherRelease, cl
             <div className="opacity-50">{platform.icon}</div>
           </div>
           <h2 className="text-2xl font-bold text-muted-foreground mb-2">{platform.name}</h2>
-          <p className="text-muted-foreground">不支持此平台</p>
+          <p className="text-muted-foreground">暂不支持该平台</p>
         </div>
       );
   }

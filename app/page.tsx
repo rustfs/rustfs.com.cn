@@ -34,9 +34,6 @@ export default async function HomePage() {
     getGitHubMetrics(),
   ]);
 
-  console.log('Docker Pulls:', dockerPulls);
-  console.log('GitHub Metrics:', metrics);
-
   return (
     <main className="flex-1 relative">
       <div className="relative z-10">

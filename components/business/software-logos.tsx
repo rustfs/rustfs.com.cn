@@ -1,3 +1,4 @@
+
 import ClickhouseIcon from "../../public/svgs/softwares/clickhouse.svg";
 import DockerIcon from "../../public/svgs/softwares/docker.svg";
 import ElasticIcon from "../../public/svgs/softwares/elastic.svg";
@@ -57,7 +58,7 @@ const iconMap: Record<SoftwareKey, React.ComponentType<{ className?: string; sty
 
 export default function SoftwareLogos() {
   return (
-    <section className="bg-muted relative overflow-hidden px-4 sm:px-6 lg:px-8 pt-20 pb-16 lg:pt-32">
+    <section className="bg-muted/40 relative overflow-hidden px-4 sm:px-6 lg:px-8 pt-20 pb-16 lg:pt-32">
       <div className="max-w-7xl mx-auto text-primary">
         <p className="font-display text-base text-slate-500 font-bold text-center">
           值得信赖的开源软件，超过 1500+ 款软件协议兼容适配
@@ -71,7 +72,7 @@ export default function SoftwareLogos() {
 
             return (
               <li key={software} className="flex">
-                <div className="w-40 h-20 text-gray-600 transition-colors duration-200 flex items-center justify-center">
+                <div className="w-40 h-20 text-foreground/70 transition-colors duration-200 flex items-center justify-center">
                   <IconComponent
                     className="w-full h-full"
                     style={{ color: "currentColor" }}

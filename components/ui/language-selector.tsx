@@ -8,13 +8,13 @@ export default function LanguageToggle() {
     <Button
       variant="ghost"
       size="sm"
-      className="h-8"
+      className="h-8 gap-2"
       onClick={() => {
         window.location.href = SITE_CONFIG.secondaryDomain;
       }}
     >
-      <Globe className="h-4 w-4 mr-2" aria-hidden="true" />
-      English
+      <Globe className="h-4 w-4" />
+      <span className="hidden sm:inline">简体中文</span>
     </Button>
   );
 }
