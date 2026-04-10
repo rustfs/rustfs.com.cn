@@ -18,7 +18,7 @@ export default function CodeBlock({ code, title, className }: CodeBlockProps) {c
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error('复制代码失败:', err);
     }
   };
 
@@ -43,7 +43,7 @@ export default function CodeBlock({ code, title, className }: CodeBlockProps) {c
         <button
           onClick={copyToClipboard}
           className="absolute top-2 right-2 p-2 rounded-md bg-muted/80 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-          title={'Copy code'}
+          title="复制代码"
         >
           {copied ? (
             <CheckIcon className="w-4 h-4 text-success" />

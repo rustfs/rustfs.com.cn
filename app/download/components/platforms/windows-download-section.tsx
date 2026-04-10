@@ -31,42 +31,41 @@ export default function WindowsDownloadSection({ platform, launcherRelease, clas
 
       {/* Installer Download */}
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-foreground">{'Download from GitHub'}</h3>
+        <h3 className="text-lg font-semibold text-foreground">从 GitHub 下载</h3>
 
         <div className="space-y-4">
           <div className="p-6 bg-card rounded-lg border border-border">
             <div className="space-y-4">
               <div>
-                <h4 className="font-medium text-foreground mb-2">{'Latest Version'}</h4>
+                <h4 className="font-medium text-foreground mb-2">最新版本</h4>
                 <p className="text-sm text-muted-foreground mb-4">
-                  {launcherRelease ? `Current latest version: ${version}` : 'Fetching latest version information...'}
+                  {launcherRelease ? `当前最新版本：${version}` : '正在获取最新版本信息...'}
                 </p>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm font-medium text-foreground mb-2">{'Download Steps:'}</p>
+                  <p className="text-sm font-medium text-foreground mb-2">下载步骤：</p>
                   <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
                     <li>
-                      {'Visit '}
+                      访问
                       <a
                         href={releaseUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center space-x-1 text-primary hover:underline"
                       >
-                        <span>{'GitHub Release page'}</span>
+                        <span>GitHub 发布页</span>
                         <ExternalLinkIcon className="w-3 h-3" />
                       </a>
                     </li>
                     <li>
-                      {'Find and download '}
+                      在 Assets 中找到并下载
                       <code className="px-1.5 py-0.5 bg-muted rounded text-xs font-mono text-foreground">
                         {installerFilename}
                       </code>
-                      {' from the Assets section'}
                     </li>
-                    <li>{'After downloading, double-click the installer to complete the installation'}</li>
+                    <li>下载完成后双击安装程序，按向导完成安装</li>
                   </ol>
                 </div>
 
@@ -77,7 +76,7 @@ export default function WindowsDownloadSection({ platform, launcherRelease, clas
                     rel="noopener noreferrer"
                     className="inline-flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                   >
-                    <span>{'Go to Release Page'}</span>
+                    <span>前往发布页</span>
                     <ExternalLinkIcon className="w-4 h-4" />
                   </a>
                 </div>
@@ -87,8 +86,8 @@ export default function WindowsDownloadSection({ platform, launcherRelease, clas
 
           <div className="p-4 bg-muted/50 rounded-lg border border-border">
             <p className="text-sm text-muted-foreground">
-              <strong className="text-foreground">{'Tip: '}</strong>
-              {'The Launcher installer includes the RustFS binary. After installation, you can use it immediately.'}
+              <strong className="text-foreground">提示：</strong>
+              Launcher 安装程序已包含 RustFS 二进制文件，安装完成后即可直接使用。
             </p>
           </div>
         </div>
@@ -96,24 +95,24 @@ export default function WindowsDownloadSection({ platform, launcherRelease, clas
 
       {/* Direct Download */}
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-foreground">{'Download from Download Site'}</h3>
+        <h3 className="text-lg font-semibold text-foreground">从下载站直链下载</h3>
 
         <div className="space-y-4">
           <div className="p-6 bg-card rounded-lg border border-border">
             <div className="space-y-4">
               <div>
-                <h4 className="font-medium text-foreground mb-2">{'Latest Version'}</h4>
+                <h4 className="font-medium text-foreground mb-2">最新版本</h4>
                 <p className="text-sm text-muted-foreground mb-4">
-                  {launcherRelease ? `Current latest version: ${version}` : 'Fetching latest version information...'}
+                  {launcherRelease ? `当前最新版本：${version}` : '正在获取最新版本信息...'}
                 </p>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm font-medium text-foreground mb-2">{'Download Steps:'}</p>
+                  <p className="text-sm font-medium text-foreground mb-2">下载步骤：</p>
                   <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
-                    <li>{'Click the download button or link below to download the installer'}</li>
-                    <li>{'After downloading, double-click the installer to complete the installation'}</li>
+                    <li>点击下方下载按钮或直链获取安装程序</li>
+                    <li>下载完成后双击安装程序，按向导完成安装</li>
                   </ol>
                 </div>
 
@@ -125,13 +124,13 @@ export default function WindowsDownloadSection({ platform, launcherRelease, clas
                     className="inline-flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                   >
                     <DownloadIcon className="w-4 h-4" />
-                    <span>{'Download Windows x86_64 Installer'}</span>
+                    <span>下载 Windows x86_64 安装程序</span>
                   </a>
                 </div>
 
                 <div className="pt-2">
                   <p className="text-xs text-muted-foreground">
-                    {'Download link: '}
+                    下载链接：
                     <a
                       href={directDownloadUrl}
                       target="_blank"
@@ -148,8 +147,8 @@ export default function WindowsDownloadSection({ platform, launcherRelease, clas
 
           <div className="p-4 bg-muted/50 rounded-lg border border-border">
             <p className="text-sm text-muted-foreground">
-              <strong className="text-foreground">{'Tip: '}</strong>
-              {'The Launcher installer includes the RustFS binary. After installation, you can use it immediately.'}
+              <strong className="text-foreground">提示：</strong>
+              Launcher 安装程序已包含 RustFS 二进制文件，安装完成后即可直接使用。
             </p>
           </div>
         </div>

@@ -31,7 +31,7 @@ export default function PlatformFactory({ platform, release, launcherRelease, cl
             <div className="opacity-50">{platform.icon}</div>
           </div>
           <h2 className="text-2xl font-bold text-muted-foreground mb-2">{platform.name}</h2>
-          <p className="text-muted-foreground">{'Platform not supported'}</p>
+          <p className="text-muted-foreground">暂不支持该平台</p>
         </div>
       );
   }
