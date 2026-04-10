@@ -52,7 +52,7 @@ export default function PlatformInfo({ data, isSelected, onClick, className }: P
       <span className="text-sm text-muted-foreground mt-1 text-center">
         {available
           ? description
-          : comingSoon ? 'Coming Soon' : 'Platform not supported'
+          : comingSoon ? '即将支持' : '暂不支持该平台'
         }
       </span>
     </button>

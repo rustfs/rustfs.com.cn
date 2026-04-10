@@ -41,7 +41,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html suppressHydrationWarning lang="en" className={inter.variable}>
+    <html suppressHydrationWarning lang="zh-CN" className={inter.variable}>
       <head>
         <meta
           key="twitter:card"
@@ -76,8 +76,8 @@ export default async function RootLayout({
         />
         <link rel="manifest" href="/site.webmanifest" />
         {/* hreflang configuration */}
-        <link rel="alternate" hrefLang="zh-CN" href={SITE_CONFIG.secondaryDomain} />
-        <link rel="alternate" hrefLang="en-US" href={SITE_CONFIG.primaryDomain} />
+        <link rel="alternate" hrefLang="zh-CN" href={SITE_CONFIG.primaryDomain} />
+        <link rel="alternate" hrefLang="en-US" href={SITE_CONFIG.secondaryDomain} />
         <link rel="alternate" hrefLang="x-default" href={SITE_CONFIG.primaryDomain} />
       </head>
       <body

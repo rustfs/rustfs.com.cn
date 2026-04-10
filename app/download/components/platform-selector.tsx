@@ -18,7 +18,7 @@ export default function PlatformSelector({
 }: PlatformSelectorProps) {return (
     <div className={cn("flex flex-col space-y-4", className)}>
       <h2 className="text-xl font-semibold text-foreground">
-        {'Select your operating system or deployment method'}
+        请选择操作系统或部署方式
       </h2>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

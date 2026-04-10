@@ -126,6 +126,14 @@ pnpm run lint
 - ✅ Follow shadcn/ui component standards
 - ✅ Maintain single responsibility principle
 
+### Language and Locale Rules
+
+- ✅ `rustfs.com.cn` is the Chinese-primary site. Chinese pages must default to Simplified Chinese for headings, body copy, buttons, helper text, metadata, and SEO fields.
+- ✅ Keep `html lang`, page metadata locale, and `hreflang` mappings aligned with the actual site domain: `rustfs.com.cn` for Chinese and `rustfs.com` for English.
+- ✅ Prefer `docs.rustfs.com.cn` when linking to Chinese documentation from the Chinese site.
+- ❌ Do not leave placeholder English copy on Chinese pages such as hero titles, help text, CTA labels, date labels, or install guidance.
+- ❌ Do not swap Chinese and English alternate domains or language tags.
+
 ### Style and Structure Protection
 
 **🚨 Absolute Rule: Do NOT modify styles or structure unless explicitly specified!**
@@ -229,6 +237,8 @@ Before every code commit, confirm:
 - [ ] `out/sitemap.xml` is generated
 - [ ] Commit message follows Conventional Commits specification
 - [ ] Commit message is in English
+- [ ] Chinese pages do not contain accidental English UI or SEO metadata
+- [ ] `lang`, `openGraph.locale`, and `hreflang` match the actual page language and domain
 
 **Remember: If local build fails, CI will also fail. Do NOT commit code that cannot pass local build!**
 
