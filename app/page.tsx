@@ -40,7 +40,7 @@ export default async function HomePage() {
         <HomeHero dockerPulls={dockerPulls} metrics={metrics} />
         <SoftwareLogos />
         <HomeFeatures />
-        <HomeStats />
+        <HomeStats metrics={metrics} />
         <HomeDifferents />
         <HomeMultiClouds />
         {/* <HomeReviews /> */}

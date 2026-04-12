@@ -18,6 +18,175 @@ export interface GitHubMetrics {
   commits: number;
 }
 
+const GITHUB_API_REVALIDATE_SECONDS = 3600;
+const GITHUB_USER_AGENT = 'RustFS-Website';
+const GITHUB_API_VERSION = '2022-11-28';
+const LAST_KNOWN_GITHUB_METRICS: GitHubMetrics = {
+  stars: 24734,
+  forks: 1064,
+  commits: 2720,
+};
+
+function getGitHubHeaders(
+  accept: string = 'application/vnd.github+json',
+  extraHeaders: Record<string, string> = {}
+): Record<string, string> {
+  const headers: Record<string, string> = {
+    Accept: accept,
+    'User-Agent': GITHUB_USER_AGENT,
+    'X-GitHub-Api-Version': GITHUB_API_VERSION,
+    ...extraHeaders,
+  };
+  const token = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  return headers;
+}
+
+function parseCommitCount(linkHeader: string | null): number | null {
+  const match = linkHeader?.match(/page=(\d+)>; rel="last"/);
+  if (!match?.[1]) {
+    return null;
+  }
+
+  const page = Number(match[1]);
+  return Number.isFinite(page) && page > 0 ? page : null;
+}
+
+async function getGitHubMetricsFromGraphQL(): Promise<GitHubMetrics | null> {
+  const token = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
+
+  if (!token) {
+    return null;
+  }
+
+  const query = `
+    query RepositoryMetrics($owner: String!, $name: String!) {
+      repository(owner: $owner, name: $name) {
+        stargazerCount
+        forkCount
+        defaultBranchRef {
+          target {
+            ... on Commit {
+              history(first: 1) {
+                totalCount
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const response = await fetch('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: getGitHubHeaders('application/json', {
+      'Content-Type': 'application/json',
+    }),
+    body: JSON.stringify({
+      query,
+      variables: {
+        owner: 'rustfs',
+        name: 'rustfs',
+      },
+    }),
+    next: { revalidate: GITHUB_API_REVALIDATE_SECONDS },
+  });
+
+  if (!response.ok) {
+    console.warn(`Failed to fetch GitHub metrics via GraphQL: ${response.status} ${response.statusText}`);
+    return null;
+  }
+
+  const payload = await response.json() as {
+    data?: {
+      repository?: {
+        stargazerCount?: number;
+        forkCount?: number;
+        defaultBranchRef?: {
+          target?: {
+            history?: {
+              totalCount?: number;
+            };
+          };
+        };
+      };
+    };
+    errors?: Array<{ message?: string }>;
+  };
+
+  if (payload.errors?.length) {
+    console.warn(`GitHub GraphQL returned errors: ${payload.errors.map((error) => error.message).filter(Boolean).join('; ')}`);
+    return null;
+  }
+
+  const repository = payload.data?.repository;
+  const commits = repository?.defaultBranchRef?.target?.history?.totalCount;
+
+  if (
+    typeof repository?.stargazerCount !== 'number' ||
+    typeof repository?.forkCount !== 'number' ||
+    typeof commits !== 'number'
+  ) {
+    console.warn('GitHub GraphQL metrics response is missing expected fields');
+    return null;
+  }
+
+  return {
+    stars: repository.stargazerCount,
+    forks: repository.forkCount,
+    commits,
+  };
+}
+
+async function getGitHubMetricsFromRest(): Promise<GitHubMetrics | null> {
+  const [repoRes, commitsRes] = await Promise.all([
+    fetch('https://api.github.com/repos/rustfs/rustfs', {
+      headers: getGitHubHeaders(),
+      next: { revalidate: GITHUB_API_REVALIDATE_SECONDS },
+    }),
+    fetch('https://api.github.com/repos/rustfs/rustfs/commits?per_page=1', {
+      headers: getGitHubHeaders(),
+      next: { revalidate: GITHUB_API_REVALIDATE_SECONDS },
+    }),
+  ]);
+
+  if (!repoRes.ok || !commitsRes.ok) {
+    console.warn(
+      `Failed to fetch GitHub metrics via REST: repo=${repoRes.status} ${repoRes.statusText}, commits=${commitsRes.status} ${commitsRes.statusText}`
+    );
+    return null;
+  }
+
+  const repo = await repoRes.json() as { stargazers_count?: number; forks_count?: number };
+  const commitsFromHeader = parseCommitCount(commitsRes.headers.get('link'));
+  let commits = commitsFromHeader ?? 0;
+
+  if (!commitsFromHeader) {
+    const data = await commitsRes.json();
+    commits = Array.isArray(data) ? data.length : 0;
+  }
+
+  if (
+    typeof repo.stargazers_count !== 'number' ||
+    typeof repo.forks_count !== 'number' ||
+    !Number.isFinite(commits) ||
+    commits <= 0
+  ) {
+    console.warn('GitHub REST metrics response is missing expected fields');
+    return null;
+  }
+
+  return {
+    stars: repo.stargazers_count,
+    forks: repo.forks_count,
+    commits,
+  };
+}
+
 /**
  * Get the latest release information (including pre-releases)
  * @returns Promise<GitHubRelease | null>
@@ -28,12 +197,9 @@ export async function getLatestRelease(): Promise<GitHubRelease | null> {
     const response = await fetch(
       'https://api.github.com/repos/rustfs/rustfs/releases/latest',
       {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'RustFS-Website'
-        },
+        headers: getGitHubHeaders(),
         // Cache for 1 hour
-        next: { revalidate: 3600 }
+        next: { revalidate: GITHUB_API_REVALIDATE_SECONDS }
       }
     )
 
@@ -50,12 +216,9 @@ export async function getLatestRelease(): Promise<GitHubRelease | null> {
     const response = await fetch(
       'https://api.github.com/repos/rustfs/rustfs/releases?per_page=10',
       {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'RustFS-Website'
-        },
+        headers: getGitHubHeaders(),
         // Cache for 1 hour
-        next: { revalidate: 3600 }
+        next: { revalidate: GITHUB_API_REVALIDATE_SECONDS }
       }
     )
 
@@ -87,54 +250,22 @@ export async function getLatestRelease(): Promise<GitHubRelease | null> {
  * @returns Promise<GitHubMetrics>
  */
 export async function getGitHubMetrics(): Promise<GitHubMetrics> {
-  const fallback: GitHubMetrics = {
-    stars: 11000,
-    forks: 500,
-    commits: 2000,
-  };
-
   try {
-    const [repoRes, commitsRes] = await Promise.all([
-      fetch('https://api.github.com/repos/rustfs/rustfs', {
-        headers: {
-          Accept: 'application/vnd.github+json',
-          'User-Agent': 'RustFS-Website',
-        },
-        next: { revalidate: 3600 },
-      }),
-      fetch('https://api.github.com/repos/rustfs/rustfs/commits?per_page=1', {
-        headers: {
-          Accept: 'application/vnd.github+json',
-          'User-Agent': 'RustFS-Website',
-        },
-        next: { revalidate: 3600 },
-      }),
-    ]);
-
-    if (!repoRes.ok || !commitsRes.ok) {
-      return fallback;
+    const exactMetrics = await getGitHubMetricsFromGraphQL();
+    if (exactMetrics) {
+      return exactMetrics;
     }
 
-    const repo = await repoRes.json() as { stargazers_count?: number; forks_count?: number };
-    const link = commitsRes.headers.get('link');
-    let commits = 0;
-
-    const match = link?.match(/page=(\d+)>; rel="last"/);
-    if (match?.[1]) {
-      commits = Number(match[1]);
-    } else {
-      const data = await commitsRes.json();
-      commits = Array.isArray(data) ? data.length : 0;
+    const restMetrics = await getGitHubMetricsFromRest();
+    if (restMetrics) {
+      return restMetrics;
     }
 
-    return {
-      stars: repo.stargazers_count ?? fallback.stars,
-      forks: repo.forks_count ?? fallback.forks,
-      commits: Number.isFinite(commits) && commits > 0 ? commits : fallback.commits,
-    };
+    console.warn('Falling back to last known GitHub metrics');
+    return LAST_KNOWN_GITHUB_METRICS;
   } catch (error) {
     console.warn('Failed to fetch GitHub metrics:', error);
-    return fallback;
+    return LAST_KNOWN_GITHUB_METRICS;
   }
 }
 
@@ -209,12 +340,9 @@ export async function getLatestLauncherRelease(): Promise<GitHubRelease | null> 
     const response = await fetch(
       'https://api.github.com/repos/rustfs/launcher/releases/latest',
       {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'RustFS-Website'
-        },
+        headers: getGitHubHeaders(),
         // Cache for 1 hour
-        next: { revalidate: 3600 }
+        next: { revalidate: GITHUB_API_REVALIDATE_SECONDS }
       }
     )
 
@@ -231,12 +359,9 @@ export async function getLatestLauncherRelease(): Promise<GitHubRelease | null> 
     const response = await fetch(
       'https://api.github.com/repos/rustfs/launcher/releases?per_page=10',
       {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'RustFS-Website'
-        },
+        headers: getGitHubHeaders(),
         // Cache for 1 hour
-        next: { revalidate: 3600 }
+        next: { revalidate: GITHUB_API_REVALIDATE_SECONDS }
       }
     )
 

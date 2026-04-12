@@ -22,6 +22,10 @@ export function NumberTicker({
   decimalPlaces = 0,
   ...props
 }: NumberTickerProps) {
+  const formattedStartValue = Intl.NumberFormat("en-US", {
+    minimumFractionDigits: decimalPlaces,
+    maximumFractionDigits: decimalPlaces,
+  }).format(startValue)
   const ref = useRef<HTMLSpanElement>(null)
   const motionValue = useMotionValue(direction === "down" ? value : startValue)
   const springValue = useSpring(motionValue, {
@@ -61,7 +65,7 @@ export function NumberTicker({
       )}
       {...props}
     >
-      {startValue}
+      {formattedStartValue}
     </span>
   )
 }

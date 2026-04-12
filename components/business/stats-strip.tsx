@@ -35,6 +35,7 @@ export default function StatsStrip({
               <h2 className="title-font font-extrabold sm:text-4xl text-2xl text-foreground">
                 <NumberTicker
                   value={value}
+                  startValue={value}
                   className="text-foreground"
                 />
               </h2>

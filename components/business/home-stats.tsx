@@ -1,6 +1,13 @@
 'use client'
 
-export default function HomeStats() {return (
+import type { GitHubMetrics } from "@/lib/github"
+
+interface HomeStatsProps {
+  metrics: GitHubMetrics
+}
+
+export default function HomeStats({ metrics }: HomeStatsProps) {
+  return (
     <section
       className="relative overflow-hidden bg-muted/40 text-foreground dark:bg-background dark:text-foreground py-32"
     // style={{
@@ -97,7 +104,7 @@ export default function HomeStats() {return (
 
               {/* Stats */}
               <div>
-                <p className="text-5xl font-semibold">1000+</p>
+                <p className="text-5xl font-semibold">{metrics.commits.toLocaleString('en-US')}</p>
                 <p className="mt-1">
                   {'GitHub 提交'}
                 </p>
