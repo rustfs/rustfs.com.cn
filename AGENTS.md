@@ -4,12 +4,18 @@ This document provides development guidelines and rules for AI Agents to ensure 
 
 ## 📋 Project Overview
 
-- **Project Name**: RustFS.com - Official Website
+- **Project Name**: RustFS.com.cn - Chinese Website
 - **Framework**: Next.js 15.3.4 (App Router, Static Export)
 - **Language**: TypeScript (ES2017+, Strict Mode)
 - **Package Manager**: pnpm (recommended) or npm
 - **Styling**: Tailwind CSS 4 + shadcn/ui
-- **CI/CD**: GitHub Actions → Aliyun OSS
+- **CI/CD**: Cloudflare
+
+### Website Relationship
+
+- `rustfs.com` is the primary English website and the source of truth for site implementation.
+- `rustfs.com.cn` is the Chinese localized website, not the primary website.
+- Keep the Chinese website aligned with the English website except for documented localization requirements.
 
 ## 🚨 Core Rules
 
@@ -65,26 +71,10 @@ This document provides development guidelines and rules for AI Agents to ensure 
 
 ## 🔄 CI/CD Pipeline Overview
 
-### GitHub Actions Workflow Steps
+### Deployment
 
-According to `.github/workflows/deploy.yml`, the CI process includes:
-
-1. **Checkout**: Check out code
-
-2. **Install dependencies**:
-
-   ```bash
-   npm install -g pnpm && pnpm install
-   ```
-
-3. **Install dependencies and build**:
-
-   ```bash
-   pnpm install --no-frozen-lockfile
-   pnpm run build
-   ```
-
-4. **Deploy**: Deploy to Aliyun OSS
+- Production deployment is managed by Cloudflare.
+- Do not restore the legacy Aliyun OSS deployment workflow unless explicitly requested.
 
 ### Local CI Simulation
 
