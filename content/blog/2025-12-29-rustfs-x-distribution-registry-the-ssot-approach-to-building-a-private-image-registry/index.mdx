@@ -1,0 +1,261 @@
+---
+title: >-
+  RustFS × Distribution Registry：用 SSOT 思路构建私有镜像仓库
+slug: >-
+  rustfs-x-distribution-registry-the-ssot-approach-to-building-a-private-image-registry
+description: >-
+  使用 Distribution Registry 搭建私有容器镜像仓库，并以 RustFS 作为 S3 兼容存储后端。
+date: '2025-12-29T23:29:17.000Z'
+author: Rustfs
+tags:
+  - Distribution Registry
+  - Integration
+  - RustFS
+  - S3
+  - Best Practices
+image: >-
+  /images/blog/rustfs-x-distribution-registry-the-ssot-approach-to-building-a-private-image-registry/gemini_generated_image_yo4l6ryo4l6ryo4l.png
+---
+容器镜像仓库是应用容器化不可缺少的组件。Docker Hub 虽然最常用，但在部分地区常因网络连接问题影响使用体验。因此，建设企业专属的私有镜像仓库，已成为企业云原生转型中的关键一步。
+
+目前市场上有 Harbor、GitLab Container Registry 和 GitHub Container Registry 等多种方案，而这些项目都使用了开源项目 [Distribution](https://github.com/distribution/distribution)。该项目的核心成果是一个符合 OCI Distribution 规范的开源 Registry 实现，因此我们也可以直接使用它搭建私有容器镜像托管平台。
+
+Distribution 支持将 S3 作为存储后端，而 RustFS 是兼容 S3 的分布式对象存储系统，因此可以把 RustFS 配置为 Distribution 的存储后端。下面介绍完整实现过程。
+
+## 基础配置
+
+### 安装
+
+我们将使用容器部署 Distribution 和 RustFS，整个方案包含三个容器：
+
+*   **Distribution：** 托管容器镜像，依赖 RustFS 与 MC 服务，配置如下：
+
+```
+  registry:
+    depends_on:
+      - rustfs
+      - mc
+    restart: always
+    image: registry:3
+    ports:
+      - 5000:5000
+    environment:
+      REGISTRY_STORAGE: s3
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+      REGISTRY_STORAGE_S3_ACCESSKEY: rustfsadmin
+      REGISTRY_STORAGE_S3_SECRETKEY: rustfsadmin
+      REGISTRY_STORAGE_S3_REGION: us-east-1
+      REGISTRY_STORAGE_S3_REGIONENDPOINT: http://rustfs:9000
+      REGISTRY_STORAGE_S3_BUCKET: docker-registry
+      REGISTRY_STORAGE_S3_ROOTDIRECTORY: /var/lib/registry
+      REGISTRY_STORAGE_S3_FORCEPATHSTYLE: true
+      REGISTRY_STORAGE_S3_LOGLEVEL: debug
+    volumes:
+      - ./auth:/auth
+    networks:
+      - rustfs-oci
+```
+
+**注意：** `REGISTRY_AUTH` 用于指定容器镜像仓库的认证方式。本文使用用户名和密码，可通过以下命令生成加密密码：
+
+```
+docker run \
+  --entrypoint htpasswd \
+  httpd:2 -Bbn testuser testpassword > auth/htpasswd
+```
+
+将生成的 `auth/htpasswd` 文件挂载到 Registry 容器后，即可使用 `testuser/testpassword` 登录镜像仓库。
+
+*   **RustFS：** 存储镜像仓库数据，配置如下：
+
+```
+  rustfs:
+    image: rustfs/rustfs:1.0.0-alpha.77
+    container_name: rustfs
+    hostname: rustfs
+    environment:
+      - RUSTFS_VOLUMES=/data
+      - RUSTFS_ADDRESS=0.0.0.0:9000
+      - RUSTFS_CONSOLE_ENABLE=true
+      - RUSTFS_CONSOLE_ADDRESS=0.0.0.0:9001
+      - RUSTFS_ACCESS_KEY=rustfsadmin
+      - RUSTFS_SECRET_KEY=rustfsadmin
+      - RUSTFS_OBS_LOGGER_LEVEL=debug
+      - RUSTFS_OBS_LOG_DIRECTORY=/logs
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh", "-c",
+          "curl -f http://localhost:9000/health && curl -f http://localhost:9001/rustfs/console/health"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    ports:
+      - "9000:9000"  # API 端点
+      - "9001:9001"  # 控制台
+    networks:
+      - rustfs-oci
+```
+
+*   **MC：** 创建用于存放数据的存储桶，依赖 RustFS 服务。
+
+```
+  mc:
+    depends_on:
+      - rustfs
+    image: minio/mc
+    container_name: mc
+    networks:
+      - rustfs-oci
+    environment:
+      - AWS_ACCESS_KEY_ID=rustfsadmin
+      - AWS_SECRET_ACCESS_KEY=rustfsadmin
+      - AWS_REGION=us-east-1
+    entrypoint: |
+      /bin/sh -c "
+      until (/usr/bin/mc alias set rustfs http://rustfs:9000 rustfsadmin rustfsadmin) do echo '...waiting...' && sleep 1; done;
+      /usr/bin/mc rm -r --force rustfs/docker-registry;
+      /usr/bin/mc mb rustfs/docker-registry;
+      /usr/bin/mc policy set public rustfs/docker-registry;
+      tail -f /dev/null
+      "
+```
+
+将以上三个容器的配置写入 `docker-compose.yml`，然后执行：
+
+```
+docker compose up -d
+```
+
+检查服务状态：
+
+```
+docker ps
+CONTAINER ID   IMAGE                          COMMAND                   CREATED             STATUS                       PORTS                                                                                NAMES
+7834dee8cbbf   registry:3                     "/entrypoint.sh /etc…"    38 minutes ago      Up 38 minutes                0.0.0.0:80->5000/tcp, 0.0.0.0:443->5000/tcp, [::]:80->5000/tcp, [::]:443->5000/tcp   docker-registry-registry-1
+f922568dd11f   minio/mc                       "/bin/sh -c '\nuntil …"   About an hour ago   Up About an hour                                                                                                  mc
+bf20a5b2ab4b   rustfs/rustfs:1.0.0-alpha.77   "/entrypoint.sh rust…"    About an hour ago   Up About an hour (healthy)   0.0.0.0:9000-9001->9000-9001/tcp, [::]:9000-9001->9000-9001/tcp                      rustfs
+```
+
+### 测试与验证
+
+通过 `docker` 命令登录容器镜像仓库并推送镜像，验证配置是否正确。
+
+*   **登录容器镜像仓库**
+
+```
+docker login localhost:5000
+Username: testuser
+Password: 
+
+WARNING! Your credentials are stored unencrypted in '/root/.docker/config.json'.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/go/credential-store/
+
+Login Succeeded
+```
+
+*   **推送镜像**
+
+```
+# 拉取镜像
+docker pull rustfs/rustfs:1.0.0-alpha.77
+
+# 为镜像添加标签
+docker tag rustfs/rustfs:1.0.0-alpha.77 localhost:5000/rustfs:1.0.0-alpha.77
+
+# 推送镜像
+docker push localhost:5000/rustfs:1.0.0-alpha.77
+The push refers to repository [localhost:5000/rustfs]
+4f4fb700ef54: Pushed 
+8d10e1ace7fc: Pushed 
+fcd530aedb30: Pushed 
+ea6fa4aba595: Pushed 
+2d35ebdb57d9: Pushed 
+67d0472105ad: Pushed 
+09194c842438: Pushed 
+1.0.0-alpha.77: digest: sha256:88eafb9e9457dbabb08b9e93cfed476f01474e48ec85e7a9038f1f4290380526 size: 1680
+
+i Info → Not all multiplatform-content is present and only the available single-platform image was pushed
+         sha256:f761246690fdf92fc951c90c12ce4050994c923fb988e3840f072c7d9ee11a63 -> sha256:88eafb9e9457dbabb08b9e93cfed476f01474e48ec85e7a9038f1f4290380526
+```
+
+*   **验证 RustFS**
+
+检查 RustFS 中 `docker-registry` 存储桶的内容，确认镜像数据已成功写入。
+
+![](/images/blog/rustfs-x-distribution-registry-the-ssot-approach-to-building-a-private-image-registry/xsa-1024x192.png)
+
+可以看到，容器镜像 `localhost:5000/rustfs:1.0.0-alpha.77` 的相关数据已成功存入 RustFS。
+
+## 高级配置
+
+上述配置中，Distribution Registry 通过 HTTP 提供服务。但在企业生产环境中，通常不能使用这种方式，必须配置 HTTPS。
+
+Distribution Registry 支持多种 HTTPS 配置方式，例如提供本地证书或直接使用 Let’s Encrypt。本文选择后者。
+
+为 Distribution Registry 配置 Let’s Encrypt 需要以下四个参数：
+
+参数
+
+是否必填
+
+说明
+
+`cachefile`
+
+是
+
+Let’s Encrypt 客户端缓存数据的文件路径（绝对路径）。
+
+`email`
+
+是
+
+用于注册 Let’s Encrypt 的邮箱地址。
+
+`hosts`
+
+否
+
+允许使用 Let’s Encrypt 证书的主机名（域名）列表。
+
+`directoryurl`
+
+否
+
+ACME 服务器 URL（这里指私有部署的 ACME Server）。
+
+因此，只需配置以下参数：
+
+```
+REGISTRY_HTTP_TLS_LETSENCRYPT_CACHEFILE: /auth/acme.json
+REGISTRY_HTTP_TLS_LETSENCRYPT_EMAIL: email@com
+REGISTRY_HTTP_TLS_LETSENCRYPT_HOSTS: '["example.rustfs.com"]'
+```
+
+然后再次执行：
+
+```
+docker compose up -d
+```
+
+在另一台服务器上验证配置：
+
+```
+docker login example.rustfs.com
+Authenticating with existing credentials... [Username: testuser]
+
+i Info → To login with a different account, run 'docker logout' followed by 'docker login'
+
+Login Succeeded
+```
+
+再次执行前面的镜像推送和 RustFS 控制台验证步骤。
+
+完成后，即可使用 `example.rustfs.com` 域名对应的镜像仓库托管企业内部的全部容器镜像，并将容器镜像的构建与推送流程集成到 CI/CD 流水线中。

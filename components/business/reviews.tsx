@@ -1,6 +1,5 @@
 'use client'
 
-/* eslint-disable @next/next/no-img-element */
 import { Marquee } from "@/components/magicui/marquee";
 import reviews from "@/data/reviews.json";
 import clsx from "clsx";
@@ -40,7 +39,7 @@ const ReviewCard = ({ img, name, position, body }: SlideItem) => {
     <figure
       className={clsx(
         "relative md:w-1/2 lg:w-full max-w-96 cursor-pointer overflow-hidden rounded-xl p-4 lg:p-6 shadow-xl",
-        "border border-border bg-card hover:bg-muted/50",
+        "motion-card border border-border bg-card hover:bg-muted/50",
         "flex flex-col gap-2"
       )}
     >
@@ -53,7 +52,7 @@ const ReviewCard = ({ img, name, position, body }: SlideItem) => {
           </figcaption>
           <p className="text-muted-foreground text-xs  font-medium">{position}</p>
         </div>
-        <img className="rounded-full" width="36" height="36" alt="" src={img} />
+        <img className="rounded-full" width="36" height="36" alt="" src={img} loading="lazy"/>
       </div>
     </figure>
   );
@@ -99,8 +98,8 @@ export default function HomeReviews() {
               <ReviewCard key={`${review.name}${review.position}`} {...review} />
             ))}
           </Marquee>
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-background"></div>
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background"></div>
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-linear-to-b from-background"></div>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t from-background"></div>
         </div>
       </div>
     </section>

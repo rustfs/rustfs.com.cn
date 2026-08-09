@@ -1,104 +1,28 @@
 'use client'
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const REPO = "rustfs/rustfs";
-const CACHE_MS = 60 * 60 * 5000; // 5 hour
-
-let cachedStars: number | null = null;
-let cachedAt = 0;
 
 export default function LinkGitHub({ className, showText = false }: { className?: string; showText?: boolean }) {
-  const [stars, setStars] = useState<number | null>(() => {
-    if (cachedStars !== null && Date.now() - cachedAt < CACHE_MS) {
-      return cachedStars;
-    }
-    return null;
-  });
-
-  useEffect(() => {
-    if (cachedStars !== null && Date.now() - cachedAt < CACHE_MS) {
-      return;
-    }
-
-    let cancelled = false;
-
-    fetch(`https://api.github.com/repos/${REPO}`, {
-      headers: {
-        Accept: "application/vnd.github+json",
-        "User-Agent": "rustfs.com",
-      },
-    })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (cancelled) return;
-        if (data?.stargazers_count !== undefined) {
-          cachedStars = data.stargazers_count;
-          cachedAt = Date.now();
-          setStars(data.stargazers_count);
-        }
-      })
-      .catch(() => {
-        // 静默失败，不阻塞渲染
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const renderStars = () => {
-    if (stars === null) {
-      return (
-        <span
-          className="inline-block h-2.5 w-10 rounded bg-muted/60 animate-pulse"
-          aria-hidden
-        />
-      );
-    }
-
-    return (
-      <>
-        <span className="hidden sm:inline">{stars.toLocaleString()}</span>
-        <span className="sm:hidden">{formatCompact(stars)}</span>
-      </>
-    );
-  };
-
   return (
     <Link
       href={`https://github.com/${REPO}`}
       target="_blank"
-      rel="noreferrer"
-      title="在 GitHub 上关注"
+      rel="noopener noreferrer"
+      aria-label={!showText ? "GitHub 仓库" : undefined}
       className={cn(
-        "inline-flex h-8 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground shadow-none",
+        "motion-button inline-flex h-8 items-center gap-2 px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground shadow-none",
         className
       )}
     >
       <GitHubIcon className="h-4 w-4" />
-      {showText ? (
-        <span className="text-xs text-muted-foreground" aria-live="polite">
-          在 GitHub 上关注
-        </span>
-      ) : (
-        <span className="text-xs text-muted-foreground tabular-nums min-w-[2.5rem]" aria-live="polite">
-          {renderStars()}
-        </span>
-      )}
+      <span className="text-xs text-muted-foreground">
+        {showText ? "GitHub Stars" : "GitHub"}
+      </span>
     </Link>
   );
-}
-
-function formatCompact(count: number) {
-  if (count >= 1000) {
-    const value = count / 1000;
-    const formatted = value % 1 === 0 ? value.toFixed(0) : value.toFixed(1);
-    return `${formatted}k`;
-  }
-  return count.toLocaleString();
 }
 
 function GitHubIcon({ className }: { className?: string }) {

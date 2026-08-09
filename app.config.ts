@@ -7,9 +7,9 @@ export const SITE_CONFIG = {
 
 // Site meta information
 export const SITE_METADATA = {
-  title: 'RustFS - 高性能分布式存储系统',
-  description: 'RustFS 用热门安全的 Rust 语言开发，兼容 S3 协议',
-  keywords: 'RustFS, 分布式存储, 云存储, S3兼容, 高性能, 开源, MinIO替代方案',
+  title: "RustFS | 面向 AI 与云原生的高性能 S3 对象存储",
+  description: 'RustFS 是使用 Rust 构建、采用 Apache 2.0 许可证的开源分布式对象存储系统。',
+  keywords: 'RustFS, 对象存储, 分布式存储, 开源, Rust, Amazon S3, MinIO 替代方案, Apache 2.0, 云原生存储, AI 基础设施',
 } as const
 
 // Download link configuration
@@ -58,27 +58,27 @@ export const appConfig = {
     {
       key: 'windows' as DownloadOptionKey,
       label: 'Windows',
-      description: 'For Windows 10/11'
+      description: '适用于 Windows 10/11'
     },
     {
       key: 'macos' as DownloadOptionKey,
       label: 'macOS',
-      description: 'For macOS 10.15+'
+      description: '适用于 macOS 10.15 及以上版本'
     },
     {
       key: 'linux' as DownloadOptionKey,
       label: 'Linux',
-      description: 'For various Linux distributions'
+      description: '适用于多种 Linux 发行版'
     },
     {
       key: 'docker' as DownloadOptionKey,
       label: 'Docker',
-      description: 'Deploy using Docker containers'
+      description: '使用 Docker 容器部署'
     },
     {
       key: 'fallback' as DownloadOptionKey,
-      label: 'Other Platforms',
-      description: 'View all available versions'
+      label: '其他平台',
+      description: '查看全部可用版本'
     }
   ]
 } as const;

@@ -2,13 +2,13 @@ import ContactForm from '@/components/business/contact-form'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Contact Us | RustFS - High-Performance Distributed Storage System Built with Rust',
-  description: 'Get in touch with the RustFS team. Contact us for questions, support, or partnership opportunities.',
+  title: "联系我们 | RustFS | 面向 AI 的高性能 Apache 2.0 对象存储",
+  description: '联系 RustFS 团队，咨询产品问题、技术支持或合作机会。',
   openGraph: {
-    title: 'Contact Us | RustFS - High-Performance Distributed Storage System Built with Rust',
-    description: 'Get in touch with the RustFS team. Contact us for questions, support, or partnership opportunities.',
+    title: "联系我们 | RustFS | 面向 AI 的高性能 Apache 2.0 对象存储",
+    description: '联系 RustFS 团队，咨询产品问题、技术支持或合作机会。',
     type: "website",
-    locale: 'en_US',
+    locale: 'zh_CN',
   },
 }
 

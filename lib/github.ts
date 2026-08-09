@@ -1,3 +1,5 @@
+import homepageMetrics from "@/public/homepage-metrics.json";
+
 export interface GitHubRelease {
   tag_name: string;
   name: string;
@@ -18,188 +20,48 @@ export interface GitHubMetrics {
   commits: number;
 }
 
-const GITHUB_API_REVALIDATE_SECONDS = 3600;
-const GITHUB_USER_AGENT = 'RustFS-Website';
-const GITHUB_API_VERSION = '2022-11-28';
-const LAST_KNOWN_GITHUB_METRICS: GitHubMetrics = {
-  stars: 24734,
-  forks: 1064,
-  commits: 2720,
-};
+const GITHUB_FETCH_TIMEOUT_MS = 10_000;
 
-function getGitHubHeaders(
-  accept: string = 'application/vnd.github+json',
-  extraHeaders: Record<string, string> = {}
-): Record<string, string> {
-  const headers: Record<string, string> = {
-    Accept: accept,
-    'User-Agent': GITHUB_USER_AGENT,
-    'X-GitHub-Api-Version': GITHUB_API_VERSION,
-    ...extraHeaders,
-  };
-  const token = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
+const GITHUB_METRICS_FALLBACK: GitHubMetrics = homepageMetrics.github;
 
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
+async function fetchGitHub(
+  url: string,
+  init: RequestInit & { next?: { revalidate?: number } } = {}
+) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), GITHUB_FETCH_TIMEOUT_MS);
+
+  try {
+    return await fetch(url, {
+      ...init,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  return headers;
 }
 
-function parseCommitCount(linkHeader: string | null): number | null {
-  const match = linkHeader?.match(/page=(\d+)>; rel="last"/);
-  if (!match?.[1]) {
-    return null;
-  }
-
-  const page = Number(match[1]);
-  return Number.isFinite(page) && page > 0 ? page : null;
-}
-
-async function getGitHubMetricsFromGraphQL(): Promise<GitHubMetrics | null> {
-  const token = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
-
-  if (!token) {
-    return null;
-  }
-
-  const query = `
-    query RepositoryMetrics($owner: String!, $name: String!) {
-      repository(owner: $owner, name: $name) {
-        stargazerCount
-        forkCount
-        defaultBranchRef {
-          target {
-            ... on Commit {
-              history(first: 1) {
-                totalCount
-              }
-            }
-          }
-        }
-      }
-    }
-  `;
-
-  const response = await fetch('https://api.github.com/graphql', {
-    method: 'POST',
-    headers: getGitHubHeaders('application/json', {
-      'Content-Type': 'application/json',
-    }),
-    body: JSON.stringify({
-      query,
-      variables: {
-        owner: 'rustfs',
-        name: 'rustfs',
-      },
-    }),
-    next: { revalidate: GITHUB_API_REVALIDATE_SECONDS },
-  });
-
-  if (!response.ok) {
-    console.warn(`Failed to fetch GitHub metrics via GraphQL: ${response.status} ${response.statusText}`);
-    return null;
-  }
-
-  const payload = await response.json() as {
-    data?: {
-      repository?: {
-        stargazerCount?: number;
-        forkCount?: number;
-        defaultBranchRef?: {
-          target?: {
-            history?: {
-              totalCount?: number;
-            };
-          };
-        };
-      };
-    };
-    errors?: Array<{ message?: string }>;
-  };
-
-  if (payload.errors?.length) {
-    console.warn(`GitHub GraphQL returned errors: ${payload.errors.map((error) => error.message).filter(Boolean).join('; ')}`);
-    return null;
-  }
-
-  const repository = payload.data?.repository;
-  const commits = repository?.defaultBranchRef?.target?.history?.totalCount;
-
-  if (
-    typeof repository?.stargazerCount !== 'number' ||
-    typeof repository?.forkCount !== 'number' ||
-    typeof commits !== 'number'
-  ) {
-    console.warn('GitHub GraphQL metrics response is missing expected fields');
-    return null;
-  }
-
-  return {
-    stars: repository.stargazerCount,
-    forks: repository.forkCount,
-    commits,
-  };
-}
-
-async function getGitHubMetricsFromRest(): Promise<GitHubMetrics | null> {
-  const [repoRes, commitsRes] = await Promise.all([
-    fetch('https://api.github.com/repos/rustfs/rustfs', {
-      headers: getGitHubHeaders(),
-      next: { revalidate: GITHUB_API_REVALIDATE_SECONDS },
-    }),
-    fetch('https://api.github.com/repos/rustfs/rustfs/commits?per_page=1', {
-      headers: getGitHubHeaders(),
-      next: { revalidate: GITHUB_API_REVALIDATE_SECONDS },
-    }),
-  ]);
-
-  if (!repoRes.ok || !commitsRes.ok) {
-    console.warn(
-      `Failed to fetch GitHub metrics via REST: repo=${repoRes.status} ${repoRes.statusText}, commits=${commitsRes.status} ${commitsRes.statusText}`
-    );
-    return null;
-  }
-
-  const repo = await repoRes.json() as { stargazers_count?: number; forks_count?: number };
-  const commitsFromHeader = parseCommitCount(commitsRes.headers.get('link'));
-  let commits = commitsFromHeader ?? 0;
-
-  if (!commitsFromHeader) {
-    const data = await commitsRes.json();
-    commits = Array.isArray(data) ? data.length : 0;
-  }
-
-  if (
-    typeof repo.stargazers_count !== 'number' ||
-    typeof repo.forks_count !== 'number' ||
-    !Number.isFinite(commits) ||
-    commits <= 0
-  ) {
-    console.warn('GitHub REST metrics response is missing expected fields');
-    return null;
-  }
-
-  return {
-    stars: repo.stargazers_count,
-    forks: repo.forks_count,
-    commits,
-  };
+function isAbortError(error: unknown) {
+  return error instanceof Error && error.name === "AbortError";
 }
 
 /**
- * Get the latest release information (including pre-releases)
+ * Get the latest release information for a GitHub repository.
+ * @param repo Repository path, e.g. "rustfs/rustfs"
  * @returns Promise<GitHubRelease | null>
  */
-export async function getLatestRelease(): Promise<GitHubRelease | null> {
+async function getLatestReleaseForRepo(repo: string): Promise<GitHubRelease | null> {
   // Try to get the latest official release first
   try {
-    const response = await fetch(
-      'https://api.github.com/repos/rustfs/rustfs/releases/latest',
+    const response = await fetchGitHub(
+      `https://api.github.com/repos/${repo}/releases/latest`,
       {
-        headers: getGitHubHeaders(),
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'RustFS-Website'
+        },
         // Cache for 1 hour
-        next: { revalidate: GITHUB_API_REVALIDATE_SECONDS }
+        next: { revalidate: 3600 }
       }
     )
 
@@ -208,27 +70,38 @@ export async function getLatestRelease(): Promise<GitHubRelease | null> {
       return release
     }
   } catch (error) {
-    console.warn('Failed to fetch latest release:', error)
+    if (isAbortError(error)) {
+      console.warn(`Timed out fetching latest release for ${repo}`);
+      return null;
+    }
+
+    console.warn(`Failed to fetch latest release for ${repo}:`, error)
   }
 
   // If official release doesn't exist (404), get the latest version with assets
   try {
-    const response = await fetch(
-      'https://api.github.com/repos/rustfs/rustfs/releases?per_page=10',
+    const response = await fetchGitHub(
+      `https://api.github.com/repos/${repo}/releases?per_page=10`,
       {
-        headers: getGitHubHeaders(),
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'RustFS-Website'
+        },
         // Cache for 1 hour
-        next: { revalidate: GITHUB_API_REVALIDATE_SECONDS }
+        next: { revalidate: 3600 }
       }
     )
 
     if (response.ok) {
       const releases = await response.json()
 
-      // Prioritize latest non-draft version with assets
-      const releaseWithAssets = releases.find((release: GitHubRelease) =>
+      // Prefer a concise release over preview builds when both publish artifacts.
+      const releasesWithAssets = releases.filter((release: GitHubRelease) =>
         !release.draft && release.assets && release.assets.length > 0
       )
+      const releaseWithAssets = releasesWithAssets.find(
+        (release: GitHubRelease) => !/(?:^|[-.])preview(?:[.-]|$)/i.test(release.tag_name)
+      ) ?? releasesWithAssets[0]
 
       if (releaseWithAssets) {
         return releaseWithAssets
@@ -239,10 +112,31 @@ export async function getLatestRelease(): Promise<GitHubRelease | null> {
       return latestNonDraft || null
     }
   } catch (error) {
-    console.error('Failed to fetch releases:', error)
+    if (isAbortError(error)) {
+      console.warn(`Timed out fetching releases for ${repo}`);
+      return null;
+    }
+
+    console.error(`Failed to fetch releases for ${repo}:`, error)
   }
 
   return null
+}
+
+/**
+ * Get the latest RustFS server release information (including pre-releases).
+ * @returns Promise<GitHubRelease | null>
+ */
+export async function getLatestRelease(): Promise<GitHubRelease | null> {
+  return getLatestReleaseForRepo('rustfs/rustfs');
+}
+
+/**
+ * Get the latest RustFS CLI release information.
+ * @returns Promise<GitHubRelease | null>
+ */
+export async function getLatestCliRelease(): Promise<GitHubRelease | null> {
+  return getLatestReleaseForRepo('rustfs/cli');
 }
 
 /**
@@ -250,23 +144,31 @@ export async function getLatestRelease(): Promise<GitHubRelease | null> {
  * @returns Promise<GitHubMetrics>
  */
 export async function getGitHubMetrics(): Promise<GitHubMetrics> {
-  try {
-    const exactMetrics = await getGitHubMetricsFromGraphQL();
-    if (exactMetrics) {
-      return exactMetrics;
+  const injectedMetricValues = [
+    process.env.HOMEPAGE_GITHUB_STARS,
+    process.env.HOMEPAGE_GITHUB_FORKS,
+    process.env.HOMEPAGE_GITHUB_COMMITS,
+  ];
+
+  if (injectedMetricValues.some((value) => value !== undefined)) {
+    if (injectedMetricValues.some((value) => value === undefined)) {
+      throw new Error('Incomplete injected GitHub homepage metrics');
     }
 
-    const restMetrics = await getGitHubMetricsFromRest();
-    if (restMetrics) {
-      return restMetrics;
+    const injectedMetrics = {
+      stars: Number(injectedMetricValues[0]),
+      forks: Number(injectedMetricValues[1]),
+      commits: Number(injectedMetricValues[2]),
+    };
+
+    if (Object.values(injectedMetrics).every((value) => Number.isInteger(value) && value > 0)) {
+      return injectedMetrics;
     }
 
-    console.warn('Falling back to last known GitHub metrics');
-    return LAST_KNOWN_GITHUB_METRICS;
-  } catch (error) {
-    console.warn('Failed to fetch GitHub metrics:', error);
-    return LAST_KNOWN_GITHUB_METRICS;
+    throw new Error('Invalid injected GitHub homepage metrics');
   }
+
+  return GITHUB_METRICS_FALLBACK;
 }
 
 /**
@@ -331,64 +233,6 @@ export async function getLatestVersion(): Promise<string> {
 }
 
 /**
- * Get the latest launcher release information
- * @returns Promise<GitHubRelease | null>
- */
-export async function getLatestLauncherRelease(): Promise<GitHubRelease | null> {
-  // Try to get the latest official release first
-  try {
-    const response = await fetch(
-      'https://api.github.com/repos/rustfs/launcher/releases/latest',
-      {
-        headers: getGitHubHeaders(),
-        // Cache for 1 hour
-        next: { revalidate: GITHUB_API_REVALIDATE_SECONDS }
-      }
-    )
-
-    if (response.ok) {
-      const release = await response.json()
-      return release
-    }
-  } catch (error) {
-    console.warn('Failed to fetch latest launcher release:', error)
-  }
-
-  // If official release doesn't exist (404), get the latest version with assets
-  try {
-    const response = await fetch(
-      'https://api.github.com/repos/rustfs/launcher/releases?per_page=10',
-      {
-        headers: getGitHubHeaders(),
-        // Cache for 1 hour
-        next: { revalidate: GITHUB_API_REVALIDATE_SECONDS }
-      }
-    )
-
-    if (response.ok) {
-      const releases = await response.json()
-
-      // Prioritize latest non-draft version with assets
-      const releaseWithAssets = releases.find((release: GitHubRelease) =>
-        !release.draft && release.assets && release.assets.length > 0
-      )
-
-      if (releaseWithAssets) {
-        return releaseWithAssets
-      }
-
-      // If no version with assets found, return latest non-draft version
-      const latestNonDraft = releases.find((release: GitHubRelease) => !release.draft)
-      return latestNonDraft || null
-    }
-  } catch (error) {
-    console.error('Failed to fetch launcher releases:', error)
-  }
-
-  return null
-}
-
-/**
  * Get download link for a version
  * @param release GitHub release information
  * @param platform Platform identifier
@@ -407,6 +251,8 @@ export function getDownloadUrlForPlatform(
   // Match filename pattern based on platform and architecture
   const platformPatterns: Record<string, RegExp[]> = {
     windows: [
+      /rustfs-windows-x86_64.*\.zip/i,
+      /windows.*x86_64.*\.zip/i,
       /rustfs-windows-x86_64.*\.exe/i,
       /windows.*x86_64.*\.exe/i,
       /windows/i
