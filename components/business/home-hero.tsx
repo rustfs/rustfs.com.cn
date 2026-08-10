@@ -33,7 +33,7 @@ export default function HomeHero({ dockerPulls, metrics }: HomeHeroProps) {
               面向 AI 数据中心的高性能 S3 兼容对象存储
             </h1>
             <p className="mt-6 w-full text-base leading-7 text-muted-foreground md:text-lg md:leading-8">
-              RustFS 是全球增长最快的开源分布式对象存储系统。它使用 Rust 从零构建，采用 Apache 2.0 许可证，为 AI 工作负载提供强大、可投入生产的 S3 兼容存储基础。
+              RustFS 是全球增长最快的开源分布式对象存储系统。使用 Rust 语言构建，采用 Apache 2.0 许可证，为 AI 工作负载提供强大且生产就绪的 S3 兼容存储基础，是 MinIO 和 Ceph 的国产平替。
             </p>
 
             <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 text-sm xl:grid-cols-4">
