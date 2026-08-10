@@ -81,7 +81,7 @@ export default function IntegrationPage() {
               集成生态
             </p>
             <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.04] tracking-[-0.04em] text-foreground sm:text-6xl">
-              将 RustFS 连接到正在使用的工具。
+              将 RustFS 无缝集成到您的工具链中。
             </h1>
             <p className="mt-6 max-w-3xl text-base leading-8 text-muted-foreground">
               以统一的 S3 兼容存储基础连接 AI、DevOps、备份、安全、分析与云原生基础设施。

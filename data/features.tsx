@@ -11,7 +11,7 @@ import {
 
 const features = [
   {
-    "title": "高级纠删码",
+    "title": "纠删码",
     "plane": "数据平面",
     "token": "RS(EC)",
     "description": "灵活的 Reed-Solomon 纠删码配置兼顾数据可靠性与存储效率。",
@@ -27,7 +27,7 @@ const features = [
     "featureDescription": "支持跨多个节点和磁盘部署。RustFS 在集群中智能分布数据与流量，实现高可用、自动故障转移和可预测的性能扩展。",
   },
   {
-    "title": "动态存储池编排",
+    "title": "存储池管理",
     "plane": "存储池平面",
     "token": "rebalance()",
     "description": "无需计划停机即可扩容、再平衡和退役存储池。",
@@ -51,7 +51,7 @@ const features = [
     "featureDescription": "在每一层保护数据基础设施。RustFS 原生集成 IAM、OIDC 和 STS，实现精细访问控制，提供可靠的 mTLS 与 KMS 驱动加密（SSE-S3/KMS/C），并通过完整安全审计满足严格合规要求。",
   },
   {
-    "title": "运维控制与遥测",
+    "title": "运维和可观测性",
     "plane": "运维平面",
     "token": "otel.trace",
     "description": "在统一控制平面跟踪容量、健康状态、事件与 OTEL 信号。",

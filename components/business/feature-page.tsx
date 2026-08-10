@@ -407,10 +407,10 @@ function ProductionReview({ variant }: { variant: FeaturePageVariant }) {
         </span>
         <div>
           <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-            Plan your RustFS deployment
+            开始你的 RustFS 之旅吧。
           </h2>
           <p className="mt-3 text-sm leading-7 text-muted-foreground">
-            Share your topology, identity model, and operations constraints with the RustFS team.
+            我们将提供专业的技术支持服务，为您的数据安全保驾护航！
           </p>
         </div>
         <span className="flex size-12 items-center justify-center bg-brand text-brand-foreground">

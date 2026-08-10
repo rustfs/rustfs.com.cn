@@ -78,7 +78,7 @@ export default function SoftwareLogos() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <HomeSectionHeader
           eyebrow="集成生态"
-          title="连接现有存储生态"
+          title="强大的生态集成能力"
           description="RustFS 以 S3 兼容性为核心，让现有分析、可观测性、AI 与交付工具继续使用熟悉的对象存储接口。"
         />
       </div>

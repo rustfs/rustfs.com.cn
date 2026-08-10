@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
-import { ArrowUpRightIcon, MailIcon, MessageCircleIcon } from 'lucide-react'
+import { ArrowUpRightIcon, MailIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import HomeSectionHeader from './home-section-header'
@@ -72,13 +72,6 @@ const CONTACT_CHANNELS = [
     value: 'rustfs/rustfs',
     icon: GitHubIcon
   },
-  {
-    title: 'Discord',
-    description: '用于社区问答与日常技术交流。',
-    href: 'https://discord.gg/NcKBCEJp6P',
-    value: '加入社区',
-    icon: MessageCircleIcon
-  }
 ]
 
 function GitHubIcon({ className }: { className?: string }) {

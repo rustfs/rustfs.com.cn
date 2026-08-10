@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "RustFS 高可用与扩展性 | 企业级分布式存储",
   description:
-    "了解 RustFS 企业级分布式架构。通过分布式纠删码、自动自愈与可靠数据保护，实现从 PB 到 EB 级的持续扩展。",
+    "了解 RustFS 企业级分布式架构。通过分布式纠删码、自动自愈与可靠数据保护，实现从 PB 到 EB 级的线性扩容。",
   keywords: [
     "RustFS",
     "distributed object storage",
@@ -60,10 +60,10 @@ const sections: FeaturePageSection[] = [
     ],
   },
   {
-    title: "持续扩展",
+    title: "线性扩容",
     items: [
       {
-        title: "水平与垂直扩展",
+        title: "横纵向扩容",
         description:
           "支持从 PB 到 EB 级的数据管理。",
       },
@@ -125,7 +125,7 @@ export default function HighAvailabilityScalePage() {
   return (
     <FeaturePage
       title="高可用 & 扩展性"
-      description="RustFS 通过企业级分布式架构、分布式纠删码与可靠容错，在持续扩展与数据一致性之间取得平衡，为企业从 PB 到 EB 级乃至更大规模的存储提供可靠、高效的数据管理。"
+      description="RustFS 通过企业级分布式架构、分布式纠删码与可靠容错，在线性扩容与数据一致性之间取得平衡，为企业从 PB 到 EB 级乃至更大规模的存储提供可靠、高效的数据管理。"
       sections={sections}
       variant="scale"
       highlightsTitle="高效可靠"
