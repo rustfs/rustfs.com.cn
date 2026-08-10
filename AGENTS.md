@@ -9,7 +9,13 @@ This document provides development guidelines and rules for AI Agents to ensure 
 - **Language**: TypeScript (ES2025+, Strict Mode)
 - **Package Manager**: pnpm
 - **Styling**: Tailwind CSS 4 + shadcn/ui
-- **CI/CD**: GitHub Actions → Aliyun OSS
+- **CI/CD**: Cloudflare
+
+### Website Relationship
+
+- `rustfs.com` is the primary English website and the source of truth for site implementation.
+- `rustfs.com.cn` is the Chinese localized website, not the primary website.
+- Keep the Chinese website aligned with the English website except for documented localization requirements.
 
 ## 🚨 Core Rules
 
