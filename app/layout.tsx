@@ -103,6 +103,19 @@ export default async function RootLayout({
             src="https://hm.baidu.com/hm.js?968e7103a8e28fb30f7d69e42b7c82bc"
             strategy="afterInteractive"
           />
+          <Script
+            id="gtag-base"
+            src="https://www.googletagmanager.com/gtag/js?id=G-TWW7WMTWL9"
+            strategy="afterInteractive"
+          />
+          <Script id="gtag-init" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-TWW7WMTWL9');
+            `}
+          </Script>
         </ThemeProvider>
       </body>
     </html>
