@@ -1,0 +1,75 @@
+---
+title: '补丁版本：RustFS 1.0.0-alpha.79 发布'
+slug: patch-release-rustfs-1-0-0-alpha-79-released
+description: >-
+  RustFS 1.0.0-alpha.79 正式发布，包含重要安全修复、稳定性改进以及多项新功能。
+date: '2026-01-07T07:41:00.000Z'
+author: Rustfs
+tags:
+  - Release
+  - Rust
+  - RustFS
+  - S3
+  - Security
+  - Announcements
+image: '/images/blog/patch-release-rustfs-1-0-0-alpha-79-released/alpha.79.png'
+---
+今天，我们正式发布 **RustFS 1.0.0-alpha.79**。该版本为 RustFS 社区带来了重要安全修复、稳定性改进和多项新功能。
+
+我们强烈建议所有运行 `1.0.0-alpha.79` 之前版本的实例立即升级。
+
+## 🛡️ 通过全球协作让 RustFS 更安全
+
+安全是一段持续前进的旅程，而不是一个终点。衷心感谢全球安全研究社区，以及所有审计过 RustFS 代码库的安全团队。
+
+开源的透明性让我们能够与全球专家协作。正是因为大家的审查、审计与负责任披露，RustFS 才能在每次发布中变得更加安全。我们衡量成功的标准，不是系统永远没有漏洞，而是能否快速、透明地处理问题。
+
+## 安全修复
+
+该版本修复了社区报告的多个安全漏洞，相关问题已在 `1.0.0-alpha.79` 中得到缓解。
+
+我们已发布以下安全公告：
+
+*   **[GHSA-h956-rh7x-ppgj](https://github.com/rustfs/rustfs/security/advisories/GHSA-h956-rh7x-ppgj)**：修复一个严重的路径遍历漏洞。
+*   **[GHSA-pq29-69jg-9mxc](https://github.com/rustfs/rustfs/security/advisories/GHSA-pq29-69jg-9mxc)**：处理 RPC 认证中的安全风险。
+*   **[GHSA-gw2x-q739-qhcr](https://github.com/rustfs/rustfs/security/advisories/GHSA-gw2x-q739-qhcr)**：加强对象管理与复制功能的校验。
+
+## 1.0.0-alpha.79 主要变更
+
+除安全补丁外，该版本还对协议支持、策略管理和系统稳定性进行了重要更新。
+
+### 🚀 新功能与增强
+
+*   **协议支持：** 新增 FTPS 和 SFTP 支持（@yxrxy）。
+*   **部署：** 单机部署新增节点选择器支持（@majinghe、@31ch）。
+*   **策略：** 策略资源现支持字符串和数组两种模式（@GatewayJ）。
+*   **配置：** 支持自由配置 requests 和 limits（@mkrueger92）。
+*   **IAM：** 新增创建账户与删除版本的权限校验（@GatewayJ）。
+*   **测试：** 加强 S3 测试分类与就绪状态检测（@overtrue）。
+
+### 🐛 问题修复与改进
+
+*   **安全：** 修复路径遍历问题并加强对象校验（@weisd）。
+*   **安全：** 重构 RPC 认证系统，提升可维护性（@weisd）。
+*   **安全：** 修正 `RemoteAddr` 扩展类型，确保基于 IP 的策略能够准确评估（@LeonWang0735）。
+*   **S3 兼容性：** 修复存储桶策略主体解析，以支持特定 AWS 通配符（@yxrxy）。
+*   **S3 兼容性：** 修复 `list object versions` 的 next marker 行为（@overtrue）。
+*   **网络：** 移除 NGINX Ingress 默认请求体大小限制（@usernameisnull）。
+*   **平台：** 修复 FreeBSD/OpenBSD 可用块数量类型转换问题，并移除硬编码的 bash 路径（@jan-schreib）。
+*   **性能：** 改进磁盘健康跟踪器的内存排序（@weisd）。
+*   **修复：** 解决 IPv6 环境下的 URL 输出格式问题与 UI 时序错误（@houseme）。
+*   **修复：** 解决 FTPS/SFTP 下载问题并优化 S3Client 缓存（@yxrxy）。
+
+### ⚙️ 维护与依赖
+
+*   将 `tokio` 升级至 1.49.0（@houseme）。
+*   迁移至 `aws-lc-rs`，并升级 GitHub Actions artifacts（@houseme）。
+*   在 FTPS/SFTP 端到端测试中使用纯 `rustls` 替换 `native-tls`（@yxrxy）。
+*   移除 `sysctl` crate，改用 libc 调用接口（@jan-schreib）。
+*   常规依赖升级并清理未使用的 crate。
+
+## 升级说明
+
+如需升级至最新版本，请访问发布页面：
+
+**[下载 RustFS 1.0.0-alpha.79](https://github.com/rustfs/rustfs/releases/tag/1.0.0-alpha.79)**

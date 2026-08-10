@@ -1,0 +1,283 @@
+---
+title: "GitLab 与 RustFS 集成：OIDC 单点登录和 S3 对象存储"
+slug: gitlab-rustfs-integration
+description: "将 GitLab 与 RustFS 集成，实现 OIDC 单点登录，并为 CI/CD 产物、LFS、软件包和上传文件提供 S3 兼容对象存储。"
+date: '2026-08-04T00:00:00.000Z'
+author: RustFS Team
+tags:
+  - Integration
+image: /images/blog/gitlab-rustfs-integration/cover.png
+---
+
+GitLab 与 RustFS 可以组成一套完全自托管的平台，覆盖源代码管理、CI/CD、身份认证和可扩展对象存储。通过 **GitLab 与 RustFS 集成**，团队可以获得两项实用能力：员工使用 GitLab 账户登录 RustFS 控制台，GitLab 则将构建产物及其他大对象存入 RustFS，而不是占用本地磁盘。
+
+本指南将介绍以下两项配置：
+
+1. 将 GitLab 用作 OpenID Connect（OIDC）身份提供商，实现 RustFS 单点登录。
+2. 将 RustFS 用作 GitLab CI/CD 产物的 S3 兼容对象存储后端。
+
+相同的对象存储模式还可用于 Git LFS 对象、上传文件、软件包、Terraform 状态、Pages、Secure Files、外部合并请求差异以及依赖代理。
+
+> 示例使用 `gitlab.example.com` 和 `rustfs.example.com`，请将其替换为自己的域名。隔离的测试环境可以使用 HTTP，生产部署应使用 HTTPS。
+
+## 为什么要集成 GitLab 与 RustFS？
+
+GitLab 是一套可私有化部署的综合 DevSecOps 平台。RustFS 则是一款开源、高性能、兼容 S3 的对象存储系统，同样可以完全运行在自有基础设施上。
+
+连接两个平台可以带来以下优势：
+
+- **集中身份管理：** 借助 GitLab OIDC，用户可以使用现有公司账户访问 RustFS。
+- **可扩展 CI/CD 存储：** 构建产物可以从 GitLab 服务器本地磁盘迁移到专用对象存储。
+- **兼容 S3：** GitLab 可以通过标准 S3 对象存储配置连接 RustFS。
+- **数据自主可控：** 源代码、凭据、元数据和构建输出都保留在自行管理的基础设施中。
+- **独立扩展：** GitLab 计算资源与 RustFS 存储容量可以分别扩展。
+
+## 第一部分：为 RustFS 配置 GitLab OIDC 单点登录
+
+启用 OIDC 后，GitLab 负责验证用户身份，RustFS 则控制用户可以执行的操作。登录流程通过 GitLab 应用 ID 和 Secret 在两个服务之间建立信任。
+
+### 前置条件
+
+开始前，请确保具备以下条件：
+
+- 一个正在运行的 GitLab 实例，并拥有 **Admin Area** 访问权限。
+- 一个正在运行的 RustFS 实例，并有权编辑其服务环境配置。
+- 两个服务对应的 DNS 记录。
+- 生产端点使用的 TLS 证书。
+- 适用于 GitLab 用户的 RustFS IAM 策略。
+
+### 安装 RustFS
+
+RustFS 支持二进制、Docker 和 Kubernetes 部署。在 Ubuntu 22.04 上，可以使用安装脚本快速搭建测试环境：
+
+```bash
+curl -O https://rustfs.com/install_rustfs.sh
+bash install_rustfs.sh
+```
+
+安装完成后，编辑 `/etc/default/rustfs`，替换 `RUSTFS_ACCESS_KEY` 和 `RUSTFS_SECRET_KEY` 的默认值。请使用强度足够且唯一的凭据，不要保留默认值 `rustfsadmin`。
+
+更新配置后重启 RustFS：
+
+```bash
+sudo systemctl restart rustfs
+```
+
+通过以下地址打开 RustFS 控制台：
+
+```text
+https://rustfs.example.com
+```
+
+默认身份提供商的 OIDC 回调地址为：
+
+```text
+https://rustfs.example.com/rustfs/admin/v3/oidc/callback/default
+```
+
+请保存该地址。创建 OAuth 应用时，GitLab 要求回调地址完全一致。
+
+### 创建 GitLab OAuth 应用
+
+可以使用 GitLab Community Edition、Enterprise Edition 或其他兼容的自托管发行版。如果尚未安装 GitLab，请参阅 [GitLab 官方安装文档](https://docs.gitlab.com/install/)。
+
+创建应用的步骤如下：
+
+1. 以管理员身份登录 GitLab。
+2. 打开 **Admin Area**。
+3. 选择 **Applications**，然后选择 **New application** 或 **Add new application**。
+4. 输入便于识别的名称，例如 `RustFS OIDC`。
+5. 将 **Redirect URI** 设置为：
+
+   ```text
+   https://rustfs.example.com/rustfs/admin/v3/oidc/callback/default
+   ```
+
+6. 启用 `openid`、`profile` 和 `email` Scope。
+7. 保存应用。
+8. 将生成的 **Application ID** 和 **Secret** 复制到安全位置。
+
+![为 RustFS OIDC 配置 GitLab OAuth 应用](/images/blog/gitlab-rustfs-integration/gitlab-application-configuration.png)
+
+应用 Secret 属于敏感信息，应存放在密钥管理器或其他受保护的配置系统中，不要提交到源代码仓库。
+
+### 在 RustFS 中配置 GitLab OIDC
+
+编辑 `/etc/default/rustfs`，添加以下环境变量：
+
+```ini
+RUSTFS_BROWSER_REDIRECT_URL="https://rustfs.example.com"
+
+RUSTFS_IDENTITY_OPENID_ENABLE=on
+RUSTFS_IDENTITY_OPENID_CONFIG_URL="https://gitlab.example.com"
+RUSTFS_IDENTITY_OPENID_CLIENT_ID="<gitlab-application-id>"
+RUSTFS_IDENTITY_OPENID_CLIENT_SECRET="<gitlab-application-secret>"
+RUSTFS_IDENTITY_OPENID_SCOPES="openid,profile,email"
+RUSTFS_IDENTITY_OPENID_REDIRECT_URI="https://rustfs.example.com/rustfs/admin/v3/oidc/callback/default"
+RUSTFS_IDENTITY_OPENID_REDIRECT_URI_DYNAMIC=off
+RUSTFS_IDENTITY_OPENID_DISPLAY_NAME="GitLab"
+RUSTFS_IDENTITY_OPENID_EMAIL_CLAIM="email"
+RUSTFS_IDENTITY_OPENID_USERNAME_CLAIM="preferred_username"
+RUSTFS_IDENTITY_OPENID_ROLE_POLICY="consoleAdmin"
+```
+
+将 `<gitlab-application-id>` 和 `<gitlab-application-secret>` 替换为 GitLab 中生成的凭据。
+
+该示例为通过此身份提供商认证的用户分配 `consoleAdmin` 策略。生产环境应遵循最小权限原则，改用仅授予必要权限的策略。
+
+重启服务：
+
+```bash
+sudo systemctl restart rustfs
+```
+
+### 验证 OIDC 登录流程
+
+打开 RustFS 控制台，登录页面此时应显示 **Login with GitLab**。
+
+![RustFS 控制台显示 Login with GitLab 选项](/images/blog/gitlab-rustfs-integration/rustfs-console-gitlab-oidc.png)
+
+点击按钮并确认：
+
+1. 浏览器跳转到 GitLab。
+2. GitLab 完成用户认证。
+3. GitLab 将浏览器重定向至 RustFS 回调地址。
+4. RustFS 控制台打开，并应用 `RUSTFS_IDENTITY_OPENID_ROLE_POLICY` 中配置的策略。
+
+如果 GitLab 报告 Redirect URI 不匹配，请逐字符比较 GitLab 应用中的 URI 与 `RUSTFS_IDENTITY_OPENID_REDIRECT_URI`。协议、主机名、端口、路径和末尾斜杠必须完全一致。
+
+## 第二部分：使用 RustFS 作为 GitLab 对象存储
+
+GitLab 可以将多种数据存放在 S3 兼容服务中，包括：
+
+- CI/CD 产物
+- Git LFS 对象
+- 用户上传文件
+- 软件包仓库数据
+- Terraform 状态
+- GitLab Pages 内容
+- CI/CD Secure Files
+- 外部合并请求差异
+- 依赖代理对象
+
+RustFS 实现了 S3 API，因此 GitLab 可以通过 AWS Provider、自定义 Endpoint 和 Path Style 请求连接 RustFS。
+
+### 创建 RustFS 存储桶
+
+建议为每种准备迁移到对象存储的 GitLab 数据创建独立存储桶。本例创建名为 `artifacts` 的存储桶。
+
+可以在 RustFS 控制台或通过兼容客户端创建存储桶，详细步骤参阅 [RustFS 存储桶创建文档](https://docs.rustfs.com.cn/administration/data/bucket/creation)。
+
+![在 RustFS 控制台创建 artifacts 存储桶](/images/blog/gitlab-rustfs-integration/rustfs-bucket-creation.png)
+
+生产环境建议：
+
+- 为 GitLab 使用独立的 RustFS Access Key。
+- 仅授予该身份访问必要存储桶的权限。
+- 为 RustFS S3 端点启用 TLS。
+- 根据 CI/CD 需求配置生命周期与保留规则。
+- 监控容量、请求错误与对象增长情况。
+
+### 配置 GitLab CI/CD 产物存储
+
+在 Omnibus GitLab 安装中，编辑 `/etc/gitlab/gitlab.rb` 并添加以下配置：
+
+```ruby
+gitlab_rails['artifacts_enabled'] = true
+gitlab_rails['artifacts_object_store_enabled'] = true
+gitlab_rails['artifacts_object_store_proxy_download'] = false
+gitlab_rails['artifacts_object_store_remote_directory'] = 'artifacts'
+gitlab_rails['artifacts_object_store_connection'] = {
+  'provider' => 'AWS',
+  'region' => 'us-east-1',
+  'aws_access_key_id' => 'RUSTFS_ACCESS_KEY',
+  'aws_secret_access_key' => 'RUSTFS_SECRET_KEY',
+  'endpoint' => 'https://rustfs.example.com',
+  'path_style' => true,
+  'aws_signature_version' => 4
+}
+```
+
+将 Endpoint 与凭据替换为 RustFS 部署的实际值。如果 S3 API 使用独立端口，请将端口写入 Endpoint，例如 `https://rustfs.example.com:9000`。
+
+应用 GitLab 配置：
+
+```bash
+sudo gitlab-ctl reconfigure
+```
+
+### 测试 GitLab 流水线产物上传
+
+在测试项目中创建或更新 `.gitlab-ci.yml`：
+
+```yaml
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - mkdir -p output
+    - echo "RustFS object storage test from GitLab" > output/rustfs.txt
+    - ls -ltr output
+  tags:
+    - rustfs
+  artifacts:
+    paths:
+      - output/*.txt
+    expire_in: 1 week
+```
+
+运行流水线并等待 Job 完成，然后在 RustFS 控制台打开 `artifacts` 存储桶。
+
+![存储在 RustFS 存储桶中的 GitLab CI/CD 产物](/images/blog/gitlab-rustfs-integration/gitlab-artifacts-check.png)
+
+如果存储桶中出现对象，说明 GitLab 已成功将 CI/CD 产物存入 RustFS，而不是 GitLab 服务器的本地磁盘。
+
+### 配置其他 GitLab 数据类型
+
+GitLab 对 LFS、上传文件、软件包、Terraform 状态、Pages、Secure Files、外部差异和依赖代理采用类似的对象存储配置。请为每种数据类型使用独立存储桶，并配置范围尽可能小的 RustFS 策略。
+
+迁移生产数据前，请查阅最新的 [GitLab 对象存储文档](https://docs.gitlab.com/administration/object_storage/)，确认当前 GitLab 版本对应的配置。
+
+## GitLab 与 RustFS 集成故障排查
+
+### OIDC 登录按钮未出现
+
+确认 `RUSTFS_IDENTITY_OPENID_ENABLE` 已设为 `on`，RustFS 主机可以访问 GitLab 配置 URL，并且修改环境文件后已重启 RustFS。
+
+### GitLab 报告 Redirect URI 不匹配
+
+GitLab 中注册的 Redirect URI 必须与 `RUSTFS_IDENTITY_OPENID_REDIRECT_URI` 完全一致，尤其要检查 HTTP/HTTPS、端口和末尾斜杠。
+
+### GitLab 无法上传产物
+
+检查 RustFS Endpoint、Access Key、Secret Key、存储桶名称和网络连接。对于本指南中的配置，请保持 `path_style` 启用，并确认 GitLab 使用的身份可以读写 `artifacts` 存储桶中的对象。
+
+### 产物仍保留在本地磁盘
+
+运行 `sudo gitlab-ctl reconfigure`，检查 GitLab 日志中的对象存储错误，并确认流水线确实生成了产物。启用对象存储后，已有的本地产物不一定会自动迁移。
+
+## 常见问题
+
+### RustFS 兼容 GitLab 对象存储吗？
+
+兼容。RustFS 提供 S3 兼容 API，GitLab 可通过 AWS Provider 配置和自定义 Endpoint 使用 S3 兼容对象存储。
+
+### GitLab 可以认证 RustFS 用户吗？
+
+可以。GitLab 可以作为 OIDC 身份提供商，用户通过 GitLab 登录，RustFS 再将认证身份映射到本地 IAM 策略。
+
+### RustFS 除 GitLab CI/CD 产物外还能存储其他数据吗？
+
+可以。GitLab 可将对象存储用于产物、LFS 对象、上传文件、软件包、Terraform 状态、Pages、Secure Files、外部差异与依赖代理数据。
+
+### GitLab 和 RustFS 应使用 HTTPS 吗？
+
+应该。生产部署中的 GitLab OIDC 端点、RustFS 控制台和 S3 API 都应使用 HTTPS。TLS 可以保护传输中的凭据、Token 和应用数据。
+
+## 总结
+
+集成 GitLab 与 RustFS，可以构建一套具备集中认证和可扩展 S3 兼容存储的自托管工作流。OIDC 减少了单独维护 RustFS 控制台凭据的需求，对象存储则可以避免 CI/CD 产物和其他大文件持续占用 GitLab 本地磁盘。
+
+建议先使用测试存储桶和受限 IAM 策略，验证完整登录与上传流程，再随着存储需求增长逐步扩展到其他 GitLab 数据类型。

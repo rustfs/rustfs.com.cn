@@ -1,114 +1,62 @@
 'use client'
-import { WordRotate } from "@/components/magicui/word-rotate";
-import { Globe } from "@/components/ui/globe";
-import type { GitHubMetrics } from "@/lib/github";
-import { useTheme } from "next-themes";
-import { useEffect, useMemo, useState } from "react";
-import DemoLink from "./buttons/demo-link";
-import DownloadLink from "./buttons/download-link";
-import StatsStrip from "./stats-strip";
-//import GetStartedButton from "./buttons/get-started";
 
-// 导入所有软件SVG图标
+import type { GitHubMetrics } from "@/lib/github"
+import ContactUsButton from "./buttons/contact-us"
+import DownloadLink from "./buttons/download-link"
+import GlobePanel from "./globe-panel"
+import StatsStrip from "./stats-strip"
 
 interface HomeHeroProps {
   dockerPulls: number;
   metrics: GitHubMetrics;
 }
 
+const stackItems = [
+  { label: "Apache 2.0", value: "开源许可" },
+  { label: "S3 API", value: "无缝替代" },
+  { label: "Rust 内核", value: "内存安全" },
+  { label: "AI 数据", value: "PB 级扩展" },
+];
+
+const heroButtonClassName = "!h-14 !min-h-14 w-full !px-0 !py-0 leading-none sm:!w-48";
+
 export default function HomeHero({ dockerPulls, metrics }: HomeHeroProps) {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const isDark = mounted && resolvedTheme === "dark";
-
-  const globeConfig = useMemo(
-    () => ({
-      width: 800,
-      height: 800,
-      phi: 0,
-      theta: 0.3,
-      dark: isDark ? 1 : 0,
-      diffuse: isDark ? 1.2 : 0.8,
-      mapBrightness: isDark ? 1.2 : 1.2,
-      baseColor: isDark
-        ? ([0.7, 0.85, 1] as [number, number, number])
-        : ([1, 1, 1] as [number, number, number]),
-      markerColor: [251 / 255, 100 / 255, 21 / 255] as [
-        number,
-        number,
-        number
-      ],
-      glowColor: isDark
-        ? ([0.6, 0.75, 1] as [number, number, number])
-        : ([1, 1, 1] as [number, number, number]),
-      mapSamples: 16000,
-      devicePixelRatio: 2,
-      onRender: () => { },
-      markers: [
-        { location: [14.5995, 120.9842] as [number, number], size: 0.03 },
-        { location: [19.076, 72.8777] as [number, number], size: 0.1 },
-        { location: [23.8103, 90.4125] as [number, number], size: 0.05 },
-        { location: [30.0444, 31.2357] as [number, number], size: 0.07 },
-        { location: [39.9042, 116.4074] as [number, number], size: 0.08 },
-        { location: [-23.5505, -46.6333] as [number, number], size: 0.1 },
-        { location: [19.4326, -99.1332] as [number, number], size: 0.1 },
-        { location: [40.7128, -74.006] as [number, number], size: 0.1 },
-        { location: [34.6937, 135.5022] as [number, number], size: 0.05 },
-        { location: [41.0082, 28.9784] as [number, number], size: 0.06 },
-        { location: [22.5431, 114.0579] as [number, number], size: 0.08 },
-        { location: [31.2304, 121.4737] as [number, number], size: 0.08 },
-        { location: [30.6624, 104.0633] as [number, number], size: 0.07 },
-        { location: [34.0522, -118.2437] as [number, number], size: 0.1 },
-        { location: [43.6532, -79.3832] as [number, number], size: 0.08 },
-        { location: [1.3521, 103.8198] as [number, number], size: 0.07 },
-      ],
-    }),
-    [isDark]
-  );
-
   return (
-    <section className="relative mx-auto max-w-7xl overflow-hidden px-4 sm:px-6 lg:px-8 pt-12 pb-16 xl:pt-16">
-      <div className="relative flex items-center gap-12">
-        <div className="space-y-6 text-center lg:text-left relative z-20 lg:w-3/5">
-          <h1 className="font-display text-3xl font-extrabold tracking-tight text-primary sm:text-4xl md:text-5xl xl:text-6xl leading-tight">
-            世界上增长最快的<br />分布式对象存储
-          </h1>
-          <p className="mx-auto lg:mx-0 max-w-2xl text-lg tracking-tight text-secondary-foreground">
-            根据 GitHub 的数据，RustFS 是增长最快的分布式对象存储。
-            RustFS 用热门安全的 Rust 语言开发，兼容 S3 协议。适用于 AI/ML 及海量数据存储、大数据、互联网、工业和保密存储等全部场景，支持国产保密设备和系统。
-          </p>
-          <div className="text-lg font-semibold text-primary/90 flex items-center justify-center lg:justify-start gap-2">
-            <span>适用于</span>
-            <WordRotate
-              words={[
-                'AI/ML 管道',
-                '超大规模数据湖',
-                '多云存储',
-                'S3 兼容生态',
-                '企业级可靠性'
-              ]}
-              className="inline-flex"
-            />
+    <section className="relative overflow-hidden pt-14 pb-16 sm:pt-20 lg:pb-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.02fr_0.98fr] lg:gap-8">
+          <div className="relative z-10">
+            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand">
+              Rust 原生对象存储
+            </p>
+            <h1 className="w-full font-display text-4xl font-bold leading-[1.04] tracking-[-0.04em] text-primary sm:text-5xl xl:text-6xl">
+              面向 AI 数据中心的高性能 S3 兼容对象存储
+            </h1>
+            <p className="mt-6 w-full text-base leading-7 text-muted-foreground md:text-lg md:leading-8">
+              RustFS 是全球增长最快的开源分布式对象存储系统。使用 Rust 语言构建，采用 Apache 2.0 许可证，为 AI 工作负载提供强大且生产就绪的 S3 兼容存储基础，是 MinIO 和 Ceph 的国产平替。
+            </p>
+
+            <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 text-sm xl:grid-cols-4">
+              {stackItems.map((item) => (
+                <div key={item.label} className="relative pl-4">
+                  <span className="absolute left-0 top-1 h-8 w-px bg-border" />
+                  <dt className="font-semibold text-foreground">{item.label}</dt>
+                  <dd className="mt-1 text-xs text-muted-foreground">{item.value}</dd>
+                </div>
+              ))}
+            </dl>
+
+            <div className="mt-9 flex flex-col gap-4 sm:flex-row">
+              <DownloadLink className={`${heroButtonClassName} bg-foreground text-background shadow-none hover:bg-foreground/90 hover:text-background active:bg-foreground/80 active:text-background focus-visible:outline-border`} />
+              <ContactUsButton className={`${heroButtonClassName} bg-muted text-foreground shadow-none hover:bg-foreground hover:text-background active:bg-foreground active:text-background focus-visible:outline-border`} />
+            </div>
           </div>
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-start">
-            <DownloadLink />
-            <DemoLink className="hidden md:inline-flex" />
-          </div>
+
+          <GlobePanel className="lg:min-h-[34rem]" />
         </div>
 
-        <div className="flex items-center justify-center lg:w-2/5 absolute bottom-[-50vh] left-0 right-0 md:static w-full md:w-auto opacity-40 lg:opacity-100">
-          <div className="relative w-full max-w-[560px] md:max-w-[620px] lg:max-w-[680px] aspect-square">
-            <Globe className="h-full w-full opacity-95 drop-shadow-2xl" config={globeConfig} />
-          </div>
-        </div>
+        <StatsStrip className="mt-10" dockerPulls={dockerPulls} metrics={metrics} />
       </div>
-
-      <StatsStrip className="mt-6 lg:mt-8" dockerPulls={dockerPulls} metrics={metrics} />
-    </section >
+    </section>
   )
 }

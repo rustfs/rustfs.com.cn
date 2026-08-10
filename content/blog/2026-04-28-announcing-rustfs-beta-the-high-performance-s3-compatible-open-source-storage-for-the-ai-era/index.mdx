@@ -1,0 +1,165 @@
+---
+title: >-
+  RustFS Beta 发布：面向 AI 时代的高性能 S3 兼容开源存储
+slug: >-
+  announcing-rustfs-beta-the-high-performance-s3-compatible-open-source-storage-for-the-ai-era
+description: >-
+  RustFS Beta 正式发布。这是一款面向 AI 时代打造的高性能、S3 兼容分布式对象存储系统。
+date: '2026-04-28T17:52:35.000Z'
+author: Jinghe Ma
+tags:
+  - Announcements
+  - Release
+image: >-
+  /images/blog/announcing-rustfs-beta-the-high-performance-s3-compatible-open-source-storage-for-the-ai-era/gemini_generated_image_opotwvopotwvopot.png
+---
+今天，我们很高兴地宣布 **RustFS Beta** 正式发布。
+
+作为一款**面向 AI 时代的分布式对象存储系统**，RustFS 自 2025 年 7 月开源以来增长迅速。不到一年，RustFS 已获得 **2.65 万个 GitHub Star**、**1100 次 Fork**，吸引了全球 **130 多位贡献者**。Docker Hub 镜像拉取量超过 **220 万次**，RustFS 还曾 **8 次登顶 GitHub Trending**，并 **40 多次位居 GitHub Rust Trending 首位**。
+
+这些里程碑让 RustFS 成为**增长最快的开源对象存储项目之一**。
+
+经历 **2800 多次 Git 提交**和 **100 个 Alpha 版本**后，RustFS 在架构、稳定性与生态成熟度方面都有了显著提升。基于这些进展，我们认为项目已经可以从 **Alpha 进入 Beta** 阶段。
+
+![](/images/blog/announcing-rustfs-beta-the-high-performance-s3-compatible-open-source-storage-for-the-ai-era/image-1-1024x662.png)
+
+RustFS Beta 的发布，是我们构建面向现代 AI 与数据密集型工作负载的高性能、云原生分布式对象存储平台过程中的重要里程碑。
+
+### Beta 版本为何重要
+
+**[RustFS](https://rustfs.com.cn)** 是完全使用 **Rust** 编写的分布式对象存储系统，采用对商业友好的 **Apache 2.0 许可证**发布。随着开源存储格局变化，尤其是 MinIO 转向更严格的许可证，全球社区正在寻找一个真正开放且兼容 S3 的平台。
+
+> 了解如何通过[直接替换二进制文件](/blog/binary-replacement-a-simple-way-to-migrate-from-minio-to-rustfs/)从 MinIO 迁移到 RustFS。
+
+RustFS 以**高性能、分布式纠删码和高级安全能力**填补了这一空白，让开发者和企业无需担心厂商或许可证锁定。Beta 版本标志着 RustFS 进入新的成熟阶段，已经可以接受**更广泛的真实场景采用与生产验证**。
+
+## RustFS 核心功能
+
+RustFS Beta 提供一套可靠的企业级功能，包括：
+
+*   **完整兼容 S3：** 提供完整的对象生命周期管理，并可无缝接入 S3 兼容生态。
+*   **安全优先：** 内置 mTLS、KMS 与 OIDC 身份管理支持。
+*   **高可用：** 支持多节点、多磁盘的分布式集群。
+
+能力分类
+
+核心能力
+
+S3 存储
+
+存储桶/对象生命周期管理
+
+对象版本控制与对象锁定
+
+分布式纠删码
+
+分片上传
+
+校验和与完整性验证
+
+合规与安全
+
+IAM 用户、用户组、策略与服务账户
+
+OIDC 登录与 Web 身份
+
+KMS 服务
+
+SSE-S3、SSE-KMS 以及 SSE-C
+
+STS
+
+mTLS
+
+安全审计
+
+运维与可观测性
+
+事件通知
+
+OTEL
+
+存储容量监控
+
+集群节点健康检查
+
+rc（RustFS 命令行客户端）
+
+MinIO 迁移
+
+协议
+
+S3
+
+WebDAV
+
+Swift API
+
+FTP(s)
+
+高可用
+
+分布式集群（多节点、多磁盘）
+
+节点修复、扩容与再平衡
+
+云原生
+
+Helm Chart
+
+Operator
+
+AI
+
+MCP Server
+
+## 开始使用 RustFS
+
+RustFS 支持 **Linux**、**macOS**、**Windows** 等多种操作系统，也支持**二进制安装**、**Docker**、**Helm Chart** 和 **RustFS Operator** 等多种部署方式。
+
+以 Linux 为例，开始使用 RustFS 非常简单：
+
+*   二进制安装
+
+运行以下命令安装 RustFS：
+
+```
+$ curl -O https://rustfs.com/install_rustfs.sh && bash install_rustfs.sh
+```
+
+*   Docker 安装
+
+```
+$ docker pull rustfs/rustfs:latest
+$ docker run -d \
+  --name rustfs \
+  -p 9000:9000 \
+  -p 9001:9001 \
+  -v /data:/data \
+  rustfs/rustfs:latest
+```
+
+*   Helm 安装
+
+```
+# 添加 Helm 仓库
+helm repo add rustfs https://charts.rustfs.com
+
+# 安装 RustFS
+helm install my-rustfs rustfs/rustfs --version 0.0.99
+```
+
+详细安装说明和部署指南请参阅[中文文档](https://docs.rustfs.com.cn/installation/)。
+
+## 下一步计划
+
+Beta 版本是 RustFS 的重要里程碑，但这只是开始。
+
+未来，我们将继续投入**性能优化**、**安全加固**与**企业级高可用**，让 RustFS 更稳定、更适合生产环境，并朝着**计划于 7 月发布 GA 版本**的目标推进。
+
+我们的目标始终明确：**构建一款面向 AI 与数据密集型工作负载的现代化高性能分布式对象存储系统**。
+
+欢迎在你的环境中体验 RustFS，通过 GitHub Issue 分享反馈，也欢迎通过 Star、Issue 和 Pull Request 参与贡献。
+
+*   RustFS GitHub 仓库：[https://github.com/rustfs/rustfs](https://github.com/rustfs/rustfs)
+*   RustFS 客户端 GitHub 仓库：[https://github.com/rustfs/cli](https://github.com/rustfs/cli)

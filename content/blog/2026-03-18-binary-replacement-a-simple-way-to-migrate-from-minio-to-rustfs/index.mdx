@@ -1,0 +1,183 @@
+---
+title: '直接替换二进制文件：从 MinIO 迁移到 RustFS'
+slug: binary-replacement-a-simple-way-to-migrate-from-minio-to-rustfs
+description: >-
+  RustFS 1.0.0-alpha.89 新增直接替换二进制文件的迁移能力，帮助用户低成本地从 MinIO 迁移到 RustFS。
+date: '2026-03-18T05:49:13.000Z'
+author: Rustfs
+tags:
+  - Announcements
+  - Best Practices
+  - General Usage
+image: '/images/blog/binary-replacement-a-simple-way-to-migrate-from-minio-to-rustfs/s3-2-rustfs-migration.png'
+---
+今天，我们很高兴地宣布，RustFS 最新版本（`1.0.0-alpha.89`）新增了一项重要功能：用户现在可以通过直接替换二进制文件，从 MinIO 迁移到 RustFS。
+
+众所周知，MinIO 已归档其[开源仓库](https://github.com/minio/minio)。但全球仍有数千万个实例运行较早的 MinIO 开源版本，这些版本已无法获得安全更新，相关安全风险也会随时间持续增加。
+
+[RustFS](https://rustfs.com.cn) 是使用 Rust 编写、兼容 S3 的分布式对象存储系统，采用 Apache License 2.0 发布，GitHub Star 已超过 2.3 万。RustFS 可以作为 MinIO 的完整兼容替代方案。
+
+## 迁移优势
+
+*   **降低成本：** 无需为 RustFS 配置新的存储基础设施，可以直接复用现有 MinIO 存储，显著降低存储成本，尤其适合数据量达到数百 GB 甚至 PB 级的用户。
+*   **安全保障：** MinIO 开源版实例已无法获得安全更新，面临不断增加的安全风险。RustFS 仍在积极维护，团队能够及时响应安全问题。
+*   **无缝集成：** RustFS 完整兼容 S3，转换过程无需大幅改变现有工作流，因此可以用较低的改造成本接入现有系统。
+
+## 如何迁移？
+
+二进制和 Docker 安装方式都支持直接转换。
+
+### 二进制安装
+
+例如，MinIO 实例通过以下命令启动：
+
+```
+minio server /data/minio --console-address ":9001"
+```
+
+![MinIO 实例](/images/blog/binary-replacement-a-simple-way-to-migrate-from-minio-to-rustfs/rkzulxu5be.png)
+
+可按以下步骤完成迁移。
+
+*   第 1 步：下载最新版本
+
+根据操作系统和架构下载[最新 RustFS 二进制文件](https://github.com/rustfs/rustfs/releases)：
+
+```
+curl -LO https://github.com/rustfs/rustfs/releases/download/1.0.0-alpha.89/rustfs-linux-x86_64-gnu-latest.zip
+```
+
+*   第 2 步：解压并准备二进制文件
+
+```
+unzip rustfs-linux-x86_64-gnu-latest.zip
+chmod +x rustfs
+```
+
+*   第 3 步：启动 RustFS 实例
+
+使用 MinIO 数据启动 RustFS 实例：
+
+```
+./rustfs /data/minio --address ":9000" --console-enable --console-address ":9001" --access-key "rustfsadmin" --secret-key "rustfsadmin"
+```
+
+转换完成后，访问 `http://ip:9001` 验证迁移结果。
+
+![RustFS 实例](/images/blog/binary-replacement-a-simple-way-to-migrate-from-minio-to-rustfs/bjlrwg_cwx.png)
+
+### Docker 安装
+
+如果实例通过 `docker-compose.yml` 安装：
+
+```
+services:
+  MinIO:
+    hostname: MinIO
+    image: MinIO/MinIO:RELEASE.2025-04-22T22-12-26Z
+    command: server --console-address ":9001" /data{1...4}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MinIO_ROOT_USER: MinIOadmin
+      MinIO_ROOT_PASSWORD: MinIOadmin
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - data1:/data1
+      - data2:/data2
+      - data3:/data3
+      - data4:/data4
+    networks:
+      - minio-rustfs
+
+volumes:
+  data1:
+  data2:
+  data3:
+  data4:
+
+networks:
+  minio-rustfs:
+    driver: bridge
+```
+
+只需替换镜像并更新环境变量，即可迁移到 RustFS：
+
+```
+services:
+  rustfs:
+    image: rustfs/rustfs:1.0.0-alpha.89
+    container_name: rustfs
+    hostname: rustfs
+    environment:
+      - RUSTFS_VOLUMES=/data{1...4}
+      - RUSTFS_ADDRESS=0.0.0.0:9000
+      - RUSTFS_CONSOLE_ENABLE=true
+      - RUSTFS_CONSOLE_ADDRESS=0.0.0.0:9001
+      - RUSTFS_ACCESS_KEY=rustfsadmin
+      - RUSTFS_SECRET_KEY=rustfsadmin
+    ports:
+      - "9000:9000"  # API 端点
+      - "9001:9001"  # 控制台
+    volumes:
+      - data1:/data1
+      - data2:/data2
+      - data3:/data3
+      - data4:/data4
+    networks:
+      - minio-rustfs
+
+networks:
+  rustfs:
+    driver: bridge
+    name: minio-rustfs
+
+volumes:
+  data1:
+  data2:
+  data3:
+  data4:
+```
+
+## 支持迁移的内容
+
+由于 MinIO 与 RustFS 的内部数据格式不同，目前还无法自动迁移所有 MinIO 数据。最新版本支持迁移以下内容：
+
+1.  存储桶元数据
+2.  对象，包括标签、对象锁定和版本控制
+3.  存储桶复制配置
+4.  IAM 配置
+5.  生命周期管理
+6.  分层管理
+
+目前**暂不支持**以下内容：
+
+1.  站点复制
+2.  事件通知
+3.  MinIO 在线配置
+4.  LDAP 和 OIDC
+
+如果迁移过程中遇到问题，请在 [GitHub 仓库提交 Issue](https://github.com/rustfs/rustfs/issues)。
+
+## RustFS 路线图
+
+RustFS 目前处于 Alpha 阶段，后续版本计划如下：
+
+*   **Beta：** 计划于 4 月进入 Beta 阶段。
+*   **GA：** 计划于 7 月发布 GA 版本。
+
+我们还计划支持 RDMA、DPU 等技术，将 RustFS 打造为 AI 时代基础设施中的关键存储系统。
+
+## 开始使用 RustFS
+
+立即体验 RustFS，感受从 MinIO 无缝迁移的便捷。
+
+*   GitHub：https://github.com/rustfs/rustfs
+*   官网：https://rustfs.com.cn
+
+> 免责声明：“MinIO”是 MinIO, Inc. 的注册商标。本文提及 MinIO 仅用于比较和兼容性演示。RustFS 是独立开源项目，与 MinIO, Inc. 不存在任何关联、赞助或背书关系。
