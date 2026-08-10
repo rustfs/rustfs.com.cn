@@ -344,7 +344,7 @@ export default function RcDownloadSection({ cliRelease }: RcDownloadSectionProps
             </h2>
             <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-7 text-muted-foreground">
               <li>
-                分步说明请参阅{' '}
+                详细安装步骤请参阅{' '}
                 <a
                   href="https://docs.rustfs.com.cn/operations/rc"
                   target="_blank"

@@ -169,7 +169,7 @@ export default function InstallationTopology() {
           <div className="mb-10">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand">部署拓扑</p>
             <h2 className="mt-4 w-full font-display text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
-              明确故障域后选择部署拓扑。
+              选择正确的安装拓扑方式
             </h2>
             <p className="mt-4 w-full text-sm leading-7 text-muted-foreground">
               RustFS 可以从单机起步，但生产规划必须明确磁盘、节点与恢复目标。

@@ -635,7 +635,7 @@ export function ServerDownloadPage({ release }: ServerDownloadPageProps) {
                 <code className="text-foreground">rustfsadmin</code>。
               </li>
               <li>
-                分步说明请参阅{' '}
+                详细安装步骤请参阅{' '}
                 <a
                   href={docs_url('/installation/')}
                   target="_blank"
