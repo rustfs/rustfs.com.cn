@@ -1,0 +1,121 @@
+---
+title: '从 MinIO 迁移到 RustFS：技术指南'
+slug: migrating-from-minio-to-rustfs-a-technical-guide
+description: >-
+  本文介绍如何使用 MinIO Client 将现有 MinIO 集群的数据迁移到 RustFS，并尽可能减少停机时间。
+date: '2025-12-07T06:42:15.000Z'
+author: Rustfs
+tags:
+  - How to migrate from MinIO to RustFS?
+  - mc
+  - mc cp
+  - mc mirror
+  - minio
+  - RustFS
+image: '/images/blog/migrating-from-minio-to-rustfs-a-technical-guide/s3-to-rustfs.png'
+---
+> 原作者：[https://github.com/soakes](https://github.com/soakes)。感谢他的投稿与贡献。
+
+随着对象存储不断发展，**RustFS** 已成为一个值得关注的 MinIO 替代方案。MinIO 曾为自托管 S3 兼容存储树立标准，但其转向 AGPLv3 许可证后，给许多组织带来了合规挑战。RustFS 使用 Rust 构建高性能、内存安全的架构，并采用宽松的 **Apache 2.0** 许可证，有效解决了这些问题。
+
+本指南介绍如何在尽量减少停机时间的前提下，将数据从现有 MinIO 集群迁移到新的 RustFS 部署。
+
+## 为什么要迁移？
+
+执行迁移前，需要先了解背后的技术原因：
+
+1.  **许可证合规：** RustFS 采用 Apache 2.0 许可证，可更广泛地集成到商业和专有环境中，不受 MinIO AGPLv3 的 copyleft 约束。
+2.  **性能稳定：** RustFS 使用 Rust 编写，不存在 MinIO 等 Go 系统固有的垃圾回收（GC）暂停，因此尾延迟更低、吞吐更稳定，尤其适合高负载场景。
+3.  **S3 兼容：** RustFS 严格兼容 Amazon S3 API，现有 Terraform、SDK 和备份脚本等工具无需修改即可继续使用。
+
+## 迁移工具：MinIO Client（`mc`）
+
+这项迁移最可靠的工具恰好是 **MinIO Client（`mc`）**。与通用 S3 命令行工具相比，它有几个明显优势：
+
+*   **支持续传：** 自动处理网络中断。
+*   **数据完整性：** 对传输对象执行校验和验证。
+*   **保留元数据：** 保留原始对象标签、Content-Type 和自定义元数据。
+
+## 前置条件
+
+*   **源端：** 一个正在运行的 MinIO 实例。
+*   **目标端：** 一个正在运行的 RustFS 实例。
+*   **工具：** 在能够同时访问两个集群的主机上安装 `mc`。
+*   **凭据：** 源端和目标端的 **Root/Admin Access Key**。
+
+### 关于访问凭据
+
+我们强烈建议在 MinIO 源端和 RustFS 目标端都使用 **Root 用户（管理员）Access Key** 完成此次迁移。
+
+虽然通常应遵循最小权限原则，但迁移会使用 `mc mirror` 复制完整的存储桶结构。如果某个存储桶只存在于源端，`mc` 需要 `s3:CreateBucket` 权限才能在目标端自动创建。使用 Root 凭据可以确保客户端拥有复制整个命名空间结构所需的权限，避免传输因权限错误而中断。
+
+## 分步迁移
+
+### 1\. 配置远程别名
+
+在 `mc` 配置中分别为两个存储集群定义别名。
+
+```
+# 配置源端（MinIO）
+mc alias set minio-old https://minio.example.com ADMIN_ACCESS_KEY ADMIN_SECRET_KEY
+
+# 配置目标端（RustFS）
+mc alias set rustfs-new https://rustfs.example.com ADMIN_ACCESS_KEY ADMIN_SECRET_KEY
+```
+
+*验证：* 运行 `mc ls rustfs-new`，确认连接和权限均正常。
+
+### 2\. 执行预演
+
+正式传输前，先模拟操作以验证路径解析和权限。`--dry-run` 参数会列出计划执行的操作，但不会移动任何数据。
+
+```
+mc mirror --dry-run minio-old/production-data rustfs-new/production-data
+```
+
+### 3\. 执行镜像同步
+
+数据传输主要有两种策略：
+
+#### 方案 A：静态传输（冷数据）
+
+适用于当前没有写入操作的备份或归档数据。
+
+```
+mc mirror minio-old/production-data rustfs-new/production-data
+```
+
+#### 方案 B：持续同步（零停机）
+
+对于生产工作负载，可使用 `--watch` 参数。`mc` 会先同步现有数据，然后持续监控源端的新对象，并近实时复制到目标端。
+
+```
+mc mirror --watch --overwrite minio-old/production-data rustfs-new/production-data
+```
+
+*   `--watch`：持续复制新对象。
+*   `--overwrite`：当源端对象发生变化时，更新目标端对象。
+*   `--remove`：（可选）源端对象被删除后，同时删除目标端对象。请谨慎使用。
+
+### 4\. 最终切换
+
+数据同步完成后：
+
+1.  **暂停应用写入：** 暂停应用的写入操作，确保数据状态一致。
+2.  **等待同步：** 等待 `mc mirror` 处理完最后一批待同步对象。
+3.  **更新配置：** 将应用配置中的 S3 Endpoint URL 改为 RustFS 实例地址（`https://rustfs.example.com`）。
+4.  **重启并验证：** 重启应用并确认数据可以正常访问。
+
+### 5\. 验证
+
+切换后，使用 `diff` 命令验证数据完整性。该命令会比较源端与目标端的元数据并找出差异。
+
+```
+mc diff minio-old/production-data rustfs-new/production-data
+```
+
+如果命令没有输出，说明两端数据集一致。
+
+## 总结
+
+迁移到 RustFS，可以获得性能更高、许可证更宽松的对象存储基础设施。借助 `mc` 等标准工具，并在迁移期间配置正确的管理权限，企业能够以较低的运维影响可靠地完成切换。

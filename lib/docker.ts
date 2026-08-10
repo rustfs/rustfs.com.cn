@@ -3,28 +3,20 @@
  * This function is called at build time on the server side
  * @returns Promise<number> Docker pull count or fallback value
  */
-export async function getDockerPulls(): Promise<number> {
-  try {
-    const response = await fetch(
-      'https://hub.docker.com/v2/repositories/rustfs/rustfs/',
-      {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
-        },
-        // Cache for 1 hour
-        next: { revalidate: 3600 },
-      }
-    )
+import homepageMetrics from "@/public/homepage-metrics.json";
 
-    if (response.ok) {
-      const json = await response.json()
-      return json.pull_count ?? 157000 // Fallback: 157k+
+const DOCKER_PULLS_FALLBACK = homepageMetrics.docker.pulls;
+
+export async function getDockerPulls(): Promise<number> {
+  const injectedPullsValue = process.env.HOMEPAGE_DOCKER_PULLS;
+  if (injectedPullsValue !== undefined) {
+    const injectedPulls = Number(injectedPullsValue);
+    if (Number.isInteger(injectedPulls) && injectedPulls > 0) {
+      return injectedPulls;
     }
-  } catch (error) {
-    console.warn('Failed to fetch Docker pulls:', error)
+
+    throw new Error('Invalid injected Docker Hub homepage metrics');
   }
 
-  // Fallback value: 157k+
-  return 157000
+  return DOCKER_PULLS_FALLBACK;
 }
-

@@ -1,0 +1,235 @@
+---
+title: 使用 Cloudflare Tunnel 加固 RustFS 安全
+slug: how-to-harden-your-rustfs-security-with-cloudflare-tunnel
+description: >-
+  使用 Cloudflare Tunnel 安全访问 RustFS，无需将控制台和 API 端口直接暴露到公网。
+date: '2026-01-24T05:58:04.000Z'
+author: Jinghe Ma
+tags:
+  - RustFS
+  - Security
+image: /images/blog/how-to-harden-your-rustfs-security-with-cloudflare-tunnel/rustfs-with-cloudflare-2-1024x519.png
+---
+![](/images/blog/how-to-harden-your-rustfs-security-with-cloudflare-tunnel/rustfs-with-cloudflare-2-1024x519.png)
+
+默认情况下，[RustFS](https://github.com/rustfs/rustfs) 使用 `9001` 端口提供 Web 控制台，使用 `9000` 端口提供 API。为了满足安全与合规要求，用户通常会启用 HTTPS，并配置 **Nginx、Traefik 或 Caddy 等反向代理**。本文介绍一种更安全的方式：使用 **Cloudflare Tunnel** 访问 RustFS，无需把端口直接暴露到公网。
+
+## 安装 RustFS
+
+RustFS 支持二进制文件、Docker 和 Helm Chart 等多种安装方式，详情请参阅[安装说明](https://rustfs.com.cn/download/)。本文使用 `docker-compose.yml` 通过 Docker 安装 RustFS。
+
+创建 `docker-compose.yml` 文件，内容如下：
+
+```
+services:
+  rustfs:
+    image: rustfs/rustfs:latest
+    container_name: rustfs
+    hostname: rustfs
+    environment:
+      - RUSTFS_VOLUMES=/data/rustfs{1...4}
+      - RUSTFS_ADDRESS=0.0.0.0:9000
+      - RUSTFS_CONSOLE_ENABLE=true
+      - RUSTFS_CONSOLE_ADDRESS=0.0.0.0:9001
+      - RUSTFS_ACCESS_KEY=rustfsadmin
+      - RUSTFS_SECRET_KEY=rustfsadmin
+      - RUSTFS_TLS_PATH=/opt/tls
+    ports:
+      - "9000:9000"  # API 端点
+      - "9001:9001"  # 控制台
+    volumes:
+      - data1:/data/rustfs1
+      - data2:/data/rustfs2
+      - data3:/data/rustfs3
+      - data4:/data/rustfs4
+      - ./certs:/opt/tls
+
+    networks:
+      - rustfs
+
+networks:
+  rustfs:
+    driver: bridge
+    name: rustfs
+
+volumes:
+  data1:
+  data2:
+  data3:
+  data4:
+```
+
+运行以下命令部署 RustFS 实例：
+
+```
+docker compose up -d
+```
+
+验证安装：
+
+```
+docker compose ps
+NAME      IMAGE                         COMMAND                 SERVICE   CREATED          STATUS          PORTS
+rustfs    rustfs/rustfs:1.0.0-alpha.81  "/entrypoint.sh rust…"  rustfs    22 minutes ago   Up 22 minutes   0.0.0.0:9000-9001->9000-9001/tcp, [::]:9000-9001->9000-9001/tcp
+```
+
+## 配置 Cloudflare Tunnel
+
+Cloudflare Tunnel 的配置分为两部分：**域名配置**和**隧道配置**。
+
+### 1\. 域名配置（可选但推荐）
+
+正确配置域名可以确保后续顺利访问 RustFS，因此需要准备一个域名。
+
+*   登录 Cloudflare 账户，进入 **Domain** 页面。
+*   在左侧导航栏进入 **Account Home**。已有域名时选择 **Onboard a domain**，否则选择 **Buy a domain**。
+*   接入现有域名时，输入域名并按引导操作，直至选择 **Continue to activation**。
+*   完成后，控制台中的域名 **Status** 将显示为 **Active**。
+
+![](/images/blog/how-to-harden-your-rustfs-security-with-cloudflare-tunnel/image-1024x205.png)
+
+### 2\. 隧道配置
+
+*   登录 [Cloudflare Zero Trust 控制台](https://one.dash.cloudflare.com/)。
+*   进入 **Networks -> Tunnels**，点击 **Create a tunnel**。
+*   选择 **cloudflared** 作为连接器类型。
+*   在 **Install and run connectors** 页面选择 RustFS 服务器对应的操作系统，并按说明安装。
+*   安装完成后，在 RustFS 服务器上确认服务状态。
+*   在 **Route Traffic** 页面配置 **Hostname** 和 **Service**：
+    *   **Hostname：** 选择之前添加的域名，也可以指定子域名，例如 `rustfs`。
+    *   **Service：** 选择协议类型和 URL。本例选择 HTTP（内部已启用 HTTPS 时也可选择 HTTPS），URL 设置为 localhost:9001。
+*   点击 **Complete setup**。
+
+![](/images/blog/how-to-harden-your-rustfs-security-with-cloudflare-tunnel/image-1-1024x411.png)
+
+此时，隧道 **Status** 应显示绿色 **HEALTHY** 标记。
+
+**注意：** 在 Hostname 设置中进入 **Additional application settings -> HTTP Settings**，在 **HTTP Host Header** 中填写访问 RustFS 使用的域名。这样可以避免 S3 API 调用出现 SignatureDoesNotMatch 错误。
+
+## 验证登录
+
+现在可以通过配置好的域名访问 RustFS。按上述配置，RustFS 实例地址为 https://rustfs.xiaomage.vip。
+
+![](/images/blog/how-to-harden-your-rustfs-security-with-cloudflare-tunnel/image-2-1024x550.png)
+
+使用默认凭据 `rustfsadmin / rustfsadmin` 登录 RustFS 实例。
+
+随后可使用 `mc`、`rc` 或 `rclone` 等工具操作 RustFS。
+
+### 使用 `mc` 操作 RustFS
+
+`mc` 是 MinIO 客户端。RustFS 兼容 S3，并可作为 MinIO 的替代方案，因此 `mc` 也能正常操作 RustFS。
+
+#### 前置条件
+
+按照 [MinIO 文档](https://github.com/minio/mc)安装 `mc`，然后检查版本以确认安装成功。
+
+```
+mc --version
+# mc version RELEASE.2025-08-29T21-30-41Z...
+```
+
+#### 使用方法
+
+```
+# 设置别名
+mc alias set rustfs https://rustfs.xiaomage.vip rustfsadmin rustfsadmin
+
+# 创建存储桶
+mc mb rustfs/hello
+
+# 列出存储桶
+mc ls rustfs
+[2026-01-23 21:39:36 CST]     0B hello/
+[2026-01-23 20:12:59 CST]     0B test/
+
+# 上传文件
+echo "123456" > 1.txt
+mc cp 1.txt rustfs/hello
+# 1.txt: 100.0% 7 B 1 B/s      
+
+# 验证上传结果
+mc ls rustfs/hello
+[2026-01-23 21:40:44 CST]     7B STANDARD 1.txt
+```
+
+### 使用 `rclone` 操作 RustFS
+
+`rclone` 是一款功能强大的命令行工具，可在不同云存储服务之间同步文件，也可以操作 RustFS。
+
+#### 前置条件
+
+按照[官方指南](https://rclone.org/install/)安装 rclone CLI，然后检查版本以确认安装成功。
+
+```
+rclone --version
+# rclone v1.72.1 ...
+```
+
+#### 使用方法
+
+1.  **配置 Rclone**
+
+运行 `rclone config` 并按提示操作。最终会生成 `~/.config/rclone/rclone.conf`，内容类似：
+
+```
+[rustfs]
+type = s3
+provider = Minio
+access_key_id = rustfsadmin
+secret_access_key = rustfsadmin
+endpoint = https://rustfs.xiaomage.vip
+region = us-east-1
+force_path_style = true
+```
+
+**注意：** 由于 rclone 的 Provider 列表暂未包含 RustFS，请选择 Minio。我们后续会提交 PR，将 RustFS 加入 Provider 列表。
+
+2.  **基础命令**
+
+```
+# 列出存储桶和对象
+rclone ls rustfs: --s3-sign-accept-encoding=false
+        7 hello/1.txt
+    11792 test/1.log
+   520512 test/123.mp3
+
+# 查看对象内容
+rclone cat rustfs:hello/1.txt --s3-sign-accept-encoding=false
+123456
+```
+
+**注意：** 必须使用 `--s3-sign-accept-encoding=false` 参数，因为 Cloudflare 会修改 Accept-Encoding 请求头，而这一变化会在 S3 协议中触发 SignatureDoesNotMatch 错误。详情参见 [RustFS Issue #1492](https://github.com/rustfs/rustfs/issues/1492)。
+
+### 使用 `rc` 操作 RustFS
+
+#### 前置条件
+
+`rc` 是 RustFS 原生命令行客户端。当前版本为 `0.1.1`，可以通过 Cargo 安装或从源码编译。安装后检查版本，确认程序运行正常。
+
+```
+rc --version
+# rc 0.1.1
+```
+
+#### 使用方法
+
+与 mc 类似，`rc` 支持 `alias`、`ls`、`mb` 和 `rb` 等常用命令。
+
+```
+# 设置别名
+rc alias set rustfs https://rustfs.xiaomage.vip rustfsadmin rustfsadmin
+✓ Alias 'rustfs' configured successfully.
+
+# 列出存储桶
+rc ls rustfs
+[2026-01-23 13:39:36]          0B hello/
+[2026-01-23 13:56:57]          0B rclone/
+[2026-01-23 12:12:59]          0B test/
+
+# 创建存储桶
+rc mb rustfs/client
+✓ Bucket 'rustfs/client' created successfully.
+```
+
+运行 `rc --help` 可查看更多功能。如遇到问题，请在 [GitHub Issues](https://github.com/rustfs/cli/issues) 中反馈。

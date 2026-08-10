@@ -1,0 +1,91 @@
+---
+title: RustFS Helm Chart 已上架 Artifact Hub
+slug: rustfs-helm-chart-is-available-on-artifacthub
+description: >-
+  RustFS 现已支持通过 Helm Chart 部署到 Kubernetes 集群，并已将官方 Chart 发布至 Artifact Hub。
+date: '2025-11-29T05:05:59.000Z'
+author: Jinghe Ma
+tags:
+  - Artifacthub
+  - Cloud Native
+  - helm
+  - Kubernetes
+  - Rust
+  - RustFS
+image: >-
+  /images/blog/rustfs-helm-chart-is-available-on-artifacthub/chatgpt-image-2025-11-29-21_10_52.png
+---
+[RustFS](https://rustfs.com.cn) 现已支持通过 Helm Chart 部署到 Kubernetes 集群。为了简化使用，我们已将 RustFS Helm Chart 发布至 Artifact Hub。
+
+### 搜索 RustFS Helm Chart
+
+在 [Artifact Hub](https://artifacthub.io/) 搜索 **rustfs**，可以看到三个结果：
+
+![](/images/blog/rustfs-helm-chart-is-available-on-artifacthub/2025-11-29-20.33.17-1024x354.png)
+
+请选择标记为 **Official** 的 Helm Chart。它由 RustFS 官方发布，另外两个由社区贡献者发布。
+
+你可以阅读 README，进一步了解 RustFS Helm Chart。
+
+## 使用 RustFS Helm Chart
+
+点击 Artifact Hub 右侧的 **INSTALL** 按钮，即可查看 RustFS Helm Chart 的使用说明，安装分为两步：
+
+*   添加仓库：
+
+```
+helm repo add rustfs https://charts.rustfs.com
+```
+
+*   安装 Chart：
+
+```
+helm install my-rustfs rustfs/rustfs
+```
+
+如需安装指定版本，可以先列出所有可用版本：
+
+```
+# 更新仓库
+helm repo update
+
+# 列出版本
+helm search repo rustfs --versions
+NAME         	CHART VERSION	APP VERSION   	DESCRIPTION                                       
+rustfs/rustfs	0.0.70       	1.0.0-alpha.70	RustFS helm chart to deploy RustFS on kubernete...
+rustfs/rustfs	0.0.69       	1.0.0-alpha.69	RustFS helm chart to deploy RustFS on kubernete...
+rustfs/rustfs	0.0.68       	1.0.0-alpha.68	RustFS helm chart to deploy RustFS on kubernete...
+```
+
+然后通过 `--version` 指定版本，例如：
+
+```
+helm install rustfs rustfs/rustfs --version 0.0.70
+```
+
+## 验证安装
+
+检查 RustFS Pod 状态：
+
+```
+kubectl -n rustfs get pods -w
+NAME       READY   STATUS    RESTARTS        AGE
+rustfs-0   1/1     Running   0               2m27s
+rustfs-1   1/1     Running   0               2m27s
+rustfs-2   1/1     Running   0               2m27s
+rustfs-3   1/1     Running   0               2m27s
+```
+
+检查 Ingress：
+
+```
+kubectl -n rustfs get ing
+NAME     CLASS   HOSTS            ADDRESS         PORTS     AGE
+rustfs   nginx   your.rustfs.com   10.43.237.152   80, 443   29m
+```
+
+在浏览器中打开 `https://your.rustfs.com`，使用默认用户名和密码 `rustfsadmin` 登录 RustFS 实例。
+
+## 反馈
+
+如在使用过程中遇到问题，欢迎前往 [RustFS Helm Chart 仓库](https://github.com/rustfs/rustfs/tree/main/helm)提交 Issue。

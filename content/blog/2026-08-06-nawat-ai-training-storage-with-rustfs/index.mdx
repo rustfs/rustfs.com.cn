@@ -1,0 +1,348 @@
+---
+title: "使用 Nawāt 与 RustFS 管理 AI 微调存储"
+slug: nawat-ai-training-storage-with-rustfs
+description: "Nawāt 如何结合 RustFS 与 Unsloth 管理 AI 训练存储，将工作站从永久归档设备转变为可控的训练工作区。"
+date: '2026-08-06T00:00:00.000Z'
+author: RustFS Team
+tags:
+  - AI
+  - Integration
+  - Use Case
+image: /images/blog/nawat-ai-training-storage-with-rustfs/cover.png
+---
+
+> 作者：[Murtadha](https://github.com/murtadha-lap)
+
+随着 AI 研究规模扩大，存储很快就会成为比 GPU 算力更明显的限制。一台工作站也许能够微调多个 7B 或 11B 模型，但随着时间推移，本地 SSD 会逐渐堆满基础模型、数据集、训练检查点、LoRA Adapter、合并模型、GGUF 导出文件和日志。
+
+**Nawāt** 将本地 SSD 作为容量受控的工作缓存，将 **RustFS** 作为持久化 S3 兼容对象存储后端，从而解决这一问题。
+
+## 存储问题
+
+一次微调任务可能同时需要基础模型、处理后的数据集、优化器状态、定期检查点、最终 Adapter、合并权重和一种或多种导出格式。随着文件不断增加，剩余空间最终可能不足以保存下一个检查点或生成新的导出文件。
+
+手动清理存在风险。研究人员可能误删尚未备份的 Adapter，移除恢复失败任务所需的检查点，或丢失结果与生成它的具体模型、数据集和参数之间的对应关系。
+
+## 使用 Nawāt 之前
+
+普通 Unsloth 脚本会通过常用库下载模型和数据集，并将结果写入本地目录：
+
+```python
+from datasets import load_dataset
+from unsloth import FastVisionModel
+
+model, tokenizer = FastVisionModel.from_pretrained(
+    "unsloth/Qwen3.5-0.8B",
+    load_in_4bit=False,
+    use_gradient_checkpointing="unsloth",
+)
+
+dataset = load_dataset(
+    "unsloth/LaTeX_OCR",
+    split="train",
+)
+
+# 配置并运行常规 Unsloth / TRL 训练流程。
+
+model.save_pretrained("qwen_lora")
+tokenizer.save_pretrained("qwen_lora")
+```
+
+这可以完成单次实验，但存储生命周期仍需手动管理：
+
+- 基础模型一直留在本地缓存中。
+- 数据集一直保留在工作站上。
+- 检查点不断堆积在本地目录中。
+- Adapter 与导出文件必须手动移动。
+- 清理工作依赖研究人员自行判断哪些文件可以安全删除。
+
+## 使用 Nawāt 之后
+
+训练代码仍然是普通 Unsloth 代码，Nawāt 只为模型、数据集、检查点和输出提供受管理的路径：
+
+```python
+import nawat
+from datasets import load_dataset
+from unsloth import FastVisionModel
+
+model, tokenizer = FastVisionModel.from_pretrained(
+    nawat.model_dir(),
+    load_in_4bit=False,
+    use_gradient_checkpointing="unsloth",
+)
+
+dataset = load_dataset(
+    nawat.dataset_dir(),
+    split="train",
+)
+
+# 配置并运行常规 Unsloth / TRL 训练流程。
+
+adapter_dir = nawat.artifact_dir("adapter")
+model.save_pretrained(adapter_dir)
+tokenizer.save_pretrained(adapter_dir)
+```
+
+模型配置、数据转换、Trainer、优化器和超参数都无需改变，区别只在于存储行为：
+
+| 调用 | 存储行为 |
+| --- | --- |
+| `nawat.model_dir()` | 将所需模型解析到容量受控的本地缓存，并在任务运行期间保护该模型 |
+| `nawat.dataset_dir()` | 解析数据集，并防止其在训练期间被回收 |
+| `nawat.artifact_dir("adapter")` | 创建受管理的输出目录，任务成功后将其发布到 RustFS |
+| `nawat.checkpoint_args(...)` | 将可恢复的检查点放入任务工作区 |
+| `nawat.resume_from()` | 恢复任务时返回最新的有效检查点 |
+
+可以使用稳定的模型与数据集 Key 提交任务：
+
+```bash
+nawat submit train_latex_ocr.py \
+  --model models/unsloth/Qwen3.5-0.8B \
+  --dataset datasets/unsloth/LaTeX_OCR \
+  --param max_steps=500 \
+  --param learning_rate=2e-4 \
+  --param rank=16 \
+  --notes "LaTeX OCR baseline"
+```
+
+## Unsloth 端到端示例
+
+```python
+import nawat
+from datasets import load_dataset
+from trl import SFTConfig, SFTTrainer
+from unsloth import FastVisionModel
+from unsloth.trainer import UnslothVisionDataCollator
+
+MAX_STEPS = nawat.param("max_steps", 500)
+LEARNING_RATE = nawat.param("learning_rate", 2e-4)
+RANK = nawat.param("rank", 16)
+
+model, tokenizer = FastVisionModel.from_pretrained(
+    nawat.model_dir(),
+    load_in_4bit=False,
+    use_gradient_checkpointing="unsloth",
+)
+
+model = FastVisionModel.get_peft_model(
+    model,
+    finetune_vision_layers=True,
+    finetune_language_layers=True,
+    finetune_attention_modules=True,
+    finetune_mlp_modules=True,
+    r=RANK,
+    lora_alpha=RANK,
+    lora_dropout=0,
+    bias="none",
+    random_state=3407,
+)
+
+dataset = load_dataset(
+    nawat.dataset_dir(),
+    split="train",
+)
+
+instruction = "Write the LaTeX representation for this image."
+
+def convert_to_conversation(sample):
+    return {
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": instruction},
+                    {"type": "image", "image": sample["image"]},
+                ],
+            },
+            {
+                "role": "assistant",
+                "content": [
+                    {"type": "text", "text": sample["text"]},
+                ],
+            },
+        ]
+    }
+
+converted_dataset = [
+    convert_to_conversation(sample)
+    for sample in dataset
+]
+
+FastVisionModel.for_training(model)
+
+trainer = SFTTrainer(
+    model=model,
+    tokenizer=tokenizer,
+    data_collator=UnslothVisionDataCollator(model, tokenizer),
+    train_dataset=converted_dataset,
+    callbacks=[nawat.metrics.trainer_callback()],
+    args=SFTConfig(
+        per_device_train_batch_size=2,
+        gradient_accumulation_steps=4,
+        warmup_steps=5,
+        max_steps=MAX_STEPS,
+        learning_rate=LEARNING_RATE,
+        logging_steps=1,
+        optim="adamw_8bit",
+        weight_decay=0.001,
+        lr_scheduler_type="linear",
+        seed=3407,
+        report_to="none",
+        remove_unused_columns=False,
+        dataset_text_field="",
+        dataset_kwargs={"skip_prepare_dataset": True},
+        max_length=2048,
+        **nawat.checkpoint_args(
+            save_steps=250,
+            save_total_limit=3,
+        ),
+    ),
+)
+
+trainer.train(
+    resume_from_checkpoint=nawat.resume_from()
+)
+
+adapter_dir = nawat.artifact_dir("adapter")
+model.save_pretrained(adapter_dir)
+tokenizer.save_pretrained(adapter_dir)
+```
+
+需要时，可以将合并权重与 GGUF 导出文件分别写入独立的受管理产物目录：
+
+```python
+exports = {
+    value.strip()
+    for value in nawat.param("export", "").split(",")
+    if value.strip()
+}
+
+if exports & {"merged", "gguf"}:
+    merged_dir = nawat.artifact_dir("merged")
+    model.save_pretrained_merged(
+        str(merged_dir),
+        tokenizer,
+    )
+
+if "gguf" in exports:
+    gguf_dir = nawat.artifact_dir("gguf")
+    model.save_pretrained_gguf(
+        str(gguf_dir),
+        tokenizer,
+        quantization_method=nawat.param(
+            "quantization",
+            "q4_k_m",
+        ),
+    )
+```
+
+## 存储生命周期
+
+每个任务都遵循相同的存储生命周期：
+
+```text
+解析输入
+      ↓
+预留本地工作空间
+      ↓
+租用并保护当前模型与数据集
+      ↓
+使用 Unsloth 训练
+      ↓
+写入检查点与产物
+      ↓
+将产物上传至 RustFS
+      ↓
+验证远程清单
+      ↓
+将本地副本标记为可回收
+```
+
+RustFS 是持久化 S3 兼容存储。Nawāt 负责管理本地缓存上限、最小可用空间保护、输入暂存、活动进程租约、任务元数据、检查点路径、产物发布、远程验证与安全本地回收。
+
+## 稳定的产物 Key
+
+Nawāt 将每个产物 Key 直接映射到 RustFS Prefix 与本地缓存路径：
+
+```text
+s3://nawat/
+├── models/unsloth/Qwen3.5-0.8B/
+├── models/unsloth/Qwen2.5-VL-7B-Instruct/
+├── datasets/unsloth/LaTeX_OCR/
+├── datasets/ocr-arabic-v3/
+├── runs/latex-ocr-v1/checkpoints/
+├── runs/latex-ocr-v1/adapter/
+├── runs/latex-ocr-v1/merged/
+├── runs/latex-ocr-v1/gguf/
+├── runs/latex-ocr-v1/logs/
+└── runs/latex-ocr-v1/metrics/
+```
+
+同一个 Key 用于标识对象存储 Prefix、解析本地路径、记录任务输入或输出，并在之后恢复产物。对象存储与训练工作区之间不存在额外命名层。
+
+## 安全回收
+
+Nawāt 不会在上传后立即删除本地输出。产物发布后，它会列出 RustFS 目标 Prefix 中的内容，并比较远程清单与本地目录。
+
+当前验证会检查文件名、相对路径和文件大小。如果文件缺失或大小不一致，发布操作将失败，本地副本会继续保留。只有通过验证的产物才具备本地回收条件。
+
+Nawāt 还通过租约保护正在使用的输入。即使磁盘空间紧张，活动进程正在使用的模型或数据集也不会被回收。
+
+## RustFS 集成
+
+Nawāt 通过标准 S3 操作与 RustFS 通信：
+
+| S3 操作 | 在 Nawāt 中的用途 |
+| --- | --- |
+| `ListObjectsV2` | 构建远程清单并验证 Prefix |
+| `GetObject` | 恢复模型、数据集、检查点和产物 |
+| `PutObject` | 发布 Adapter、导出文件、日志和指标 |
+| `DeleteObjects` | 仅在收到显式请求时删除远程产物 |
+| `CreateBucket` | 配置期间准备存储命名空间 |
+
+客户端使用 `boto3`，支持 SigV4 认证、Path Style S3 寻址、分片传输、多线程上传下载与重试。大文件会被分成多个 Part 传输；下载内容先写入临时路径，只有传输完成后才重命名到最终位置。
+
+## 配置
+
+```bash
+NAWAT_S3_ENDPOINT=http://127.0.0.1:9000
+NAWAT_S3_BUCKET=nawat
+NAWAT_S3_REGION=us-east-1
+NAWAT_S3_ACCESS_KEY=rustfsadmin
+NAWAT_S3_SECRET_KEY=change-me-before-first-use
+
+NAWAT_CACHE_ROOT=/home/user/nawat/cache
+NAWAT_WORKSPACE=/home/user/nawat/workspace
+NAWAT_CACHE_CEILING=120GB
+NAWAT_MIN_FREE=10GB
+```
+
+配置 RustFS 后，验证存储工作流：
+
+```bash
+nawat check --create-bucket
+```
+
+该命令会测试连接、存储桶访问、上传、列举、验证、下载与清理操作。
+
+## 最终效果
+
+Nawāt 并不会消除对本地存储的需求，活动模型、数据集、检查点和临时导出文件仍需要工作空间。
+
+真正改变的是哪些内容必须永久保留在工作站上：
+
+- 活动文件在需要时保留在本地。
+- 正在运行的任务不会被清理。
+- 已完成的产物上传至 RustFS。
+- 本地副本只有通过验证后才能回收。
+- 旧产物可以在之后通过稳定 Key 恢复。
+
+这样，工作站就从永久归档设备转变为可控的训练工作区。
+
+## 项目链接
+
+- **Nawāt:** [github.com/murtadha-lap/nawat](https://github.com/murtadha-lap/nawat)
+- **RustFS:** [github.com/rustfs/rustfs](https://github.com/rustfs/rustfs)
+- **Unsloth:** [github.com/unslothai/unsloth](https://github.com/unslothai/unsloth)
+
+> Nawāt 是一个独立项目，与 RustFS 或 Unsloth 不存在关联，也未获得二者背书。Nawāt 支持 S3 兼容对象存储后端，本文工作流使用 RustFS。

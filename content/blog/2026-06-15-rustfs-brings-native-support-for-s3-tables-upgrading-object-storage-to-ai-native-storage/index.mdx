@@ -1,0 +1,55 @@
+---
+title: >-
+  RustFS 原生支持 S3 Tables：让对象存储迈向 AI 原生存储
+slug: >-
+  rustfs-brings-native-support-for-s3-tables-upgrading-object-storage-to-ai-native-storage
+description: >-
+  RustFS 在开源近一年后已完整兼容 S3 协议，并即将完成对 Amazon S3 Tables 的原生支持，让对象存储迈向 AI 原生存储。
+date: '2026-06-15T00:06:16.000Z'
+author: Jinghe Ma
+tags:
+  - Rust
+  - RustFS
+  - S3
+  - S3 Table
+  - Security
+image: /images/blog/rustfs-brings-native-support-for-s3-tables-upgrading-object-storage-to-ai-native-storage/cover.jpg
+---
+开源近一年来，RustFS 已实现对 S3 协议的完整兼容，并成为全球增长最快的分布式对象存储系统。今天，我们很高兴地宣布，对 **Amazon S3 Tables** 的原生支持已接近完成。该功能将继续遵循我们的开源承诺，也标志着 RustFS 正式从传统对象存储迈向 AI 原生存储。
+
+## S3 Tables：AI 时代的存储刚需
+
+2006 年，AWS 推出 S3，开启了视频、图片、文本等非结构化数据管理的新阶段，并由此确立了对象存储的*事实标准*。
+
+2024 年，AWS 推出 S3 Tables，并引入全新的“表存储桶（Table Buckets）”架构，将 S3 的能力边界直接扩展到结构化数据。结构化与非结构化数据首次可以在对象存储层统一管理。
+
+这一范式转变的背后，是 AI 的快速发展，以及对高效、大规模数据管理日益迫切的需求。
+
+数据是 AI 时代的生命线。大语言模型（LLM）训练需要海量结构化和非结构化数据，推理与 Agent 工作流也会持续产生庞大数据集。然而，传统存储架构通常把结构化数据放在独立数据库或数据仓库中，把非结构化数据交给对象存储或文件系统。在极度强调数据流动性与效率的 AI 时代，这种割裂的架构会带来明显瓶颈：
+
+*   **运维复杂：** 企业必须维护多套异构存储系统。当 LLM 训练和推理数据增长到 PB 或 EB 级时，管理这些割裂系统所需的运维成本与资源投入会成倍增加。
+*   **数据处理效率低：** AI 应用需要频繁在异构系统之间切换并交换数据。跨系统数据移动会大量占用系统 I/O 与网络带宽，引入高延迟，并严重拖慢端到端数据流水线。
+*   **缺少 AI 原生设计：** 传统存储架构无法理解 RAG 流水线、Agent 记忆存储等 AI 专用工作负载的语义。结构化与非结构化数据彼此隔离，使 LLM 难以直接执行跨模态联合检索与推理，企业只能构建复杂中间件来连接底层存储和 AI 业务逻辑。
+
+S3 Tables 打破了这一僵局。它将 Apache Iceberg 表格式等数据湖管理能力直接嵌入对象存储核心，消除异构数据系统之间的孤岛，并通过标准化数据管理接口，让存储层真正具备 AI 原生能力。
+
+## RustFS 如何实现 S3 Tables 支持
+
+凭借对 S3 的完整兼容，RustFS 可以无缝接入任何支持 S3 协议的系统。将这些能力扩展至 S3 Tables 后，我们的实现具备以下优势：
+
+*   **开放且易于扩展：** RustFS 采用对商业友好的 Apache 2.0 许可证。S3 Tables 支持将直接集成到核心，并在相同开源许可证下发布，让用户拥有充分的自由与灵活性。
+*   **由 Rust 驱动：** 借助 Rust 的内存安全与高并发性能，RustFS 能够更稳定、高效地处理 S3 Tables 带来的密集元数据操作，例如快照清单与文件合并，满足 AI 训练工作负载对稳定性和低延迟的严格要求。
+*   **企业级安全：** RustFS 内置完整安全体系，包括全生命周期 IAM 管理、安全审计、mTLS 与 KMS。这些成熟能力将完整应用于 S3 Tables，保障可靠的数据治理。
+*   **便捷部署：** RustFS 支持源码编译、预构建二进制包和容器等多种安装方式，也支持 Linux、macOS、Windows、NixOS 等跨平台部署。用户只需一条命令即可启动 RustFS 实例并使用 S3 Tables。
+*   **统一数据管理：** 在 RAG 等 AI 场景中，原始非结构化数据与处理后的结构化数据湖元数据都可以统一存放在 RustFS 中。上层 AI 引擎可通过标准表格式接口无缝完成联合分析与检索，无需再在独立对象存储和分析数据库之间进行繁琐的数据同步。
+
+支持 S3 Tables，是 RustFS 构建 AI 数据中心核心存储基础设施的重要一步。通过在统一的 RustFS 生态中管理结构化和非结构化数据的完整生命周期，我们可以大幅降低 LLM 训练、推理与 AI 应用的数据管理成本，同时最大化存储吞吐与空间利用率。
+
+## 关于 RustFS
+
+RustFS 是使用 Rust 编写、专为 AI 数据中心打造的新一代分布式对象存储系统。项目采用 Apache 2.0 许可证开源，在短短 10 个月内已获得超过 **2.8 万个 GitHub Star**，9 次登上 GitHub 全球 Trending 榜单，50 次登上 GitHub Rust Trending 榜单。
+
+目前，RustFS 全球部署实例已超过 100 万，并服务多家全球企业客户。2026 年 4 月，RustFS 正式加入 **NVIDIA Inception** 全球加速计划。依托 NVIDIA DPU 生态，RustFS 正在积极构建面向 DPU 优化的下一代存储操作系统。
+
+*   **GitHub 仓库：** [https://github.com/rustfs/rustfs](https://github.com/rustfs/rustfs)
+*   **官方网站：** [https://rustfs.com.cn](https://rustfs.com.cn)

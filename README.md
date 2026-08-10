@@ -8,8 +8,8 @@ RustFS is a high-performance distributed object storage system developed in Rust
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 15.3.4 (App Router)
-- **Language**: TypeScript (ES2017+, Strict Mode)
+- **Framework**: Next.js 16.2.11 (App Router)
+- **Language**: TypeScript (ES2025+, Strict Mode)
 - **Styling**: Tailwind CSS 4 + shadcn/ui
 - **Icons**: Lucide React
 - **Theme**: next-themes (Dark Mode Support)
@@ -47,16 +47,13 @@ rustfs.com/
 ### Requirements
 
 - Node.js 18+
-- pnpm (recommended) or npm
+- pnpm
 
 ### Install Dependencies
 
 ```bash
-# Using pnpm (recommended)
+# Using
 pnpm install
-
-# Or using npm
-npm install
 ```
 
 ### Development Server
@@ -64,9 +61,6 @@ npm install
 ```bash
 # Start development server
 pnpm dev
-
-# Or using npm
-npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the result.
@@ -79,6 +73,30 @@ pnpm build
 
 # Start production server
 pnpm start
+```
+
+### Homepage Metrics Cache
+
+The `rustfs-homepage-metrics` Cloudflare Worker refreshes GitHub and Docker Hub
+metrics at 05:00 and 17:00 Beijing time. It stores the last successful values in
+Workers KV and serves them from `https://rustfs.com/api/homepage-metrics`.
+
+Each source refreshes independently. A failed upstream request never overwrites
+that source's last successful values. The homepage reads the API after hydration
+and keeps `public/homepage-metrics.json` as its build-time and runtime fallback,
+so a Worker, KV, or upstream outage cannot reset the displayed values.
+
+The Worker is deployed automatically after relevant changes reach `main`.
+Wrangler creates and binds the KV namespace on the first deployment. Configure
+the `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` repository secrets once;
+subsequent deployments and twice-daily refreshes require no manual action.
+
+Local verification:
+
+```bash
+pnpm exec wrangler types workers/homepage-metrics/worker-configuration.d.ts \
+  --config workers/homepage-metrics/wrangler.jsonc
+pnpm run check:homepage-metrics-worker
 ```
 
 ## 📝 Development Guidelines
@@ -108,12 +126,14 @@ pnpm start
 - **NEVER change responsive design or dark mode implementations**
 
 **When making changes:**
+
 - ✅ Only modify what is explicitly requested
 - ✅ Preserve ALL existing styles, animations, and interactions
 - ✅ Keep complex layouts and visual hierarchies intact
 - ✅ Maintain all custom component implementations
 
 **This rule applies to ALL development tasks, including:**
+
 - Internationalization updates
 - Bug fixes
 - Feature additions
@@ -173,6 +193,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [RustFS Official Website](https://rustfs.com)
 - [RustFS Documentation](https://docs.rustfs.com)
 - [Community Discussions](https://github.com/rustfs/rustfs/discussions)
+- [Discord Community](https://discord.gg/NcKBCEJp6P)
 
 ---
 

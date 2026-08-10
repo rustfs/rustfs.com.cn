@@ -1,77 +1,113 @@
 'use client'
 
-import FreeChat from "./buttons/free-chat";
+import { ArrowUpRightIcon } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import HomeSectionHeader from "./home-section-header";
 
-export default function HomeMultiClouds() {return (
-    <section className="py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            {'真正的多云存储'}
-          </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
-            {'多云对象存储允许企业在任何云上构建与 AWS S3 兼容的数据基础设施。结果是数据和应用程序的一致、可移植的接口 - 这意味着您可以在任何地方运行，从边缘到公共云，而无需更改一行代码。'}
-          </p>
-          <div className="mt-10 flex items-center justify-center gap-x-6">
-            <FreeChat />
-            {/* <a href="#" className="text-sm font-semibold leading-6 text-gray-900 dark:text-neutral-100">
-              {'Contact Us'} <span aria-hidden="true">→</span>
-            </a> */}
-          </div>
+const stories = [
+  {
+    title: "NVIDIA Inception Program",
+    token: "rdma+dpu",
+    label: "AI 基础设施",
+    description:
+      "RustFS 已加入 NVIDIA Inception Program。借助 NVIDIA 的前沿平台，RustFS 正在推进原生 RDMA 支持，并将纠删码计算与数据加密卸载到新一代 DPU，为 AI 数据中心存储带来更高性能。",
+    href: "/blog/big-news-rustfs-joins-the-nvidia-inception-program",
+    linkText: "了解详情",
+  },
+  {
+    title: "无缝替代 MinIO",
+    token: "minio swap",
+    label: "迁移路径",
+    description:
+      "无需搬迁数据即可快速迁移。只需替换二进制文件或容器镜像，RustFS 就能从 MinIO 原地无缝迁移，大幅降低迁移负担与工程成本。",
+    href: "/blog/binary-replacement-a-simple-way-to-migrate-from-minio-to-rustfs",
+    linkText: "阅读迁移指南",
+  },
+];
+
+export default function HomeMultiClouds() {
+  return (
+    <section className="border-t border-border bg-background py-20 md:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <HomeSectionHeader
+          eyebrow="实践案例"
+          title="面向下一代对象存储而构建"
+          description="RustFS 融合 Rust 原生工程能力、Apache 2.0 开源许可与 S3 兼容性，服务 AI 基础设施并支持从 MinIO 直接迁移。"
+        />
+
+        <div className="grid border border-border lg:grid-cols-2">
+          <Link
+            href={stories[0].href}
+            className="motion-card group flex min-h-[30rem] flex-col bg-card transition-colors hover:bg-muted/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            aria-label={stories[0].linkText}
+          >
+            <div className="relative flex h-60 shrink-0 items-center justify-center overflow-hidden bg-background p-8 sm:p-10">
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 opacity-50 [background-image:linear-gradient(90deg,var(--border)_1px,transparent_1px),linear-gradient(0deg,var(--border)_1px,transparent_1px)] [background-size:34px_34px]"
+              />
+              <Image
+                src="/images/nvidia-inception-program-badge.png"
+                alt="NVIDIA Inception Program 成员徽章"
+                width={501}
+                height={217}
+                unoptimized
+                className="relative h-auto w-full max-w-sm"
+              />
+            </div>
+
+            <StoryContent story={stories[0]} className="border-t border-border" />
+          </Link>
+
+          <Link
+            href={stories[1].href}
+            className="motion-card group relative flex min-h-[30rem] flex-col overflow-hidden border-t border-border bg-card transition-colors hover:!border-border hover:bg-muted/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand lg:border-l lg:border-t-0"
+            aria-label={stories[1].linkText}
+          >
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 opacity-0 transition-[opacity,background-position] duration-500 [background-image:repeating-linear-gradient(135deg,transparent_0_20px,var(--border)_20px_21px,transparent_21px_40px)] group-hover:bg-[position:32px_0] group-hover:opacity-45"
+            />
+            <div className="relative flex h-60 shrink-0 items-center p-8 sm:p-10">
+              <p className="text-4xl font-semibold tracking-[-0.04em] text-foreground sm:text-5xl">
+                S3 迁移
+              </p>
+            </div>
+
+            <StoryContent story={stories[1]} className="border-t border-border" />
+          </Link>
         </div>
-        <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-            <div className="flex flex-col">
-              <dt className="text-base font-semibold leading-7 text-foreground">
-                <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-brand">
-                  <svg className="h-6 w-6 text-brand-foreground" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                  </svg>
-                </div>
-                {'公有云'}
-              </dt>
-              <dd className="mt-1 flex flex-auto flex-col text-base leading-7 text-muted-foreground">
-                <p className="flex-auto">
-                  {'RustFS 由 Kubernetes 提供支持，为每个公共云提供可扩展、安全、兼容 S3 的对象存储。将自己从供应商的束缚中解放出来，并对待云的本质 - 商用计算、网络和驱动器。'}
-                </p>
 
-              </dd>
-            </div>
-            <div className="flex flex-col">
-              <dt className="text-base font-semibold leading-7 text-foreground">
-                <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-brand">
-                  <svg className="h-6 w-6 text-brand-foreground" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                  </svg>
-                </div>
-                {'私有云'}
-              </dt>
-              <dd className="mt-1 flex flex-auto flex-col text-base leading-7 text-muted-foreground">
-                <p className="flex-auto">
-                  {'从 OpenShift 到 Tanzu，RustFS 是唯一一个作为领先 Kubernetes 发行版基础设施基础部分的对象存储。凭借其庞大的集成应用程序组合 RustFS 完善了软件定义的画面。'}
-                </p>
-
-              </dd>
-            </div>
-            <div className="flex flex-col">
-              <dt className="text-base font-semibold leading-7 text-foreground">
-                <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-brand">
-                  <svg className="h-6 w-6 text-brand-foreground" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
-                  </svg>
-                </div>
-                {'边缘'}
-              </dt>
-              <dd className="mt-1 flex flex-auto flex-col text-base leading-7 text-muted-foreground">
-                <p className="flex-auto">
-                  {'RustFS 多云存储的完整二进制文件不到 100MB，能够为任何地方的对象存储提供支持 - 从 ARM SOC、5G POP 和边缘缓存设备到迷你数据中心。这就是 RustFS 主导边缘存储市场的原因。'}
-                </p>
-
-              </dd>
-            </div>
-          </dl>
-        </div>
+        <p className="mt-4 text-xs leading-6 text-muted-foreground" role="note">
+          MinIO 是 MinIO, Inc. 的注册商标。RustFS 与 MinIO, Inc. 无关联，亦未获得其认可或赞助。其他商标和注册商标均归各自所有者所有。
+        </p>
       </div>
     </section>
-  )
+  );
+}
+
+function StoryContent({
+  story,
+  className = "",
+}: {
+  story: (typeof stories)[number];
+  className?: string;
+}) {
+  return (
+    <div className={`relative flex flex-1 flex-col p-6 sm:p-8 ${className}`}>
+      <div className="flex items-center gap-3 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <span className="text-brand">{story.label}</span>
+        <span className="h-px flex-1 bg-border" />
+        <code>{story.token}</code>
+      </div>
+      <h3 className="mt-7 max-w-xl text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
+        {story.title}
+      </h3>
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
+        {story.description}
+      </p>
+      <ArrowUpRightIcon className="motion-arrow mt-auto size-5 self-end text-brand" />
+    </div>
+  );
 }

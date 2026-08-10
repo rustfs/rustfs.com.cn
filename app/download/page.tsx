@@ -1,22 +1,18 @@
 import DownloadPageClient from './components/download-page-client';
-import { getLatestRelease, getLatestLauncherRelease } from '@/lib/github';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: '下载 | RustFS - 高性能分布式存储系统',
-  description: '下载 RustFS，支持 Docker、Linux、macOS、Windows 等多平台，快速部署您的分布式存储系统。',
+  title: "下载与安装 RustFS | 多系统与云原生部署",
+  description: '下载 RustFS 服务端与原生 CLI（rc），通过预编译二进制、Docker 镜像或 Kubernetes 在 Linux、macOS、Windows 和 NixOS 上轻松安装。',
+  keywords: '下载 RustFS, 安装 RustFS, RustFS 二进制, RustFS Docker, RustFS Kubernetes, RustFS CLI, RustFS 命令行, NixOS 对象存储, S3 服务端下载, macOS, Linux, Windows, nixos',
   openGraph: {
-    title: '下载 | RustFS - 高性能分布式存储系统',
-    description: '下载 RustFS，支持 Docker、Linux、macOS、Windows 等多平台，快速部署您的分布式存储系统。',
+    title: "下载与安装 RustFS | 多系统与云原生部署",
+    description: '下载 RustFS 服务端与原生 CLI（rc），通过预编译二进制、Docker 镜像或 Kubernetes 在多种系统上轻松安装。',
     type: "website",
     locale: 'zh_CN',
   },
 };
 
-export default async function DownloadPage() {
-  const [release, launcherRelease] = await Promise.all([
-    getLatestRelease(),
-    getLatestLauncherRelease()
-  ]);
-  return <DownloadPageClient release={release} launcherRelease={launcherRelease} />;
+export default function DownloadPage() {
+  return <DownloadPageClient />;
 }

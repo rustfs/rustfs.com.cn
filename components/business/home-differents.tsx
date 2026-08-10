@@ -1,136 +1,78 @@
 'use client'
 
 import { CheckIcon, XIcon } from "lucide-react";
+import HomeSectionHeader from "./home-section-header";
 
-export default function HomeDifferents() {return (
-    <section className="relative pt-20 pb-14 sm:pt-32 sm:pb-20 lg:pb-32 bg-muted"
-    // style={{
-    //   backgroundImage: "url('/svgs/backgrounds/gradient-transparent.svg')",
-    //   backgroundSize: "cover",
-    //   backgroundPosition: "center",
-    //   backgroundRepeat: "no-repeat"
-    // }}
-    >
-      {/* Features */}
-      <div className="mx-auto max-w-[85rem] px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto mb-10 max-w-2xl text-center lg:mb-14">
-          <h2 className="text-2xl font-bold md:text-4xl md:leading-tight">
-            {'与其他存储产品的对比'}
-          </h2>
-          <p className="mt-4">
-            {'选择 RustFS，您将获得更多的优势'}
-          </p>
-        </div>
+const comparisonRows = [
+  {
+    other: "内存安全依赖运行时与实现规范",
+    rustfs: "使用 Rust 构建，保障内存安全",
+  },
+  {
+    other: "遥测和日志可能离开本地控制边界",
+    rustfs: "自托管控制，不向外部发送日志",
+  },
+  {
+    other: "许可证条款可能限制商业分发",
+    rustfs: "采用商业友好的 Apache 2.0 许可证",
+  },
+  {
+    other: "不同产品和网关的 S3 行为可能不一致",
+    rustfs: "完整支持 S3，兼容现有云生态",
+  },
+  {
+    other: "平台覆盖通常依赖不同版本",
+    rustfs: "广泛支持多种硬件架构",
+  },
+  {
+    other: "存储规模增长后价格和支持成本难以预测",
+    rustfs: "开源基础与支持路径清晰可预测",
+  },
+];
 
-        <div className="relative flex w-full flex-col gap-6 lg:flex-row xl:mx-auto xl:w-10/12">
-          <div className="relative rounded-xl bg-card md:w-1/2 lg:text-right">
-            <h3 className="p-4 text-xl font-semibold lg:p-8 lg:text-3xl">{'其他对象存储'}</h3>
-            <div className="text-muted-foreground">
-              <div className="flex items-center gap-2 bg-muted p-4 md:flex-row-reverse lg:px-8">
-                <XIcon className="text-muted-foreground" />
-                <span>{'使用 Go 或者 C 语言开发，内存垃圾回收异常 / 内存泄漏等'}</span>
-              </div>
-              <div className="flex items-center gap-2 p-4 md:flex-row-reverse lg:px-8 ">
-                <XIcon className="text-muted-foreground" />
-                <span>{'向其他第三国上报日志，违反国家安全法'}</span>
-              </div>
-              <div className="flex items-center gap-2 bg-muted p-4 md:flex-row-reverse lg:px-8">
-                <XIcon className="text-muted-foreground" />
-                <span>{'AGPL V3 等协议、污染开源和协议陷阱，侵犯知识产权'}</span>
-              </div>
-              <div className="flex items-center gap-2 p-4 md:flex-row-reverse lg:px-8 ">
-                <span>{'S3 支持和功能完善，不支持中国云厂商'}</span>
-              </div>
-              <div className="flex items-center gap-2 bg-muted p-4 md:flex-row-reverse lg:px-8">
-                <XIcon className="text-muted-foreground" />
-                <span>{'不完全支持国产信创设备'}</span>
-              </div>
-              <div className="flex items-center gap-2 p-4 md:flex-row-reverse lg:px-8 ">
-                <span>{'每年涨价，价格高达数百万人民币'}</span>
-              </div>
+export default function HomeDifferents() {
+  return (
+    <section className="relative border-t border-border bg-background py-20 sm:py-24 lg:py-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <HomeSectionHeader
+          eyebrow="竞争力对比"
+          title="RustFS 与传统对象存储"
+          description="当内存安全、S3 兼容、开放许可和可预测运维比厂商锁定更重要时，RustFS 是更合适的选择。"
+        />
+
+        <div className="border border-border bg-card/40">
+          <div className="grid border-b border-border text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground lg:grid-cols-2">
+            <div className="border-b border-border px-5 py-3 lg:border-b-0 lg:border-r">
+              其他对象存储
             </div>
-
-            <div className="absolute bottom-0 start-0 hidden -translate-x-16 translate-y-16 md:block">
-              <svg
-                className="h-auto w-56 text-info"
-                width={347}
-                height={188}
-                viewBox="0 0 347 188"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M4 82.4591C54.7956 92.8751 30.9771 162.782 68.2065 181.385C112.642 203.59 127.943 78.57 122.161 25.5053C120.504 2.2376 93.4028 -8.11128 89.7468 25.5053C85.8633 61.2125 130.186 199.678 180.982 146.248L214.898 107.02C224.322 95.4118 242.9 79.2851 258.6 107.02C274.299 134.754 299.315 125.589 309.861 117.539L343 93.4426"
-                  stroke="currentColor"
-                  strokeWidth={7}
-                  strokeLinecap="round"
-                />
-              </svg>
+            <div className="px-5 py-3 text-brand">
+              RustFS
             </div>
           </div>
 
-          <div className="relative rounded-xl bg-card text-left md:w-1/2">
-            <h3 className="p-4 text-xl font-semibold lg:p-8 lg:text-3xl">{'RustFS'}</h3>
-            <div className="text-muted-foreground">
-              <div className="flex items-center gap-2 bg-muted p-4 lg:px-8">
-                <CheckIcon className="text-success" />
-                <span>{'基于 Rust 语言开发，内存更安全'}</span>
+          <div className="divide-y divide-border">
+            {comparisonRows.map((row) => (
+              <div key={row.rustfs} className="grid lg:grid-cols-2">
+                <div className="grid grid-cols-[3rem_1fr] border-b border-border text-muted-foreground lg:border-b-0 lg:border-r">
+                  <span className="flex items-center justify-center border-r border-border">
+                    <XIcon className="size-4" aria-hidden="true" />
+                  </span>
+                  <span className="px-5 py-4 text-sm leading-6">{row.other}</span>
+                </div>
+                <div className="grid grid-cols-[3rem_1fr] text-foreground">
+                  <span className="flex items-center justify-center border-r border-border text-brand">
+                    <CheckIcon className="size-4" aria-hidden="true" />
+                  </span>
+                  <span className="px-5 py-4 text-sm font-medium leading-6">
+                    {row.rustfs}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-2 p-4 lg:px-8 ">
-                <CheckIcon className="text-success" />
-                <span>{'不向其他第三国上报日志'}</span>
-              </div>
-              <div className="flex items-center gap-2 bg-muted p-4 lg:px-8">
-                <CheckIcon className="text-success" />
-                <span>{'Apache 协议，商用支持更友好'}</span>
-              </div>
-              <div className="flex items-center gap-2 p-4 lg:px-8 ">
-                <CheckIcon className="text-success" />
-                <span>{'S3 支持和功能完善，支持国内云厂商'}</span>
-              </div>
-              <div className="flex items-center gap-2 bg-muted p-4 lg:px-8">
-                <CheckIcon className="text-success" />
-                <span>{'支持国产信创设备和保密系统'}</span>
-              </div>
-              <div className="flex items-center gap-2 p-4 lg:px-8 ">
-                <CheckIcon className="text-success" />
-                <span>{'商用和技术支持和价格稳定'}</span>
-              </div>
-            </div>
-
-            <div className="absolute end-0 top-0 hidden translate-x-16 translate-y-16 md:block">
-              <svg
-                className="h-auto w-16 text-warning"
-                width={121}
-                height={135}
-                viewBox="0 0 121 135"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M5 16.4754C11.7688 27.4499 21.2452 57.3224 5 89.0164"
-                  stroke="currentColor"
-                  strokeWidth={10}
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M33.6761 112.104C44.6984 98.1239 74.2618 57.6776 83.4821 5"
-                  stroke="currentColor"
-                  strokeWidth={10}
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M50.5525 130C68.2064 127.495 110.731 117.541 116 78.0874"
-                  stroke="currentColor"
-                  strokeWidth={10}
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
+            ))}
           </div>
+
         </div>
-        {/* End Features */}
       </div>
-    </section >
+    </section>
   )
 }
