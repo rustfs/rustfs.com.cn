@@ -1,5 +1,7 @@
 import FeaturePage, { type FeaturePageSection } from "@/components/business/feature-page";
+import { docs_url } from "@/lib/utils";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { seoMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = seoMetadata({
@@ -21,6 +23,37 @@ export const metadata: Metadata = seoMetadata({
 });
 
 const sections: FeaturePageSection[] = [
+  {
+    id: "multi-tenant-management",
+    title: "多租户管理",
+    description: (
+      <>
+        <Link
+          href={docs_url("/installation/cloud-native/operator")}
+          target="_blank"
+          rel="noreferrer"
+          className="text-brand underline decoration-brand/40 underline-offset-4 transition-colors hover:decoration-brand"
+        >
+          RustFS Operator
+        </Link>{" "}
+        自动化多租户存储运维，从弹性扩容到即时创建 MNMD 集群，并提供严格的资源隔离。
+      </>
+    ),
+    items: [
+      {
+        title: "弹性存储自动扩缩容",
+        description: "由 Operator 自动编排，按需扩展 RustFS 容量和磁盘池，全程零停机。",
+      },
+      {
+        title: "MNMD 集群部署",
+        description: "即时创建多节点多磁盘 RustFS 集群，并支持高并发工作负载所需的多写者并发访问。",
+      },
+      {
+        title: "租户级资源隔离",
+        description: "在动态管理的 RustFS 存储池之间实施严格的容量配额、IOPS 限制和独立访问凭证。",
+      },
+    ],
+  },
   {
     title: "控制台运维",
     items: [
