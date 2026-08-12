@@ -1,7 +1,9 @@
 import FeaturePage, { type FeaturePageSection } from "@/components/business/feature-page";
 import type { Metadata } from "next";
+import { seoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
+  path: "/product/multiple-protocol-access/",
   title: "原生多协议支持 | S3、Swift、WebDAV、FTP(s) 与 MCP | RustFS",
   description: "通过 S3、Swift、FTP(s)、WebDAV 和 MCP 将 RustFS 原生连接到任意工作负载，无需修改代码或使用传统代理，实现多协议数据共存。",
   keywords: [
@@ -18,7 +20,7 @@ export const metadata: Metadata = {
     "legacy modernization",
     "MinIO",
   ],
-};
+});
 
 const sections: FeaturePageSection[] = [
   {

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import BlogIndex from "../../blog-index";
 import { getBlogTagLabel } from "@/lib/blog-localization";
 import { getBlogPosts } from "@/lib/mdx-blog";
+import { seoMetadata } from "@/lib/seo";
 
 export const dynamicParams = false;
 
@@ -19,7 +20,15 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ tag: string }> }): Promise<Metadata> {
   const { tag } = await params;
   const label = await findTag(tag);
-  return { title: label ? `${getBlogTagLabel(label)} | RustFS 博客` : "RustFS 博客" };
+  const path = `/blog/tag/${tag}/`;
+
+  return seoMetadata({
+    path,
+    title: label ? `${getBlogTagLabel(label)} | RustFS 博客` : "RustFS 博客",
+    description: label
+      ? `浏览 RustFS 博客“${getBlogTagLabel(label)}”分类的文章。`
+      : "浏览 RustFS 博客文章。",
+  });
 }
 
 export default async function BlogTagPage({ params }: { params: Promise<{ tag: string }> }) {

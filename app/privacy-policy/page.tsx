@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { seoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
+  path: "/privacy-policy/",
   title: "隐私政策 | RustFS",
   description:
     "了解 RustFS 在自托管软件部署与 RustFS 官方网站中如何处理隐私信息。",
-};
+});
 
 const sectionClassName =
   "border-t border-border pt-8 first:border-t-0 first:pt-0";

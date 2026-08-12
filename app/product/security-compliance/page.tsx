@@ -1,7 +1,9 @@
 import FeaturePage, { type FeaturePageSection } from "@/components/business/feature-page";
 import type { Metadata } from "next";
+import { seoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
+  path: "/product/security-compliance/",
   title: "安全合规 | RustFS",
   description: "RustFS 提供企业级身份认证、授权、日志审计、事件处理、SSE/KMS 加密、OIDC 单点登录与 mTLS 安全控制。",
   keywords: [
@@ -17,7 +19,7 @@ export const metadata: Metadata = {
     "Kafka",
     "Pulsar",
   ],
-};
+});
 
 const sections: FeaturePageSection[] = [
   {

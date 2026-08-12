@@ -1,7 +1,9 @@
 import FeaturePage, { type FeaturePageSection } from "@/components/business/feature-page";
 import type { Metadata } from "next";
+import { seoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
+  path: "/product/data-management/",
   title: "数据管理与 S3 Tables | RustFS 高性能存储",
   description:
     "使用 RustFS 优化数据管理。完整 S3 兼容、自动生命周期管理与 S3 Tables 驱动的原生 Iceberg 支持，可降低总体拥有成本并加速 AI 与大数据工作负载。",
@@ -17,7 +19,7 @@ export const metadata: Metadata = {
     "multipart upload",
     "lakehouse storage",
   ],
-};
+});
 
 const sections: FeaturePageSection[] = [
   {
@@ -79,7 +81,7 @@ export default function DataManagementPage() {
         },
       ]}
       links={[
-        { label: "规划数据工作流", href: "/contact-us" },
+        { label: "规划数据工作流", href: "/contact" },
         { label: "阅读文档", href: "/docs", variant: "outline" },
       ]}
     />

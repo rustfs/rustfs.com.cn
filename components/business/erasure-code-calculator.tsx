@@ -733,7 +733,7 @@ export default function ErasureCodeCalculator() {
                   采购硬件前，请将节点数、磁盘型号、预期增长与故障域目标提供给 RustFS 团队。
                 </p>
                 <Button asChild variant="outline" size="sm" className="mt-auto w-fit">
-                  <a href="/contact-us">
+                  <a href="/contact">
                     联系我们
                     <ArrowUpRightIcon className="size-4" />
                   </a>

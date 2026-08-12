@@ -1,7 +1,9 @@
 import FeaturePage, { type FeaturePageSection } from "@/components/business/feature-page";
 import type { Metadata } from "next";
+import { seoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
+  path: "/product/operational-observability/",
   title: "RustFS 集群运维与 OTEL 可观测性 | 企业级管理",
   description: "通过直观控制台、丰富的 rc CLI 与全栈 OTEL 可观测性简化 RustFS 管理，一键部署 Prometheus、Grafana 和 Loki，实时洞察集群状态。",
   keywords: [
@@ -16,7 +18,7 @@ export const metadata: Metadata = {
     "IAM security",
     "real-time cluster monitoring",
   ],
-};
+});
 
 const sections: FeaturePageSection[] = [
   {
