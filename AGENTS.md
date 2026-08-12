@@ -157,7 +157,7 @@ pnpm run lint
 
 - ✅ `rustfs.com.cn` is the Chinese-primary site. Chinese pages must default to Simplified Chinese for headings, body copy, buttons, helper text, metadata, and SEO fields.
 - ✅ Keep `html lang`, page metadata locale, and `hreflang` mappings aligned with the actual site domain: `rustfs.com.cn` for Chinese and `rustfs.com` for English.
-- ✅ Prefer `docs.rustfs.com.cn` when linking to Chinese documentation from the Chinese site.
+- ✅ Prefer `docs.rustfs.com/zh` when linking to Chinese documentation from the Chinese site.
 - ❌ Do not leave placeholder English copy on Chinese pages such as hero titles, help text, CTA labels, date labels, or install guidance.
 - ❌ Do not swap Chinese and English alternate domains or language tags.
 

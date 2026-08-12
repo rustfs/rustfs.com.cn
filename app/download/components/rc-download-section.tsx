@@ -346,7 +346,7 @@ export default function RcDownloadSection({ cliRelease }: RcDownloadSectionProps
               <li>
                 详细安装步骤请参阅{' '}
                 <a
-                  href="https://docs.rustfs.com.cn/operations/rc"
+                  href="https://docs.rustfs.com/zh/operations/rc"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold text-brand hover:text-foreground"
