@@ -1,40 +1,40 @@
 # RustFS
 
-> RustFS is an open-source, Apache 2.0-licensed distributed object storage system written in Rust. It provides an Amazon S3-compatible API for AI, cloud-native, and self-hosted workloads.
+> RustFS 是使用 Rust 编写的开源分布式对象存储系统，采用 Apache 2.0 许可证，提供 Amazon S3 兼容 API，适用于 AI、云原生与自托管工作负载。
 
-RustFS supports distributed deployment, erasure coding, data management, identity and access controls, encryption, observability, and multiple access protocols. Use the documentation for installation, configuration, administration, and API details. Use the website for product overviews, downloads, project news, and company information.
+RustFS 支持分布式部署、纠删码、数据管理、身份与访问控制、加密、可观测性以及多种访问协议。安装、配置、管理与 API 细节请查阅官方文档；产品概览、下载、项目动态与公司信息请访问官网。
 
-## Documentation
+## 文档
 
-- [Official documentation](https://docs.rustfs.com/): Deployment, configuration, administration, developer, and API guides.
-- [GitHub repository](https://github.com/rustfs/rustfs): Source code, issues, contribution history, and the Apache 2.0 license.
-- [GitHub releases](https://github.com/rustfs/rustfs/releases): Published RustFS versions and release assets.
+- [官方文档](https://docs.rustfs.com.cn/)：部署、配置、管理、开发与 API 指南。
+- [GitHub 仓库](https://github.com/rustfs/rustfs)：源代码、议题、贡献历史与 Apache 2.0 许可证。
+- [GitHub Releases](https://github.com/rustfs/rustfs/releases)：已发布的 RustFS 版本与发布制品。
 
-## Product
+## 产品
 
-- [Product overview](https://rustfs.com/): Overview of RustFS and its primary use cases.
-- [Multiple protocol access](https://rustfs.com/product/multiple-protocol-access/): S3, WebDAV, Swift, FTP(S), and MCP access.
-- [Data management](https://rustfs.com/product/data-management/): Buckets, lifecycle rules, Object Lock, versioning, multipart uploads, and S3 Tables.
-- [High availability and scale](https://rustfs.com/product/high-availability-scale/): Distributed topology, erasure coding, pool orchestration, rebalancing, and self-healing.
-- [Security and compliance](https://rustfs.com/product/security-compliance/): IAM, OIDC, mTLS, encryption, KMS, audit, and event handling.
-- [Operations and observability](https://rustfs.com/product/operational-observability/): Cluster management, OpenTelemetry signals, and rc operations.
+- [产品概览](https://rustfs.com.cn/)：RustFS 概览与主要使用场景。
+- [多协议访问](https://rustfs.com.cn/product/multiple-protocol-access/)：S3、WebDAV、Swift、FTP(S) 与 MCP 访问。
+- [数据管理](https://rustfs.com.cn/product/data-management/)：存储桶、生命周期规则、Object Lock、版本控制、分片上传与 S3 Tables。
+- [高可用与扩展](https://rustfs.com.cn/product/high-availability-scale/)：分布式拓扑、纠删码、池编排、再平衡与自愈。
+- [安全与合规](https://rustfs.com.cn/product/security-compliance/)：IAM、OIDC、mTLS、加密、KMS、审计与事件处理。
+- [运维与可观测性](https://rustfs.com.cn/product/operational-observability/)：集群管理、OpenTelemetry 信号与 rc 运维。
 
-## Downloads and tools
+## 下载与工具
 
-- [Download RustFS](https://rustfs.com/download/): Server and client downloads for supported platforms and deployment methods.
-- [Download RustFS Server](https://rustfs.com/download/server/): Server installation options.
-- [Download rc](https://rustfs.com/download/cli/): RustFS command-line client installation options.
-- [Erasure code calculator](https://rustfs.com/erasure-code-calculator/): Compare durability and storage efficiency configurations.
-- [Docker Hub](https://hub.docker.com/r/rustfs/rustfs): Official RustFS container images.
+- [下载 RustFS](https://rustfs.com.cn/download/)：支持平台与部署方式的服务端和客户端下载。
+- [下载 RustFS 服务端](https://rustfs.com.cn/download/server/)：服务端安装选项。
+- [下载 rc](https://rustfs.com.cn/download/cli/)：RustFS 命令行客户端安装选项。
+- [纠删码计算器](https://rustfs.com.cn/erasure-code-calculator/)：比较持久性与存储效率配置。
+- [Docker Hub](https://hub.docker.com/r/rustfs/rustfs)：官方 RustFS 容器镜像。
 
-## Project resources
+## 项目资源
 
-- [Blog](https://rustfs.com/blog/): Engineering articles, release announcements, migration guides, and project news.
-- [About RustFS](https://rustfs.com/about/): Project background, values, and milestones.
-- [Community discussions](https://github.com/rustfs/rustfs/discussions): Questions and community conversations.
-- [Contact](https://rustfs.com/contact-us/): Contact the RustFS team.
+- [博客](https://rustfs.com.cn/blog/)：工程文章、版本发布、迁移指南与项目动态。
+- [关于 RustFS](https://rustfs.com.cn/about/)：项目背景、价值观与里程碑。
+- [社区讨论](https://github.com/rustfs/rustfs/discussions)：问题与社区交流。
+- [联系我们](https://rustfs.com.cn/contact/)：联系 RustFS 团队。
 
-## Optional
+## 其他
 
-- [Privacy policy](https://rustfs.com/privacy-policy/): Website privacy policy.
-- [Cookie policy](https://rustfs.com/cookie-policy/): Website cookie policy.
+- [隐私政策](https://rustfs.com.cn/privacy-policy/)：网站隐私政策。
+- [Cookie 政策](https://rustfs.com.cn/cookie-policy/)：网站 Cookie 政策。
