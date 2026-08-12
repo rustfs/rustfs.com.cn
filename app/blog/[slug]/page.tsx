@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { SITE_CONFIG } from "@/app.config";
 import { getBlogTagLabel } from "@/lib/blog-localization";
 import { getBlogPost, getBlogPosts, type BlogPostMeta } from "@/lib/mdx-blog";
+import { seoMetadata } from "@/lib/seo";
 
 type BlogPostPageProps = {
   params: Promise<{
@@ -28,31 +29,30 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     return {};
   }
 
-  const url = `${SITE_CONFIG.primaryDomain}/blog/${post.slug}/`;
+  const path = `/blog/${post.slug}/`;
+  const url = `${SITE_CONFIG.primaryDomain}${path}`;
+  const postImages = shouldShowImage(post.image)
+    ? [{ url: post.image!, alt: post.title }]
+    : undefined;
 
-  return {
+  return seoMetadata({
+    path,
     title: `${post.title} | RustFS 博客`,
     description: post.description,
-    alternates: {
-      canonical: url,
-    },
     openGraph: {
-      title: post.title,
-      description: post.description,
       type: "article",
       url,
       publishedTime: post.date,
       authors: [post.author],
       tags: post.tags,
-      images: shouldShowImage(post.image) ? [{ url: post.image!, alt: post.title }] : undefined,
+      ...(postImages ? { images: postImages } : {}),
     },
     twitter: {
-      card: "summary_large_image",
       title: post.title,
       description: post.description,
-      images: shouldShowImage(post.image) ? [post.image!] : undefined,
+      ...(postImages ? { images: postImages } : {}),
     },
-  };
+  });
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
@@ -64,10 +64,30 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   const relatedPosts = allPosts.filter((item) => item.slug !== post.slug).slice(0, 3);
+  const postUrl = `${SITE_CONFIG.primaryDomain}/blog/${post.slug}/`;
 
   return (
-    <main className="relative flex-1">
-      <article className="border-b border-border text-foreground">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            headline: post.title,
+            description: post.description,
+            datePublished: post.date,
+            dateModified: post.date,
+            author: { "@type": "Organization", name: "RustFS" },
+            url: postUrl,
+            ...(post.image
+              ? { image: `${SITE_CONFIG.primaryDomain}${post.image}` }
+              : {}),
+          }),
+        }}
+      />
+      <main className="relative flex-1">
+        <article className="border-b border-border text-foreground">
         <header className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
           <div className="pt-8">
             <Link
@@ -153,8 +173,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             ) : null}
           </div>
         </div>
-      </article>
-    </main>
+        </article>
+      </main>
+    </>
   );
 }
 

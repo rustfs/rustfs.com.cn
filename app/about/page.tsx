@@ -4,12 +4,14 @@ import RustFSLogo from "@/public/rustfs.logo.svg"
 import { CpuIcon, DatabaseIcon, GitBranchIcon, ShieldCheckIcon } from "lucide-react"
 import type { Metadata } from "next"
 import type { ComponentType } from "react"
+import { seoMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
+  path: "/about/",
   title: "关于 RustFS | 面向 AI 的新一代分布式对象存储",
   description: "了解使用 Rust 构建、采用 Apache 2.0 许可证的开源分布式对象存储系统 RustFS，以及面向 AI 数据中心的原生 RDMA 与 DPU 加速方向。",
   keywords: "关于 RustFS, RustFS 项目, 开源对象存储, 分布式对象存储, Rust 基础设施, NVIDIA Inception, RDMA 存储, DPU 硬件加速",
-};
+});
 
 const milestones = [
   {

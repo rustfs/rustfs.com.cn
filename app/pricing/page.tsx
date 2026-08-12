@@ -6,11 +6,13 @@ import { cn } from "@/lib/utils";
 import { ArrowRightIcon, BadgeCheckIcon, Building2Icon, Code2Icon, LifeBuoyIcon } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { seoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
+  path: "/pricing/",
   title: "价格 | RustFS",
   description: "RustFS 是采用 Apache 2.0 许可证的开源对象存储。联系 RustFS 团队获取企业支持、迁移与部署规划服务。",
-};
+});
 
 function PricingCard({
   label,
@@ -122,7 +124,7 @@ export default function PricingPage() {
             description="面向从评估走向生产、需要拓扑、迁移与运维规划的团队。"
             emphasized
             chips={["规划", "迁移"]}
-            action={{ label: "咨询专家", href: "/contact-us" }}
+            action={{ label: "咨询专家", href: "/contact" }}
             points={[
               "迁移规划",
               "容量与拓扑评审",

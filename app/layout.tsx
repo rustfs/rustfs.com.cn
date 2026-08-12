@@ -49,13 +49,8 @@ export default async function RootLayout({
           content="summary_large_image"
         />
         <meta name="author" content="RustFS" />
-        <meta name="robots" content="index, follow" />
-        <meta name="googlebot" content="index, follow" />
-        <meta name="bingbot" content="index, follow" />
-        <meta name="yandexbot" content="index, follow" />
         <meta key="twitter:site" name="twitter:site" content="@rustfs" />
         <meta key="twitter:creator" name="twitter:creator" content="@rustfs" />
-        <meta key="og:type" property="og:type" content="article" />
         <meta name="baidu-site-verification" content="codeva-TTcVEynElc" />
         <link
           rel="apple-touch-icon"
@@ -75,14 +70,27 @@ export default async function RootLayout({
           href="/favicon-16x16.png"
         />
         <link rel="manifest" href="/site.webmanifest" />
-        {/* hreflang configuration */}
-        <link rel="alternate" hrefLang="zh-CN" href={SITE_CONFIG.primaryDomain} />
-        <link rel="alternate" hrefLang="en-US" href={SITE_CONFIG.secondaryDomain} />
-        <link rel="alternate" hrefLang="x-default" href={SITE_CONFIG.primaryDomain} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} flex h-full flex-col overflow-x-clip antialiased`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "@id": "https://rustfs.com.cn/#organization",
+              name: "RustFS",
+              url: "https://rustfs.com.cn",
+              logo: "https://rustfs.com.cn/rustfs.logo.svg",
+              sameAs: [
+                "https://github.com/rustfs/rustfs",
+                "https://twitter.com/rustfs",
+              ],
+            }),
+          }}
+        />
         <ThemeProvider enableSystem attribute="class">
           <SkipLink />
           <BackgroundGrid />

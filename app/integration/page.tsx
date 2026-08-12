@@ -3,9 +3,11 @@ import type { Metadata } from "next";
 
 import { SITE_CONFIG } from "@/app.config";
 import { integrationCategories } from "@/data/integrations";
+import { seoMetadata } from "@/lib/seo";
 import IntegrationCatalog from "./integration-catalog";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
+  path: "/integration/",
   title: "RustFS 集成目录 | AI、DevOps、安全、大数据与反向代理",
   description: "按类别浏览 RustFS 集成文档，包括 AI、DevOps、备份、安全、大数据与反向代理工作流。",
   keywords: [
@@ -17,9 +19,6 @@ export const metadata: Metadata = {
     "RustFS Iceberg integration",
     "RustFS Milvus integration",
   ],
-  alternates: {
-    canonical: `${SITE_CONFIG.primaryDomain}/integration/`,
-  },
   robots: {
     index: true,
     follow: true,
@@ -27,16 +26,12 @@ export const metadata: Metadata = {
   openGraph: {
     title: "RustFS 集成目录",
     description: "按类别整理的 RustFS 兼容工作流集成文档。",
-    url: `${SITE_CONFIG.primaryDomain}/integration/`,
-    siteName: "RustFS",
-    type: "website",
   },
   twitter: {
-    card: "summary_large_image",
     title: "RustFS 集成目录",
     description: "通过可分享链接的分类标签页浏览集成文档。",
   },
-};
+});
 
 const integrationSignals = [
   { label: "协议", value: "S3 API" },

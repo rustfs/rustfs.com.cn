@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
+import { seoMetadata } from '@/lib/seo'
 
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
+  path: '/cookie-policy/',
   title: 'Cookie Policy | RustFS',
   description: 'Learn how RustFS uses cookies and similar technologies on the official website.',
-}
+})
 
 const sectionClassName = 'border-t border-border pt-8 first:border-t-0 first:pt-0'
 const headingClassName = 'text-2xl font-semibold tracking-tight text-foreground sm:text-3xl'

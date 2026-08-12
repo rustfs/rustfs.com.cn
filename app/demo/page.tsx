@@ -8,6 +8,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import Link from "next/link";
+import { seoMetadata } from "@/lib/seo";
 
 const DEMO_URL = "https://play.rustfs.com";
 
@@ -35,7 +36,8 @@ const notices = [
   },
 ];
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
+  path: "/demo/",
   title: "RustFS 演示 | 公开演示环境",
   description:
     "进入 RustFS 公开演示环境前，请查看演示凭据、每日重置时间与数据安全提示。",
@@ -43,7 +45,7 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-};
+});
 
 export default function DemoPage() {
   return (

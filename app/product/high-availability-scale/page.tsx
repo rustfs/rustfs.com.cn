@@ -1,7 +1,9 @@
 import FeaturePage, { type FeaturePageSection } from "@/components/business/feature-page";
 import type { Metadata } from "next";
+import { seoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
+  path: "/product/high-availability-scale/",
   title: "RustFS 高可用与扩展性 | 企业级分布式存储",
   description:
     "了解 RustFS 企业级分布式架构。通过分布式纠删码、自动自愈与可靠数据保护，实现从 PB 到 EB 级的线性扩容。",
@@ -16,7 +18,7 @@ export const metadata: Metadata = {
     "enterprise storage solution",
     "data reliability",
   ],
-};
+});
 
 const sections: FeaturePageSection[] = [
   {
@@ -145,7 +147,7 @@ export default function HighAvailabilityScalePage() {
       ]}
       links={[
         { label: "下载", href: "/download" },
-        { label: "规划扩展", href: "/contact-us", variant: "outline" },
+        { label: "规划扩展", href: "/contact", variant: "outline" },
       ]}
     />
   );
