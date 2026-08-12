@@ -139,7 +139,7 @@ export default function DockerDownloadSection({ platform, release, className }: 
           </Link>
         </Note>
         <Note type="success">
-          <Link href="https://docs.rustfs.com.cn/installation/docker" target="_blank" className="hover:underline" rel="noopener noreferrer">
+          <Link href="https://docs.rustfs.com/zh/installation/container/docker" target="_blank" className="hover:underline" rel="noopener noreferrer">
             {'查看详细 Docker 安装指南'}
           </Link>
         </Note>

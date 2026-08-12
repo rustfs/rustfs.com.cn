@@ -484,7 +484,7 @@ function HelpPanel() {
 
         <div className="grid gap-4 md:grid-cols-3">
           <a
-            href="https://docs.rustfs.com.cn/"
+            href="https://docs.rustfs.com/zh/"
             target="_blank"
             rel="noopener noreferrer"
             className="motion-card group flex min-h-72 flex-col border border-border bg-card p-6 transition-colors hover:bg-muted/30 sm:p-7"

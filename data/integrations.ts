@@ -20,7 +20,7 @@ export const integrationCategories: IntegrationCategory[] = [
       {
         name: "Milvus",
         description: "在 S3 兼容对象存储上构建向量数据库工作流。",
-        docsUrl: "https://docs.rustfs.com.cn/zh/developer/integration/big-data/milvus",
+        docsUrl: "https://docs.rustfs.com/zh/developer/integration/big-data/milvus",
       },
       {
         name: "Nawāt",
@@ -61,12 +61,12 @@ export const integrationCategories: IntegrationCategory[] = [
       {
         name: "Keycloak",
         description: "使用 OIDC 单点登录实现安全、集中的访问控制。",
-        docsUrl: "https://docs.rustfs.com.cn/zh/security-compliance/oidc/keycloak",
+        docsUrl: "https://docs.rustfs.com/zh/security-compliance/oidc/keycloak",
       },
       {
         name: "GitLab",
         description: "将 GitLab 配置为 OIDC 身份提供方，管理企业登录。",
-        docsUrl: "https://docs.rustfs.com.cn/zh/security-compliance/oidc/keycloak",
+        docsUrl: "https://docs.rustfs.com/zh/security-compliance/oidc/keycloak",
       },
     ],
   },
@@ -78,7 +78,7 @@ export const integrationCategories: IntegrationCategory[] = [
       {
         name: "Iceberg",
         description: "以 RustFS 作为可靠对象存储层使用开放表格式。",
-        docsUrl: "https://docs.rustfs.com.cn/zh/developer/integration/big-data/iceberg",
+        docsUrl: "https://docs.rustfs.com/zh/developer/integration/big-data/iceberg",
       },
     ],
   },
@@ -90,22 +90,22 @@ export const integrationCategories: IntegrationCategory[] = [
       {
         name: "Nginx",
         description: "通过成熟的反向代理层暴露 RustFS 端点。",
-        docsUrl: "https://docs.rustfs.com.cn/zh/developer/integration/reverse-proxy",
+        docsUrl: "https://docs.rustfs.com/zh/developer/integration/reverse-proxy",
       },
       {
         name: "Traefik",
         description: "使用云原生网关策略动态路由 RustFS 流量。",
-        docsUrl: "https://docs.rustfs.com.cn/zh/developer/integration/reverse-proxy",
+        docsUrl: "https://docs.rustfs.com/zh/developer/integration/reverse-proxy",
       },
       {
         name: "Caddy",
         description: "使用现代代理和默认 TLS 配置快速发布 RustFS 服务。",
-        docsUrl: "https://docs.rustfs.com.cn/zh/developer/integration/reverse-proxy",
+        docsUrl: "https://docs.rustfs.com/zh/developer/integration/reverse-proxy",
       },
       {
         name: "HAProxy",
         description: "在节点间均衡 S3 流量，实现高可用与扩展。",
-        docsUrl: "https://docs.rustfs.com.cn/zh/developer/integration/reverse-proxy",
+        docsUrl: "https://docs.rustfs.com/zh/developer/integration/reverse-proxy",
       },
     ],
   },

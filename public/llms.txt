@@ -6,7 +6,7 @@ RustFS 支持分布式部署、纠删码、数据管理、身份与访问控制�
 
 ## 文档
 
-- [官方文档](https://docs.rustfs.com.cn/)：部署、配置、管理、开发与 API 指南。
+- [官方文档](https://docs.rustfs.com/zh/)：部署、配置、管理、开发与 API 指南。
 - [GitHub 仓库](https://github.com/rustfs/rustfs)：源代码、议题、贡献历史与 Apache 2.0 许可证。
 - [GitHub Releases](https://github.com/rustfs/rustfs/releases)：已发布的 RustFS 版本与发布制品。
 
