@@ -24,6 +24,7 @@ export const metadata: Metadata = seoMetadata({
 
 const sections: FeaturePageSection[] = [
   {
+    id: "s3-api-compatibility",
     title: "S3 API 兼容",
     description: "面向高效管理和现有 S3 兼容生态的主要对象存储 API。",
     items: [
@@ -38,6 +39,7 @@ const sections: FeaturePageSection[] = [
       {
         title: "无缝替代 MinIO",
         description: "无需重做配置或改写 API，降低迁移阻力。",
+        href: "/blog/binary-replacement-a-simple-way-to-migrate-from-minio-to-rustfs/",
       },
       {
         title: "原生虚拟主机模式",

@@ -1,5 +1,3 @@
-import { docs_url } from "@/lib/utils";
-
 export interface NavigationItem {
   title: string;
   href: string;
@@ -47,6 +45,11 @@ export const resourceNavigation: NavigationItem[] = [
     description: "为数据可靠性与存储效率选择合适的纠删码配置。",
   },
   {
+    title: "多租户管理",
+    href: "/product/operational-observability#multi-tenant-management",
+    description: "通过 Operator 实现弹性扩缩容、MNMD 集群部署与租户资源隔离。",
+  },
+  {
     title: "文档",
     href: "/docs",
     description: "从快速入门到 API 参考，完成 RustFS 的部署、配置与管理。",
@@ -62,11 +65,12 @@ export const footerNavigation = [
   {
     title: "产品功能",
     links: [
-      { title: "S3 兼容", href: docs_url("developer/sdk") },
+      { title: "S3 兼容", href: "/product/multiple-protocol-access#s3-api-compatibility" },
       { title: "多协议支持", href: "/product/multiple-protocol-access" },
       { title: "数据管理", href: "/product/data-management" },
       { title: "高可用 & 扩展性", href: "/product/high-availability-scale" },
       { title: "运维 & 可观测性", href: "/product/operational-observability" },
+      { title: "多租户管理", href: "/product/operational-observability#multi-tenant-management" },
       { title: "安全合规", href: "/product/security-compliance" },
     ],
   },

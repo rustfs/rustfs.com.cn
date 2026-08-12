@@ -191,6 +191,7 @@ type ServerInstallPath = {
   Icon: ComponentType<{ className?: string }>;
   commandTitle: string;
   command: string[];
+  commands?: InstallCommand[];
   chips: string[];
   actions?: {
     href: string;
@@ -198,6 +199,54 @@ type ServerInstallPath = {
     icon: ReactNode;
   }[];
 };
+
+type InstallCommand = {
+  id: string;
+  label: string;
+  title: string;
+  command: string[];
+};
+
+function InstallCommandTabs({
+  commands,
+}: {
+  commands: InstallCommand[];
+}) {
+  const [activeCommandId, setActiveCommandId] = useState(commands[0].id);
+  const activeCommand =
+    commands.find((command) => command.id === activeCommandId) ?? commands[0];
+
+  return (
+    <div>
+      <div className="mb-3 flex border-b border-border" role="tablist" aria-label="Linux 安装方式">
+        {commands.map((command) => {
+          const isActive = command.id === activeCommand.id;
+
+          return (
+            <button
+              key={command.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setActiveCommandId(command.id)}
+              className={cn(
+                "border-b-2 border-b-transparent px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground",
+                isActive && "border-b-brand text-brand"
+              )}
+            >
+              {command.label}
+            </button>
+          );
+        })}
+      </div>
+      <CodeBlock
+        title={activeCommand.title}
+        code={activeCommand.command}
+        className="border-brand/60 shadow-[0_0_0_1px_rgba(39,112,246,0.18),0_18px_60px_rgba(39,112,246,0.12)]"
+      />
+    </div>
+  );
+}
 
 function KubernetesInstallCommands() {
   const methods = [
@@ -262,6 +311,17 @@ function ServerInstallTabs({ release }: { release: GitHubRelease | null }) {
   const x86Gnu = findReleaseAsset(release, [/rustfs-linux-x86_64-gnu.*\.zip/i], 'rustfs-linux-x86_64-gnu-latest.zip');
   const armMusl = findReleaseAsset(release, [/rustfs-linux-aarch64-musl.*\.zip/i], 'rustfs-linux-aarch64-musl-latest.zip');
   const armGnu = findReleaseAsset(release, [/rustfs-linux-aarch64-gnu.*\.zip/i], 'rustfs-linux-aarch64-gnu-latest.zip');
+
+  const packageBaseUrl = 'https://dl.rustfs.com/artifacts/rustfs/packages/release';
+  const tagName = release?.tag_name ?? '';
+  const debVersion = tagName.replace('-', '~');
+  const rpmVersion = tagName.replace('-', '_');
+  const debAmd64Url = tagName ? `${packageBaseUrl}/rustfs_${debVersion}_amd64.deb` : '';
+  const debArm64Url = tagName ? `${packageBaseUrl}/rustfs_${debVersion}_arm64.deb` : '';
+  const rpmX86Url = tagName ? `${packageBaseUrl}/rustfs-${rpmVersion}-1.x86_64.rpm` : '';
+  const rpmArm64Url = tagName ? `${packageBaseUrl}/rustfs-${rpmVersion}-1.aarch64.rpm` : '';
+  const debAmd64Filename = debAmd64Url.split('/').pop() ?? '';
+  const rpmX86Filename = rpmX86Url.split('/').pop() ?? '';
   const macArmUrl = release
     ? getDownloadUrlForPlatform(release, 'macos', 'aarch64')
     : null;
@@ -284,12 +344,54 @@ function ServerInstallTabs({ release }: { release: GitHubRelease | null }) {
       command: [
         'curl -O https://rustfs.com/install_rustfs.sh && bash install_rustfs.sh',
       ],
-      chips: ['MUSL / GNU', 'x86_64 / ARM64', '系统服务'],
+      commands: [
+        {
+          id: 'script',
+          label: '脚本',
+          title: '快速验证',
+          command: [
+            'curl -O https://rustfs.com/install_rustfs.sh && bash install_rustfs.sh',
+          ],
+        },
+        ...(debAmd64Url
+          ? [
+              {
+                id: 'deb',
+                label: 'DEB',
+                title: 'Debian / Ubuntu 软件包',
+                command: [
+                  `curl -O ${debAmd64Url}`,
+                  `sudo dpkg -i ${debAmd64Filename}`,
+                  'rustfs --version',
+                ],
+              },
+            ]
+          : []),
+        ...(rpmX86Url
+          ? [
+              {
+                id: 'rpm',
+                label: 'RPM',
+                title: 'RHEL / Fedora 软件包',
+                command: [
+                  `curl -O ${rpmX86Url}`,
+                  `sudo rpm -ivh ${rpmX86Filename}`,
+                  'rustfs --version',
+                ],
+              },
+            ]
+          : []),
+      ],
+      chips: ['MUSL / GNU', 'DEB / RPM', 'x86_64 / ARM64', '系统服务'],
       actions: [
         { href: x86Musl.url, label: 'x86_64 MUSL', icon: <LinuxIcon className="size-4" /> },
         { href: x86Gnu.url, label: 'x86_64 GNU', icon: <LinuxIcon className="size-4" /> },
         { href: armMusl.url, label: 'ARM64 MUSL', icon: <LinuxIcon className="size-4" /> },
         { href: armGnu.url, label: 'ARM64 GNU', icon: <LinuxIcon className="size-4" /> },
+        ...(debAmd64Url ? [{ href: debAmd64Url, label: 'DEB amd64', icon: <LinuxIcon className="size-4" /> }] : []),
+        ...(debArm64Url ? [{ href: debArm64Url, label: 'DEB arm64', icon: <LinuxIcon className="size-4" /> }] : []),
+        ...(rpmX86Url ? [{ href: rpmX86Url, label: 'RPM x86_64', icon: <LinuxIcon className="size-4" /> }] : []),
+        ...(rpmArm64Url ? [{ href: rpmArm64Url, label: 'RPM aarch64', icon: <LinuxIcon className="size-4" /> }] : []),
       ],
     },
     {
@@ -444,7 +546,9 @@ function ServerInstallTabs({ release }: { release: GitHubRelease | null }) {
         </div>
 
         <div className="grid gap-5 p-5 sm:p-6">
-          {activePath.id === 'kubernetes' ? (
+          {activePath.commands ? (
+            <InstallCommandTabs commands={activePath.commands} />
+          ) : activePath.id === 'kubernetes' ? (
             <KubernetesInstallCommands />
           ) : (
             <CodeBlock
@@ -542,7 +646,7 @@ export default function DownloadPageClient() {
               eyebrow="数据服务"
               title="RustFS 服务端"
               description="服务端二进制、Docker 镜像与源码包。"
-              methods={['Linux', 'Docker', 'Compose', 'Kubernetes', 'macOS', 'Windows']}
+              methods={['Linux', 'DEB / RPM', 'Docker', 'Compose', 'Kubernetes', 'macOS', 'Windows']}
               Icon={ServerIcon}
             />
             <ProductDownloadLink
