@@ -118,7 +118,7 @@ export default function AppHeader() {
     },
     {
       label: '联系我们',
-      url: '/contact-us',
+      url: '/contact',
       classes: '',
     },
   ]

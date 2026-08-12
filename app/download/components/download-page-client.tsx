@@ -557,7 +557,7 @@ export default function DownloadPageClient() {
 
           <p className="mt-8 text-center text-sm font-semibold text-muted-foreground">
             需要帮助？{' '}
-            <Link href="/contact-us" className="text-brand transition-colors hover:text-foreground">
+            <Link href="/contact" className="text-brand transition-colors hover:text-foreground">
               联系我们的团队 →
             </Link>
           </p>

@@ -8,7 +8,14 @@ import { pathToFileURL } from 'node:url';
 const BASE_URL = 'https://rustfs.com.cn'
 const OUT_DIR = 'out'
 const SITEMAP_OUTPUT = 'out/sitemap.xml'
-const EXCLUDED_URLS = new Set(['/404/', '/_not-found/'])
+const EXCLUDED_URLS = new Set([
+  '/404/',
+  '/_not-found/',
+  '/contact-us/',
+  '/docs/',
+  '/en/',
+  '/zh/',
+])
 
 // Page priority configuration
 const PAGE_PRIORITIES = {
