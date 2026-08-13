@@ -498,7 +498,7 @@ export default function RustfsConfigGenerator() {
                     VOLUMES 的值取决于您的安装拓扑，请参阅我们的{" "}
                     <span className="whitespace-nowrap">
                       <Link
-                        href="/download#topology"
+                        href="/download/server/#topology"
                         className="font-semibold text-brand underline underline-offset-4 transition-colors hover:text-foreground"
                       >
                         安装拓扑选择
