@@ -45,6 +45,11 @@ export const resourceNavigation: NavigationItem[] = [
     description: "为数据可靠性与存储效率选择合适的纠删码配置。",
   },
   {
+    title: "配置生成器",
+    href: "/rustfs-config-generator",
+    description: "在线生成可直接使用的 /etc/default/rustfs 配置文件。",
+  },
+  {
     title: "多租户管理",
     href: "/product/operational-observability#multi-tenant-management",
     description: "通过 Operator 实现弹性扩缩容、MNMD 集群部署与租户资源隔离。",
@@ -81,6 +86,7 @@ export const footerNavigation = [
       { title: "下载 rc", href: "/download/cli" },
       { title: "博客", href: "/blog" },
       { title: "纠删码计算器", href: "/erasure-code-calculator" },
+      { title: "配置生成器", href: "/rustfs-config-generator" },
       { title: "文档", href: "/docs" },
     ],
   },
