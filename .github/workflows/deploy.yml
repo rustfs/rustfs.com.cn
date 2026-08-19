@@ -97,6 +97,23 @@ jobs:
           npx tsx -e "import { getGitHubMetrics } from './lib/github.ts'; getGitHubMetrics().then((metrics) => console.log(JSON.stringify(metrics, null, 2))).catch((error) => { console.error(error); process.exit(1); })" | tee .github-metrics-lib.json
           echo "::endgroup::"
 
+          echo "::group::Inject GitHub metrics into build"
+          # The REST API values fetched above are the source of truth for the
+          # build. Pass them through the HOMEPAGE_GITHUB_* env vars that
+          # lib/github.ts reads at build time; otherwise the homepage would
+          # render the stale static fallback.
+          export HOMEPAGE_GITHUB_STARS="$(jq -r '.stars // empty' .github-metrics-rest.json)"
+          export HOMEPAGE_GITHUB_FORKS="$(jq -r '.forks // empty' .github-metrics-rest.json)"
+          export HOMEPAGE_GITHUB_COMMITS="$(jq -r '.commits // empty' .github-metrics-rest.json)"
+
+          if [[ -z "$HOMEPAGE_GITHUB_STARS" || -z "$HOMEPAGE_GITHUB_FORKS" || -z "$HOMEPAGE_GITHUB_COMMITS" ]]; then
+            echo "::error::GitHub metrics from REST API are incomplete; cannot inject into build."
+            exit 1
+          fi
+
+          echo "Injected: stars=$HOMEPAGE_GITHUB_STARS forks=$HOMEPAGE_GITHUB_FORKS commits=$HOMEPAGE_GITHUB_COMMITS"
+          echo "::endgroup::"
+
           pnpm run build
 
           echo "::group::GitHub metrics rendered into out/index.html"

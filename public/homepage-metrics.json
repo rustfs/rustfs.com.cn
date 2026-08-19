@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "github": {
-    "stars": 30530,
-    "forks": 1349,
-    "commits": 5089,
-    "updatedAt": "2026-08-01T16:52:28Z"
+    "stars": 31174,
+    "forks": 1389,
+    "commits": 5601,
+    "updatedAt": "2026-08-19T03:30:00Z"
   },
   "docker": {
     "pulls": 7166727,
