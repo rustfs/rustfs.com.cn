@@ -1,0 +1,265 @@
+---
+title: '手把手教程：使用 rpm、deb 包安装 RustFS'
+slug: install-rustfs-with-rpm-and-deb-packages
+description: >-
+  本文介绍如何使用 rpm/deb 安装包在 Ubuntu 24.04 上安装 RustFS 单机多盘实例，包括磁盘准备、安装配置、安装验证和版本升级。
+date: '2026-08-19T00:00:00.000Z'
+author: RustFS Team
+tags:
+  - RustFS
+  - Installation
+  - Tutorial
+  - Linux
+image: /images/blog/install-rustfs-with-rpm-and-deb-packages/cover.jpeg
+---
+
+RustFS 从 `1.0.0-rc.1` 开始正式提供 `rpm/deb` 安装包，用户可以通过 `dpkg` 命令快速完成 RustFS 的安装。本文分享如何在 Ubuntu 24.04 上通过 rpm/deb 安装包来安装一个单机多盘实例。
+
+## 磁盘准备
+
+由于 RustFS 推荐使用 xfs 格式，因此首先要将数据盘格式化为 xfs 格式。以 `/dev/sda` 数据盘为例。
+
+1. 格式化为 XFS
+
+```
+sudo mkfs.xfs /dev/sda
+```
+
+2. 创建挂载目录
+
+```
+sudo mkdir -p /data/rustfs/mnmd
+```
+
+**注意**：RustFS 以 rustfs 用户运行，所以需要将数据目录权限修改为 rustfs。
+
+```
+sudo chown -R rustfs:rustfs /data/rustfs/mnmd
+```
+
+3. 挂载磁盘（立即生效）
+
+```
+sudo mount /dev/sda /data/rustfs/mnmd
+```
+
+4. 写入 `/etc/fstab`
+
+```
+# 生成磁盘 UUID
+blkid /dev/sda
+
+# 将 UUID 写入 /etc/fstab
+vim /etc/fstab
+UUID=你的UUID  /data/rustfs/mnmd  xfs  defaults  0  0
+```
+
+每个数据盘都可以通过上述的流程进行格式化。
+
+## 开始安装
+
+当前 RustFS rpm/deb 安装包有 x86 和 arm 两种。可以根据服务器具体情况下载正确的安装包。比如在 Ubuntu 24.04 上下载 deb 安装包：
+
+```
+curl -L -o rustfs.deb https://dl.rustfs.com/artifacts/rustfs/packages/release/rustfs_1.0.0~rc.1_amd64.deb
+```
+
+执行安装命令：
+
+```
+dpkg -i rustfs.deb
+Selecting previously unselected package rustfs.
+(Reading database ... 69397 files and directories currently installed.)
+Preparing to unpack rustfs.deb ...
+Unpacking rustfs (1.0.0~rc.1) ...
+Setting up rustfs (1.0.0~rc.1) ...
+RustFS installed. Configure /etc/default/rustfs then: systemctl start rustfs
+```
+
+配置环境变量。RustFS 的配置文件默认位于 `/etc/default/rustfs`。将如下内容写入上述配置文件。
+
+```
+RUSTFS_ACCESS_KEY=rustfs@test
+RUSTFS_SECRET_KEY=rustfs@test
+RUSTFS_VOLUMES="/data/rustfs{1...4}/mnmd"
+RUSTFS_ADDRESS=":9000"
+RUSTFS_CONSOLE_ADDRESS=":9001"
+RUSTFS_CONSOLE_ENABLE=true
+RUSTFS_OBS_LOGGER_LEVEL=error
+RUSTFS_OBS_LOG_DIRECTORY="/var/log/rustfs/"
+```
+
+启动 RustFS 服务：
+
+```
+systemctl start rustfs
+```
+
+查看服务器状态：
+
+```
+systemctl status rustfs
+● rustfs.service - RustFS Object Storage Server
+     Loaded: loaded (/usr/lib/systemd/system/rustfs.service; disabled; pres>
+    Drop-In: /etc/systemd/system/rustfs.service.d
+             └─override.conf
+     Active: active (running) since Tue 2026-08-18 13:29:36 UTC; 4s ago
+       Docs: https://rustfs.com/docs/
+   Main PID: 29351 (rustfs)
+     Status: "Running"
+      Tasks: 55
+     Memory: 136.5M (peak: 138.5M)
+        CPU: 175ms
+     CGroup: /system.slice/rustfs.service
+             └─29351 /usr/bin/rustfs server
+```
+
+## 安装验证
+
+### 控制台验证
+
+登录 `http://ip:9001`，并使用 `rustfs@test/rustfs@test` 查看 RustFS 控制台：
+
+![RustFS 控制台登录页](/images/blog/install-rustfs-with-rpm-and-deb-packages/console-login.png)
+
+在状态页面确认集群信息：
+
+![RustFS 集群状态页面](/images/blog/install-rustfs-with-rpm-and-deb-packages/console-cluster-status.png)
+
+### rc 验证
+
+rc 是 RustFS Client CLI，可以用来对 RustFS 实例进行操作，诸如对象/存储桶的操作、存储池的操作、集群状态查看等。
+
+#### 安装
+
+根据服务器操作系统下载对应的安装包，比如在 Ubuntu 24.04 上安装最新版本的 rc：
+
+```
+wget https://github.com/rustfs/cli/releases/download/v0.1.31/rustfs-cli-linux-amd64-gnu-v0.1.31.tar.gz
+```
+
+解压安装包：
+
+```
+tar -zxvf rustfs-cli-linux-amd64-gnu-v0.1.31.tar.gz
+chmod +x rc
+cp rc /usr/local/bin
+```
+
+安装确认：
+
+```
+rc --version
+rc 0.1.31
+```
+
+#### 使用
+
+* 设置 alias
+
+```
+rc alias set rustfs-deb http://10.0.0.14:29000 rustfs@test rustfs@test
+✓ Alias 'rustfs-deb' configured successfully.
+```
+
+* 创建存储桶
+
+```
+rc mb rustfs-deb/deb-demo
+✓ Bucket 'rustfs-deb/deb-demo' created successfully.
+```
+
+* 列出存储桶
+
+```
+rc ls rustfs-deb
+[2026-08-18 13:39:40]         0B deb-demo/
+```
+
+* 上传对象
+
+```
+# 写一个文件
+echo "Hello RustFS" > 1.txt
+
+# 上传文件到存储桶
+rc cp 1.txt rustfs-deb/deb-demo
+1.txt -> rustfs-deb/deb-demo/1.txt (13 B)
+
+# 查看文件
+rc ls rustfs-deb/deb-demo
+[2026-08-18 13:41:08]       13 B 1.txt
+```
+
+## 升级
+
+### 准备
+
+* 确认当前实例版本
+
+```
+rustfs --version
+rustfs 1.0.0-rc.1
+build time   : 2026-08-08 08:24:07 +00:00
+build profile: release
+build os     : linux-x86_64
+rust version : rustc 1.97.1 (8bab26f4f 2026-07-14)
+rust channel : stable-x86_64-unknown-linux-gnu
+git branch   :
+git commit   : 778f1dfa2155cbbc61ad54e6896de9e29d2c4d8d
+git tag      : 1.0.0-rc.1
+git status   :
+```
+
+或：
+
+```
+dpkg -l | grep -i rustfs
+ii  rustfs                                   1.0.0~rc.1                                       amd64        High-performance distributed object storage
+```
+
+* 确认制品
+
+在 RustFS 制品下载站点，确认升级版本对应的制品存在。
+
+### 开始升级
+
+下载升级版本对应的安装包。还以 Ubuntu 24.04 为例，下载 deb：
+
+```
+curl -L -o rustfs.deb https://dl.rustfs.com/artifacts/rustfs/packages/release/rustfs_1.0.0~rc.2_amd64.deb
+```
+
+执行升级命令：
+
+```
+dpkg -i rustfs.deb
+```
+
+升级结束，确认升级结果：
+
+```
+rustfs 1.0.0-rc.2
+build time   : 2026-08-14 19:55:50 +00:00
+build profile: release
+build os     : linux-x86_64
+rust version : rustc 1.97.1 (8bab26f4f 2026-07-14)
+rust channel : stable-x86_64-unknown-linux-gnu
+git branch   :
+git commit   : e9f53180273b32a9c2b0aa8b5a384047bc7e875c
+git tag      : 1.0.0-rc.2
+git status   :
+```
+
+或：
+
+```
+dpkg -l | grep -i rustfs
+ii  rustfs                                   1.0.0~rc.2                                       amd64        High-performance distributed object storage
+```
+
+可以确认已经升级成功。
+
+## 总结
+
+RustFS 提供了多种安装方式：源码、二进制、容器化，可以满足不同用户在不同场景下的安装需求。而 rpm/deb 为用户提供了一种更加便捷熟悉的方式对 RustFS 进行安装管理。
