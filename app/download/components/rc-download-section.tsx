@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { formatVersion, type GitHubRelease } from '@/lib/github';
 import DockerIcon from '@/public/svgs/brands/docker.svg';
+import LinuxIcon from '@/public/svgs/brands/linux.svg';
 import {
   ArrowLeftIcon,
   ArrowUpRightIcon,
@@ -22,6 +23,12 @@ interface RcDownloadSectionProps {
 }
 
 const releaseFallbackUrl = 'https://github.com/rustfs/cli/releases/latest';
+const cliPackageRegexes = {
+  debAmd64: [/(rustfs-cli|rc).*(amd64|x86_64).*\.deb$/i, /(amd64|x86_64).*\.deb$/i],
+  debArm64: [/(rustfs-cli|rc).*(arm64|aarch64).*\.deb$/i, /(arm64|aarch64).*\.deb$/i],
+  rpmX86: [/(rustfs-cli|rc).*(x86_64|amd64).*\.rpm$/i, /(x86_64|amd64).*\.rpm$/i],
+  rpmArm64: [/(rustfs-cli|rc).*(aarch64|arm64).*\.rpm$/i, /(aarch64|arm64).*\.rpm$/i],
+};
 
 function findAsset(
   release: GitHubRelease | null,
@@ -47,6 +54,8 @@ function findAsset(
   };
 }
 
+type DownloadAsset = ReturnType<typeof findAsset>;
+
 function CliPackageCard({
   title,
   arch,
@@ -54,7 +63,7 @@ function CliPackageCard({
 }: {
   title: string;
   arch: string;
-  asset: ReturnType<typeof findAsset>;
+  asset: DownloadAsset;
 }) {
   return (
     <a
@@ -78,37 +87,58 @@ function CliPackageCard({
   );
 }
 
-function PackageManagerCard() {
+function InstallCommandCard({
+  title,
+  summary,
+  code,
+}: {
+  title: string;
+  summary: string;
+  code: string[];
+}) {
   return (
-    <article className="grid min-w-0 gap-8 p-6 sm:p-8 lg:grid-cols-2 lg:gap-12 [&>*]:min-w-0">
-      <div className="border-b border-border pb-8 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-12">
-        <div className="flex items-center gap-3">
-          <TerminalIcon className="motion-icon-tile size-5 text-brand" />
-          <h3 className="text-xl font-semibold text-foreground">Homebrew</h3>
-        </div>
-        <p className="mt-3 text-sm leading-7 text-muted-foreground">
-          适合已经通过 Homebrew 管理工具的 macOS 用户，安装路径最短。
-        </p>
-        <CodeBlock code={['brew install rustfs/tap/rc', 'rc --help']} title="macOS" className="mt-5" />
+    <div className="border border-border bg-background/50 p-5 sm:p-6">
+      <h3 className="text-base font-semibold text-foreground">{title}</h3>
+      <p className="mt-2 text-sm leading-7 text-muted-foreground">{summary}</p>
+      <CodeBlock code={code} title={title} className="mt-5" />
+    </div>
+  );
+}
+
+function MacOSInstallCard() {
+  return (
+    <article className="min-w-0 p-6 sm:p-8">
+      <div className="flex items-center gap-3">
+        <TerminalIcon className="motion-icon-tile size-5 text-brand" />
+        <h3 className="text-xl font-semibold text-foreground">Homebrew</h3>
       </div>
-      <div className="pt-0">
-        <div className="flex items-center gap-3">
-          <LaptopIcon className="motion-icon-tile size-5 text-brand" />
-          <h3 className="text-xl font-semibold text-foreground">Scoop</h3>
-        </div>
-        <p className="mt-3 text-sm leading-7 text-muted-foreground">
-          简洁的 Windows 安装路径，可在终端中持续更新 rc 二进制。
-        </p>
-        <CodeBlock
-          code={[
-            'scoop bucket add rustfs https://github.com/rustfs/scoop-bucket',
-            'scoop install rustfs/rc',
-            'rc --help',
-          ]}
-          title="Windows"
-          className="mt-5"
-        />
+      <p className="mt-3 text-sm leading-7 text-muted-foreground">
+        适合已经通过 Homebrew 管理工具的 macOS 用户，安装路径最短。
+      </p>
+      <CodeBlock code={['brew install rustfs/tap/rc', 'rc --help']} title="macOS" className="mt-5" />
+    </article>
+  );
+}
+
+function WindowsInstallCard() {
+  return (
+    <article className="min-w-0 p-6 sm:p-8">
+      <div className="flex items-center gap-3">
+        <LaptopIcon className="motion-icon-tile size-5 text-brand" />
+        <h3 className="text-xl font-semibold text-foreground">Scoop</h3>
       </div>
+      <p className="mt-3 text-sm leading-7 text-muted-foreground">
+        简洁的 Windows 安装路径，可在终端中持续更新 rc 二进制。
+      </p>
+      <CodeBlock
+        code={[
+          'scoop bucket add rustfs https://github.com/rustfs/scoop-bucket',
+          'scoop install rustfs/rc',
+          'rc --help',
+        ]}
+        title="Windows"
+        className="mt-5"
+      />
     </article>
   );
 }
@@ -164,14 +194,216 @@ function SourceInstallCard() {
 }
 
 type CliInstallMethod = {
-  id: 'package-managers' | 'binaries' | 'docker' | 'source';
+  id: 'macos' | 'windows' | 'linux' | 'docker' | 'source';
   label: string;
   Icon: ComponentType<{ className?: string }>;
 };
 
+type LinuxInstallMethod = {
+  id: 'binary' | 'rpm' | 'deb';
+  label: string;
+};
+
+function getNextTabIndex(
+  event: KeyboardEvent<HTMLButtonElement>,
+  total: number,
+  currentIndex: number,
+) {
+  if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+    return (currentIndex + 1) % total;
+  }
+
+  if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+    return (currentIndex - 1 + total) % total;
+  }
+
+  if (event.key === 'Home') {
+    return 0;
+  }
+
+  if (event.key === 'End') {
+    return total - 1;
+  }
+
+  return null;
+}
+
+function LinuxBinarySection({
+  linuxX86,
+  linuxArm,
+  rpmX86,
+  rpmArm64,
+  debAmd64,
+  debArm64,
+}: {
+  linuxX86: DownloadAsset;
+  linuxArm: DownloadAsset;
+  rpmX86: DownloadAsset;
+  rpmArm64: DownloadAsset;
+  debAmd64: DownloadAsset;
+  debArm64: DownloadAsset;
+}) {
+  const methods: LinuxInstallMethod[] = [
+    { id: 'binary', label: 'Binary' },
+    { id: 'rpm', label: 'RPM' },
+    { id: 'deb', label: 'DEB' },
+  ];
+  const [activeMethodId, setActiveMethodId] = useState<LinuxInstallMethod['id']>(methods[0].id);
+  const activeMethod = methods.find((method) => method.id === activeMethodId) ?? methods[0];
+
+  const handleMethodKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    const nextIndex = getNextTabIndex(event, methods.length, index);
+
+    if (nextIndex === null) {
+      return;
+    }
+
+    event.preventDefault();
+    setActiveMethodId(methods[nextIndex].id);
+    event.currentTarget.parentElement
+      ?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+      [nextIndex]?.focus();
+  };
+
+  return (
+    <div className="p-6 sm:p-8">
+      <div className="overflow-x-auto border border-border bg-background/40">
+        <div className="flex min-w-max" role="tablist" aria-label="Linux 安装方式">
+          {methods.map((method, index) => {
+            const isActive = method.id === activeMethod.id;
+
+            return (
+              <button
+                key={method.id}
+                type="button"
+                role="tab"
+                id={`cli-linux-method-tab-${method.id}`}
+                aria-selected={isActive}
+                aria-controls={`cli-linux-method-${method.id}`}
+                onClick={() => setActiveMethodId(method.id)}
+                onKeyDown={(event) => handleMethodKeyDown(event, index)}
+                tabIndex={isActive ? 0 : -1}
+                className={cn(
+                  'flex min-h-12 items-center border-b-2 border-b-transparent px-5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted/30 hover:text-foreground',
+                  isActive && 'border-b-brand bg-brand/10 text-brand',
+                )}
+              >
+                {method.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div
+        id={`cli-linux-method-${activeMethod.id}`}
+        role="tabpanel"
+        aria-labelledby={`cli-linux-method-tab-${activeMethod.id}`}
+        className="mt-6 min-w-0"
+      >
+        {activeMethod.id === 'binary' ? (
+          <div>
+            <div className="grid gap-4 sm:grid-cols-2 [&>*]:min-w-0">
+              <CliPackageCard title="Linux x86_64" arch="amd64 tar.gz" asset={linuxX86} />
+              <CliPackageCard title="Linux ARM64" arch="arm64 tar.gz" asset={linuxArm} />
+            </div>
+            <div className="mt-6 grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+              <InstallCommandCard
+                title="Binary x86_64"
+                summary="下载 Linux tar.gz 包，解压后将 rc 安装到 PATH 中。"
+                code={[
+                  `curl -O ${linuxX86.url}`,
+                  `tar -xzf ${linuxX86.filename}`,
+                  'sudo install -m 0755 rc /usr/local/bin/rc',
+                  'rc --help',
+                ]}
+              />
+              <InstallCommandCard
+                title="Binary ARM64"
+                summary="如果 Linux 主机运行在 Graviton 或其他 aarch64 硬件上，请使用 ARM64 tar.gz 包。"
+                code={[
+                  `curl -O ${linuxArm.url}`,
+                  `tar -xzf ${linuxArm.filename}`,
+                  'sudo install -m 0755 rc /usr/local/bin/rc',
+                  'rc --help',
+                ]}
+              />
+            </div>
+          </div>
+        ) : null}
+
+        {activeMethod.id === 'rpm' ? (
+          <div>
+            <div className="grid gap-4 sm:grid-cols-2 [&>*]:min-w-0">
+              <CliPackageCard title="RPM x86_64" arch="x86_64 rpm" asset={rpmX86} />
+              <CliPackageCard title="RPM aarch64" arch="aarch64 rpm" asset={rpmArm64} />
+            </div>
+            <div className="mt-6 grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+              <InstallCommandCard
+                title="RPM x86_64"
+                summary="在 RHEL、Rocky、AlmaLinux、Fedora 或其他兼容发行版上，通过 rpm 安装 rc。"
+                code={[
+                  `curl -O ${rpmX86.url}`,
+                  `sudo rpm -ivh ${rpmX86.filename}`,
+                  'rc --help',
+                ]}
+              />
+              <InstallCommandCard
+                title="RPM aarch64"
+                summary="如果 Linux 系统使用 64 位 ARM 软件仓库，请使用 aarch64 rpm 包。"
+                code={[
+                  `curl -O ${rpmArm64.url}`,
+                  `sudo rpm -ivh ${rpmArm64.filename}`,
+                  'rc --help',
+                ]}
+              />
+            </div>
+          </div>
+        ) : null}
+
+        {activeMethod.id === 'deb' ? (
+          <div>
+            <div className="grid gap-4 sm:grid-cols-2 [&>*]:min-w-0">
+              <CliPackageCard title="DEB amd64" arch="amd64 deb" asset={debAmd64} />
+              <CliPackageCard title="DEB arm64" arch="arm64 deb" asset={debArm64} />
+            </div>
+            <div className="mt-6 grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+              <InstallCommandCard
+                title="DEB amd64"
+                summary="在 Debian、Ubuntu 及其他 deb 系发行版上，通过 dpkg 安装 rc。"
+                code={[
+                  `curl -O ${debAmd64.url}`,
+                  `sudo dpkg -i ${debAmd64.filename}`,
+                  'rc --help',
+                ]}
+              />
+              <InstallCommandCard
+                title="DEB arm64"
+                summary="如果 Ubuntu 或 Debian 系统运行在 64 位 ARM 机器上，请选择 ARM64 deb 包。"
+                code={[
+                  `curl -O ${debArm64.url}`,
+                  `sudo dpkg -i ${debArm64.filename}`,
+                  'rc --help',
+                ]}
+              />
+            </div>
+          </div>
+        ) : null}
+
+        <div className="mt-8">
+          <Note type="info">
+            如需旧版本或固定版本的 rc，请前往 GitHub Release 页面并选择与 Linux 架构匹配的软件包。
+          </Note>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function RcDownloadSection({ cliRelease }: RcDownloadSectionProps) {
   const version = cliRelease ? formatVersion(cliRelease.tag_name) : 'latest';
   const releaseUrl = cliRelease?.html_url ?? releaseFallbackUrl;
+  const packageVersion = cliRelease?.tag_name.replace(/^v/, '') ?? 'latest';
   const linuxX86 = findAsset(
     cliRelease,
     [/rustfs-cli-linux-(amd64|x86_64).*\.tar\.gz/i],
@@ -182,42 +414,40 @@ export default function RcDownloadSection({ cliRelease }: RcDownloadSectionProps
     [/rustfs-cli-linux-(arm64|aarch64).*\.tar\.gz/i],
     'rustfs-cli-linux-arm64-latest.tar.gz',
   );
-  const macIntel = findAsset(
+  const debAmd64 = findAsset(
     cliRelease,
-    [/rustfs-cli-macos-(amd64|x86_64).*\.tar\.gz/i],
-    'rustfs-cli-macos-amd64-latest.tar.gz',
+    cliPackageRegexes.debAmd64,
+    `rustfs-cli_${packageVersion}_amd64.deb`,
   );
-  const macArm = findAsset(
+  const debArm64 = findAsset(
     cliRelease,
-    [/rustfs-cli-macos-(arm64|aarch64).*\.tar\.gz/i],
-    'rustfs-cli-macos-arm64-latest.tar.gz',
+    cliPackageRegexes.debArm64,
+    `rustfs-cli_${packageVersion}_arm64.deb`,
   );
-  const windows = findAsset(
+  const rpmX86 = findAsset(
     cliRelease,
-    [/rustfs-cli-windows-(amd64|x86_64).*\.(zip|tar\.gz)/i],
-    'rustfs-cli-windows-amd64-latest.zip',
+    cliPackageRegexes.rpmX86,
+    `rustfs-cli-${packageVersion}-1.x86_64.rpm`,
+  );
+  const rpmArm64 = findAsset(
+    cliRelease,
+    cliPackageRegexes.rpmArm64,
+    `rustfs-cli-${packageVersion}-1.aarch64.rpm`,
   );
   const methods: CliInstallMethod[] = [
-    { id: 'package-managers', label: '包管理器', Icon: TerminalIcon },
-    { id: 'binaries', label: '直接下载二进制', Icon: LaptopIcon },
+    { id: 'linux', label: 'Linux', Icon: LinuxIcon },
     { id: 'docker', label: 'Docker', Icon: DockerIcon },
+    { id: 'macos', label: 'macOS', Icon: TerminalIcon },
+    { id: 'windows', label: 'Windows', Icon: LaptopIcon },
     { id: 'source', label: '源码', Icon: BracesIcon },
   ];
   const [activeMethodId, setActiveMethodId] = useState<CliInstallMethod['id']>(methods[0].id);
   const activeMethod = methods.find((method) => method.id === activeMethodId) ?? methods[0];
 
   const handleMethodKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
-    let nextIndex = index;
+    const nextIndex = getNextTabIndex(event, methods.length, index);
 
-    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-      nextIndex = (index + 1) % methods.length;
-    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-      nextIndex = (index - 1 + methods.length) % methods.length;
-    } else if (event.key === 'Home') {
-      nextIndex = 0;
-    } else if (event.key === 'End') {
-      nextIndex = methods.length - 1;
-    } else {
+    if (nextIndex === null) {
       return;
     }
 
@@ -294,44 +524,19 @@ export default function RcDownloadSection({ cliRelease }: RcDownloadSectionProps
               aria-labelledby={`cli-method-tab-${activeMethod.id}`}
               className="min-w-0"
             >
-              {activeMethod.id === 'package-managers' ? <PackageManagerCard /> : null}
-
-              {activeMethod.id === 'binaries' ? (
-                <div className="p-6 sm:p-8">
-                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0">
-                    <CliPackageCard
-                      title="Linux x86_64"
-                      arch="amd64"
-                      asset={linuxX86}
-                    />
-                    <CliPackageCard
-                      title="Linux ARM64"
-                      arch="arm64"
-                      asset={linuxArm}
-                    />
-                    <CliPackageCard
-                      title="macOS Intel"
-                      arch="amd64"
-                      asset={macIntel}
-                    />
-                    <CliPackageCard
-                      title="macOS Apple Silicon"
-                      arch="arm64"
-                      asset={macArm}
-                    />
-                    <CliPackageCard
-                      title="Windows x86_64"
-                      arch="amd64"
-                      asset={windows}
-                    />
-                  </div>
-                  <div className="mt-8">
-                    <Note type="info">
-                      如需旧版本或固定版本的 rc，请前往 GitHub Release 页面并选择与操作系统匹配的软件包。
-                    </Note>
-                  </div>
-                </div>
+              {activeMethod.id === 'linux' ? (
+                <LinuxBinarySection
+                  linuxX86={linuxX86}
+                  linuxArm={linuxArm}
+                  rpmX86={rpmX86}
+                  rpmArm64={rpmArm64}
+                  debAmd64={debAmd64}
+                  debArm64={debArm64}
+                />
               ) : null}
+
+              {activeMethod.id === 'macos' ? <MacOSInstallCard /> : null}
+              {activeMethod.id === 'windows' ? <WindowsInstallCard /> : null}
 
               {activeMethod.id === 'docker' ? <DockerInstallCard /> : null}
               {activeMethod.id === 'source' ? <SourceInstallCard /> : null}
