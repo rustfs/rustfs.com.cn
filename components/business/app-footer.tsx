@@ -22,7 +22,7 @@ export default function AppFooter() {
               <a href="tel:400-033-5363" className="transition-colors hover:text-foreground">
                 电话：400-033-5363
               </a>
-              <span>北京市海淀区西小口路 66 号中关村东升科技园北领地 C 区</span>
+              <span>北京市海淀区西小口路东升科技园2期8号院3号楼501室</span>
             </div>
           </div>
           {footerNavigation.map((section, sectionIndex) => (
