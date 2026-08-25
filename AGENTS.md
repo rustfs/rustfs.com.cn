@@ -186,6 +186,12 @@ fix: correct button alignment on mobile
 docs: update README with new features
 ```
 
+### Pull Request Workflow
+
+- ✅ All changes must be submitted through a Pull Request against the upstream repository (`rustfs/rustfs.com.cn`).
+- ✅ Work on a feature branch and push it to your own remote (`origin`); never commit directly to `main`.
+- ❌ Direct pushes to `upstream` branches (e.g., `git push upstream main`) are forbidden.
+
 ## 🛠️ Common Issues Troubleshooting
 
 ### Issue 1: CI Build Failure - Dependency Installation Error
